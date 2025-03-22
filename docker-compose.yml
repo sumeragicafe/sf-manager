@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql_container
+    platform: linux/amd64
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_container
+    platform: linux/amd64
+    restart: always
+    ports:
+      - "9090:80"
+    environment:
+      PMA_HOST: ${PMA_HOST}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+  backend:
+    build: ./backend
+    container_name: backend_container
+    platform: linux/amd64
+    restart: always
+    volumes:
+      - ./backend:/srv/app
+      - /srv/app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    env_file:
+      - .env
+
+  vue-web:
+    container_name: frontend_container
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/srv/app
+      - frontend-node_modules:/srv/app/node_modules
+    ports:
+      - "80:5173"
+    environment:
+      - NODE_ENV=development
+    init: true
+    stop_grace_period: 1s
+    networks:
+      - network
+
+volumes:
+  mysql_data:
+  frontend-node_modules:
+  #backend-node_modules:
+
+networks:
+  network:
+    driver: bridge
+
