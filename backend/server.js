@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
-const mysql2 = require('mysql2');
 const sequelize = require('./src/config/database');
 
 dotenv.config();
@@ -19,7 +18,6 @@ sequelize
 .authenticate()
 .then(() => console.log("Conectado ao banco de dados."))
 .catch((error) => console.error("Erro ao conectar ao banco:", error));
-
 
 // Routes
 const routes = require(path.join(__dirname, 'src', 'routes', 'index.js'));
