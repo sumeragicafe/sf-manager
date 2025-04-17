@@ -1,5 +1,7 @@
-const { Sequelize } = require("sequelize");
-require("dotenv").config(); // Para carregar variáveis de ambiente
+import { Sequelize } from "sequelize";
+import dotenv from "dotenv";
+
+dotenv.config(); // Load environment variables
 
 const sequelize = new Sequelize(
     process.env.MYSQL_DATABASE,
@@ -13,4 +15,4 @@ const sequelize = new Sequelize(
     }
 );
 
-module.exports = sequelize;
+export default sequelize;

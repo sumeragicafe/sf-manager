@@ -1,9 +1,10 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
-const mysql2 = require('mysql2');
-const sequelize = require('./src/config/database');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import path from 'path';
+import mysql2 from 'mysql2';
+import sequelize from './src/config/database/index.js';
+import routes from './src/routes/index.js';
 
 dotenv.config();
 
@@ -22,7 +23,6 @@ sequelize
 
 
 // Routes
-const routes = require(path.join(__dirname, 'src', 'routes', 'index.js'));
 app.use('/api', routes);
 
 // Starting Server
