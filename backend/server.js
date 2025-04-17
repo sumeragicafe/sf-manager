@@ -1,8 +1,8 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
-const sequelize = require('./src/config/database');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import sequelize from './src/config/database/index.js';
+import routes from './src/routes/index.js';
 
 dotenv.config();
 
@@ -20,7 +20,6 @@ sequelize
 .catch((error) => console.error("Erro ao conectar ao banco:", error));
 
 // Routes
-const routes = require(path.join(__dirname, 'src', 'routes', 'index.js'));
 app.use('/api', routes);
 
 // Starting Server

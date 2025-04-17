@@ -1,6 +1,6 @@
-const User = require("../models/User");
+import User from "../models/User.js";
 
-exports.getAllUsers = async (req, res) => {
+export const getAllUsers = async (req, res) => {
     try {
         let { page, limit } = req.query;
 
@@ -26,7 +26,7 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
-exports.createUser = async (req, res) => {
+export const createUser = async (req, res) => {
     try {
         const { name, email } = req.body;
         const user = await User.create({ name, email });
@@ -36,7 +36,7 @@ exports.createUser = async (req, res) => {
     }
 };
 
-exports.getUserById = async (req, res) => {
+export const getUserById = async (req, res) => {
     try {
         const user = await User.findByPk(req.params.id);
         if (user) {
@@ -49,7 +49,7 @@ exports.getUserById = async (req, res) => {
     }
 };
 
-exports.updateUser = async (req, res) => {
+export const updateUser = async (req, res) => {
     try {
         const { name, email } = req.body;
         const user = await User.findByPk(req.params.id);
@@ -64,7 +64,7 @@ exports.updateUser = async (req, res) => {
     }
 };
 
-exports.deleteUser = async (req, res) => {
+export const deleteUser = async (req, res) => {
     try {
         const user = await User.findByPk(req.params.id);
         if (user) {

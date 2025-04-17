@@ -1,4 +1,4 @@
-const pool = require('../config/database');
+import pool from '../config/database/indexNoSequelize.js';
 
 // No Sequelize Example
 const User = {
@@ -28,4 +28,4 @@ const User = {
     }
 };
 
-module.exports = User;
+export default User;
