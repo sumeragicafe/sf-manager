@@ -1,8 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import path from 'path';
-import mysql2 from 'mysql2';
 import sequelize from './src/config/database/index.js';
 import routes from './src/routes/index.js';
 
@@ -20,7 +18,6 @@ sequelize
 .authenticate()
 .then(() => console.log("Conectado ao banco de dados."))
 .catch((error) => console.error("Erro ao conectar ao banco:", error));
-
 
 // Routes
 app.use('/api', routes);
