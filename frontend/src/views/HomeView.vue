@@ -13,7 +13,7 @@ export default {
 
 <template>
     <div>
-        <h1>Home</h1>
+        <h1 class="text-3xl font-bold underline" >Home</h1>
         <p>{{ msg }}</p>
     </div>
     
