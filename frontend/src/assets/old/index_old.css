@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-ong-background text-ong-text transition-colors duration-300;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Tipografia base com @layer base (opcional) */
+/* @layer base {
+  h1 { font-size: 4.210rem; font-family: 'Fredoka One', cursive; }
+  h2 { font-size: 3.158rem; }
+  h3 { font-size: 2.369rem; }
+  h4 { font-size: 1.777rem; }
+  h5 { font-size: 1.333rem; }
+  small { font-size: 0.750rem; }
+} */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-ong-background text-ong-text font-body font-normal;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold;
+  }
+
+  h1 {
+    @apply text-5xl;
+  }
+
+  h2 {
+    @apply text-4xl;
+  }
+
+  h3 {
+    @apply text-3xl;
+  }
+
+  h4 {
+    @apply text-2xl;
+  }
+
+  h5 {
+    @apply text-xl;
+  }
+
+  small {
+    @apply text-sm;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-ong-primary hover:bg-ong-accent text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl;
+  }
+
+  .btn-secondary {
+    @apply bg-ong-secondary hover:bg-ong-primary text-ong-text px-6 py-3 rounded-lg font-medium transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-2;
+  }
+}
