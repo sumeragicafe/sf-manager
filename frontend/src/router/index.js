@@ -18,7 +18,17 @@ const router = createRouter({
                 {
                     path:'/o-que-fazemos',
                     name:'o-que-fazemos',
-                    component: () => import('../views/o-que-fazemos/AboutView.vue'),
+                    component: () => import('../views/o-que-fazemos/AboutPage.vue'),
+                },
+                {
+                    path:'/nossa-historia',
+                    name:'nossa-historia',
+                    component: () => import('../views/nossa-historia/OurHistoryPage.vue'),
+                },
+                {
+                    path:'/contato',
+                    name:'contato',
+                    component: () => import('../views/contato/ContactPage.vue')
                 }
             ]
         },
