@@ -14,14 +14,8 @@
             Transformando vidas de animais e construindo esperança através da adoção, cuidado e compaixão.
           </p>
           <div class="flex space-x-4">
-            <a href="#" class="w-10 h-10 bg-ong-primary rounded-full flex items-center justify-center hover:bg-ong-accent transition-colors">
-              <Facebook class="w-5 h-5" />
-            </a>
-            <a href="#" class="w-10 h-10 bg-ong-primary rounded-full flex items-center justify-center hover:bg-ong-accent transition-colors">
+            <a href="https://www.instagram.com/ongsfrancisco" target="_blank" class="w-10 h-10 bg-ong-primary rounded-full flex items-center justify-center hover:bg-ong-accent transition-colors">
               <Instagram class="w-5 h-5" />
-            </a>
-            <a href="#" class="w-10 h-10 bg-ong-primary rounded-full flex items-center justify-center hover:bg-ong-accent transition-colors">
-              <Twitter class="w-5 h-5" />
             </a>
           </div>
         </div>
@@ -30,11 +24,12 @@
         <div>
           <h4 class="font-heading text-ong-secondary mb-6">Links Rápidos</h4>
           <ul class="space-y-3">
-            <li><a href="#home" class="text-white/80 hover:text-ong-primary transition-colors">Home</a></li>
-            <li><a href="#mission" class="text-white/80 hover:text-ong-primary transition-colors">Nossa Causa</a></li>
-            <li><a href="#projects" class="text-white/80 hover:text-ong-primary transition-colors">Projetos</a></li>
-            <li><a href="#impact" class="text-white/80 hover:text-ong-primary transition-colors">Impacto</a></li>
-            <li><a href="#events" class="text-white/80 hover:text-ong-primary transition-colors">Eventos</a></li>
+            <li><router-link to="/" class="text-white/80 hover:text-ong-primary transition-colors">Home</router-link></li>
+            <li><router-link to="/o-que-fazemos" class="text-white/80 hover:text-ong-primary transition-colors">O que fazemos</router-link></li>
+            <li><router-link to="/nossa-historia" class="text-white/80 hover:text-ong-primary transition-colors">Nossa História</router-link></li>
+            <li><router-link to="/eventos" class="text-white/80 hover:text-ong-primary transition-colors">Eventos</router-link></li>
+            <li><router-link to="/parcerias" class="text-white/80 hover:text-ong-primary transition-colors">Parcerias</router-link></li>
+            <li><router-link to="/contato" class="text-white/80 hover:text-ong-primary transition-colors">Contato</router-link></li>
           </ul>
         </div>
 
@@ -96,8 +91,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  Facebook,
   Instagram,
-  Twitter
 } from 'lucide-vue-next'
 </script>
