@@ -20,7 +20,6 @@
         >
           <div class="text-5xl font-heading text-ong-primary mb-4">{{ stat.number }}</div>
           <h4 class="text-ong-text mb-3">{{ stat.label }}</h4>
-          <p class="text-ong-text/70 text-sm">{{ stat.description }}</p>
         </div>
       </div>
 
@@ -91,51 +90,47 @@ const currentTestimonial = ref(0);
 
 const impactStats = [
   {
-    number: '52,847',
-    label: 'Crianças Educadas',
-    description: 'Através de nossos programas educacionais',
+    number: '436',
+    label: 'Cachorros Resgatados',
   },
   {
-    number: '1.2M',
-    label: 'Refeições Servidas',
-    description: 'Combatendo a fome em comunidades carentes',
+    number: '321',
+    label: 'Gatos Resgatados',
   },
   {
-    number: '340',
-    label: 'Casas Construídas',
-    description: 'Proporcionando moradia digna para famílias',
+    number: '531',
+    label: 'Vacinas Aplicadas',
   },
   {
     number: '98%',
     label: 'Taxa de Sucesso',
-    description: 'Dos nossos projetos atingem seus objetivos',
   },
 ];
 
 const testimonials: Testimonial[] = [
   {
     quote:
-      'A Hope Foundation mudou completamente a vida da nossa comunidade. Meus filhos agora têm acesso à educação de qualidade e nossa família tem um lar digno. Somos eternamente gratos.',
-    author: 'Maria Silva',
-    role: 'Beneficiária - São Paulo',
+      'Adotar a Mel foi a melhor decisão da minha vida. Ela trouxe alegria e amor para nossa casa. Sou imensamente grata ao abrigo por nos conectar!',
+    author: 'Carla Menezes',
+    role: 'Adotante - São Paulo',
     image:
-      'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+      'https://images.unsplash.com/photo-1601758003122-58e5f2b8e0c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80',
   },
   {
     quote:
-      'Graças ao programa de capacitação profissional, consegui abrir minha própria padaria. Hoje posso sustentar minha família com dignidade e ainda gero empregos para outros da comunidade.',
-    author: 'João Santos',
-    role: 'Empreendedor - Rio de Janeiro',
+      'Resgatamos o Thor após anos vivendo nas ruas. Hoje ele é o mascote da família e nosso companheiro inseparável!',
+    author: 'Lucas Amaral',
+    role: 'Adotante - Curitiba',
     image:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+      'https://images.unsplash.com/photo-1597589824694-19639a6a8c99?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80',
   },
   {
     quote:
-      'O trabalho voluntário aqui me transformou como pessoa. Ver o impacto direto na vida das famílias me motiva a continuar ajudando cada vez mais. É uma experiência única e gratificante.',
-    author: 'Ana Costa',
-    role: 'Voluntária - Minas Gerais',
+      'Ser voluntária no abrigo me mostrou o quanto os animais têm amor para dar. Cada adoção é uma vitória!',
+    author: 'Fernanda Ribeiro',
+    role: 'Voluntária - Porto Alegre',
     image:
-      'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+      'https://images.unsplash.com/photo-1583337130417-3346a1e2a5f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80',
   },
 ];
 
