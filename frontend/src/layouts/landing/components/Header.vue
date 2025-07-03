@@ -13,14 +13,14 @@
 
         <!-- Navegação Desktop -->
         <nav class="hidden md:flex space-x-8">
-          <a
+          <RouterLink
             v-for="item in navItems"
             :key="item.name"
-            :href="item.href"
+            :to="item.route"
             class="text-ong-text hover:text-ong-primary transition-colors duration-300 font-medium"
           >
             {{ item.name }}
-          </a>
+          </RouterLink>
         </nav>
 
         <!-- Botões CTA (Desktop) -->
@@ -47,15 +47,14 @@
       <!-- Menu mobile -->
       <div v-if="isMenuOpen" class="md:hidden py-4 animate-fade-in">
         <nav class="flex flex-col space-y-4">
-          <a
+          <RouterLink
             v-for="item in navItems"
             :key="item.name"
-            :href="item.href"
+            :to="item.route"
             class="text-ong-text hover:text-ong-primary transition-colors duration-300 font-medium py-2"
-            @click="isMenuOpen = false"
           >
             {{ item.name }}
-          </a>
+          </RouterLink>
           <div class="flex flex-col space-y-2 pt-4">
             <button class="btn-secondary">Voluntário</button>
             <button class="btn-primary">Doar Agora</button>
@@ -70,11 +69,12 @@
 <script setup>
 import { ref } from 'vue'
 import { Menu, X, Heart, CircleUserRound  } from 'lucide-vue-next'
+import { RouterLink } from 'vue-router'
 
 const isMenuOpen = ref(false)
 
 const navItems = [
-  { name: 'Home', route: 'home' },
+  { name: 'Home', route: '/' },
   { name: 'O que Fazemos', route: 'o-que-fazemos' },
   { name: 'Nossa História', route: 'nossa-historia' },
   { name: 'Contato', route: 'contato' },
