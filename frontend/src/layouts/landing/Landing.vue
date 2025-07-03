@@ -1,6 +1,7 @@
 <script setup>
-import { RouterView } from 'vue-router'
-
+import { RouterView } from 'vue-router';
+import Header from './components/Header.vue';
+import Footer from './components/Footer.vue';
 function toggleTheme() {
   document.documentElement.classList.toggle('dark')
 }
@@ -8,11 +9,8 @@ function toggleTheme() {
 
 <template>
   <div class="min-h-screen bg-ong-background text-ong-text">
-    <!-- <button @click="toggleTheme"
-      class="px-4 py-2 bg-ong-primary text-white rounded hover:opacity-90 transition">
-      Alternar tema
-    </button> -->
-
+    <Header></Header>
     <RouterView />
+    <Footer></Footer>
   </div>
 </template>
