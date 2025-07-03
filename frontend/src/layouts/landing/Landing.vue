@@ -10,7 +10,9 @@ function toggleTheme() {
 <template>
   <div class="min-h-screen bg-ong-background text-ong-text">
     <Header></Header>
-    <RouterView />
+    <div class="bg-ong-background h-full">
+      <RouterView />
+    </div>
     <Footer></Footer>
   </div>
 </template>
