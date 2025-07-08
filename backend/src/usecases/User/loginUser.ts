@@ -1,0 +1,15 @@
+import { UserRepository } from "@domain/repositories/UserRepository";
+import bcrypt from 'bcrypt';
+import { AuthService } from '@infra/services/AuthService';
+
+export function loginUser(userRepo: UserRepository, authService: AuthService){
+    return async (email: string, password: string) => {
+        const user = await userRepo.findByEmail(email);
+        if(!user) throw new Error("Usuário não encontrado");
+
+        const valid = await bcrypt.compare(password, user.props.password);
+        if(!valid) throw new Error("Invalid credentials");
+
+        return authService.generateToken({id: user.props.id, email: user.props.email})
+    }
+}

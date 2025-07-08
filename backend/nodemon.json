@@ -1,5 +1,5 @@
 {
     "watch": ["/srv/app"],
     "ignore": ["node_modules", "logs"],
-    "exec": "npx node server.js"
+    "exec": "node --loader ts-node/esm --no-warnings main.ts"
 }

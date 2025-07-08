@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",           // ou "NodeNext"
+    "target": "ES2020",           // ou outro target compatível
+    "baseUrl": ".",                   // 👈 Define 'src' como raiz
+    "paths": {
+      "@infra/*": ["src/infra/*"],
+      "@domain/*": ["src/domain/*"],
+      "@interface/*": ["src/interface/*"],
+      "@usecases/*": ["src/usecases/*"],
+      "@routes/*": ["src/routes/*"]
+    },
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "outDir": "./dist"
+  },
+  "include": ["src", "main.ts"] 
+}
