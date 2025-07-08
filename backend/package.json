@@ -6,8 +6,9 @@
   "main": "main.ts",
   "scripts": {
     "lint": "eslint .",
-    "start": "nodemon --exec \"node --loader ts-node/esm --no-warnings\" main.ts -L",
-    "dev": "nodemon --exec \"node --loader ts-node/esm --no-warnings\" main.ts -L"
+    "start": "nodemon ./main.ts -L",
+    "dev": "nodemon ./main.ts -L",
+    "run_by_nodemon": "cross-env NODE_ENV=development NODE_OPTIONS=\"--loader=ts-node/esm --trace-warnings \" node"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -29,6 +30,7 @@
     "@types/node": "^24.0.10",
     "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.36.0",
+    "cross-env": "^7.0.3",
     "eslint": "^9.30.1",
     "eslint-plugin-import": "^2.32.0",
     "globals": "^16.0.0",

@@ -1,5 +1,7 @@
 {
     "watch": ["/srv/app"],
     "ignore": ["node_modules", "logs"],
-    "exec": "node --loader ts-node/esm --no-warnings main.ts"
+    "execMap": {
+        "ts": "npm run run_by_nodemon"
+    }
 }

@@ -16,5 +16,10 @@
     "strict": true,
     "outDir": "./dist"
   },
-  "include": ["src", "main.ts"] 
+  "include": ["src", "main.ts"],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node",
+    "transpileOnly": true
+  }
 }
