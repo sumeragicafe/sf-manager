@@ -5,10 +5,8 @@
   "type": "module",
   "main": "main.ts",
   "scripts": {
-    "lint": "eslint .",
-    "start": "nodemon ./main.ts -L",
-    "dev": "nodemon ./main.ts -L",
-    "run_by_nodemon": "cross-env NODE_ENV=development NODE_OPTIONS=\"--loader=ts-node/esm --trace-warnings \" node"
+    "start": "node dist/main.js",
+    "dev": "nodemon --watch '/srv/app/' --exec 'ts-node /srv/app/main.ts' -e ts"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

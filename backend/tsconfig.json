@@ -1,8 +1,14 @@
 {
   "compilerOptions": {
-    "module": "ESNext",           // ou "NodeNext"
-    "target": "ES2020",           // ou outro target compatível
-    "baseUrl": ".",                   // 👈 Define 'src' como raiz
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
     "paths": {
       "@infra/*": ["src/infra/*"],
       "@domain/*": ["src/domain/*"],
@@ -10,16 +16,10 @@
       "@usecases/*": ["src/usecases/*"],
       "@routes/*": ["src/routes/*"]
     },
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "strict": true,
-    "outDir": "./dist"
+    "outDir": "dist"
   },
-  "include": ["src", "main.ts"],
   "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node",
-    "transpileOnly": true
-  }
+    "esm": true
+  },
+  "include": ["src/**/*.ts", "main.ts"]
 }
