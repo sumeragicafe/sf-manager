@@ -33,4 +33,14 @@ export class UserController {
       res.status(401).json({ error: err.message });
     }
   }
+
+  static async list(req: Request, res: Response) {
+    try {
+      let responseBody = ["teste", "teste1"];
+
+      res.status(200).json({ responseBody });
+    } catch (err: any) {
+      res.status(401).json({ error: err.message });
+    }
+  }
 }

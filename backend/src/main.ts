@@ -2,19 +2,25 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { Sequelize } from 'sequelize';
-import router from '@routes/index';
+import router from '@routes/index.js';
 import { initUserModel } from '@infra/sequelize/models/User.model';
 //import { initPetModel } from './infra/db/models/Pet.model';
 //import { initUsuarioModel } from './infra/db/models/Usuario.model';
 // import routes from './routes'; // Pode ser criado posteriormente
 
 
-dotenv.config();
+// dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.BACKEND_PORT || 3000;
 
-if (!process.env.MYSQL_DATABASE || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_HOST || process.env.MYSQL_PORT) {
+console.log('MYSQL_DATABASE:', process.env.MYSQL_DATABASE);
+console.log('MYSQL_USER:', process.env.MYSQL_USER);
+console.log('MYSQL_PASSWORD:', process.env.MYSQL_PASSWORD);
+console.log('MYSQL_HOST:', process.env.MYSQL_HOST);
+console.log('MYSQL_PORT:', process.env.MYSQL_PORT);
+
+if (!process.env.MYSQL_DATABASE || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_HOST || !process.env.MYSQL_PORT) {
   throw new Error('Variáveis de ambiente do banco não configuradas');
 }
 
