@@ -1,4 +1,5 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import { Role } from '@infra/sequelize/models/Role.model';
 
 export class UserModel extends Model {}
 
@@ -37,9 +38,14 @@ export function initUserModel(sequelize: Sequelize) {
       defaultValue: true,
       field: 'is_active'
     },
-    role: {
-      type: DataTypes.STRING,
-      allowNull: true
+    roleId: {
+      type: DataTypes.UUID,
+      field: 'role_id',
+      allowNull: true,
+      references: {
+        model: 'roles',
+        key: 'id',
+      }
     },
     lastLoginAt: {
       type: DataTypes.DATE,
@@ -60,6 +66,8 @@ export function initUserModel(sequelize: Sequelize) {
     sequelize,
     modelName: 'User',
     tableName: 'users',
-    timestamps: false // porque estamos definindo manualmente
+    timestamps: false
   });
+
+  UserModel.belongsTo(Role, { foreignKey: 'roleId', as: 'role' });
 }
