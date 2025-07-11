@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import session from 'express-session';
 import { Sequelize } from 'sequelize';
 import router from '@routes/index.js';
 import { initUserModel } from '@infra/sequelize/models/User.model';
@@ -55,6 +56,19 @@ sequelize
   .authenticate()
   .then(() => console.log('Conectado ao banco de dados.'))
   .catch((error) => console.error('Erro ao conectar ao banco:', error));
+
+// sequelize
+//   .sync({ force: true }) // força recriação das tabelas
+//   .then(() => {
+//     console.log('Tabelas criadas/sincronizadas');
+//   });
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'algumSecretSessao',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // secure: true se usar HTTPS
+}));
 
 app.use('/api', router);
 

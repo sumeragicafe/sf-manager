@@ -1,5 +1,5 @@
 import { User } from '@domain/entities/User';
-import { UserRepository } from '@domain/repositories/UserRepository';
+import { IUserRepository } from '@domain/repositories/IUserRepository';
 import bcrypt from 'bcrypt';
 
 interface RegisterUserDTO {
@@ -10,7 +10,7 @@ interface RegisterUserDTO {
   role?: string;
 }
 
-export function registerUser(userRepo: UserRepository) {
+export function registerUser(userRepo: IUserRepository) {
   return async (data: RegisterUserDTO): Promise<User> => {
     const { name, username, email, password, role } = data;
 

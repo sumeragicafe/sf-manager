@@ -28,6 +28,8 @@ export class UserController {
         req.body.password
       );
 
+      req.session.token = token;
+
       res.status(200).json({ token });
     } catch (err: any) {
       res.status(401).json({ error: err.message });

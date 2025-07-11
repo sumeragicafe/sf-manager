@@ -1,8 +1,8 @@
-import { UserRepository } from "@domain/repositories/UserRepository";
+import { IUserRepository } from "@domain/repositories/IUserRepository";
 import bcrypt from 'bcrypt';
 import { AuthService } from '@infra/services/AuthService';
 
-export function loginUser(userRepo: UserRepository, authService: AuthService){
+export function loginUser(userRepo: IUserRepository, authService: AuthService){
     return async (email: string, password: string) => {
         const user = await userRepo.findByEmail(email);
         if(!user) throw new Error("Usuário não encontrado");
