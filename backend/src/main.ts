@@ -2,15 +2,20 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import session from 'express-session';
+import cookieParser from 'cookie-parser';
 import { Sequelize } from 'sequelize';
-import router from '@routes/index.js';
+import router from '@interface/routes/index';
 import { initUserModel } from '@infra/sequelize/models/User.model';
+import { initPermissionModel } from '@infra/sequelize/models/Permission.model';
+import { initRoleModel } from '@infra/sequelize/models/Role.model';
+import { associateRolePermission } from '@infra/sequelize/models/RolePermission.model';
+
 //import { initPetModel } from './infra/db/models/Pet.model';
 //import { initUsuarioModel } from './infra/db/models/Usuario.model';
 // import routes from './routes'; // Pode ser criado posteriormente
 
 
-// dotenv.config();
+dotenv.config();
 
 const app = express();
 const PORT = process.env.BACKEND_PORT || 3000;
@@ -44,7 +49,10 @@ const sequelize = new Sequelize(
 );
 
 // Inicializa modelos
+initRoleModel(sequelize);
+initPermissionModel(sequelize);
 initUserModel(sequelize);
+associateRolePermission(sequelize);
 
 // Middlewares
 app.use(cors());
@@ -57,14 +65,19 @@ sequelize
   .then(() => console.log('Conectado ao banco de dados.'))
   .catch((error) => console.error('Erro ao conectar ao banco:', error));
 
+// Iniciar o container na primeira vez com o trecho abaixo, depois comente para não sobreescrever o DDL
+// Executar seeder (dentro do exec backend): npx sequelize-cli db:seed:all
+
 // sequelize
 //   .sync({ force: true }) // força recriação das tabelas
 //   .then(() => {
 //     console.log('Tabelas criadas/sincronizadas');
 //   });
 
+app.use(cookieParser());
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'algumSecretSessao',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false } // secure: true se usar HTTPS
