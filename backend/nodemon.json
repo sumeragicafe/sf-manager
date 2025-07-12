@@ -1,5 +1,5 @@
 {
-    "watch": ["/srv/app"],
-    "ignore": ["node_modules", "logs"],
-    "exec": "npx node server.js"
+  "watch": ["/srv/app"],
+  "ext": "ts",
+  "exec": "tsx src/main.ts"
 }
