@@ -6,4 +6,5 @@ export interface IUserRepository {
     findByUsername(username: string): Promise<User | null>;
     findByName(name: string): Promise<User[] | null>;
     save(user: User): Promise<User>;
+    getUserPermissions(user: User): Promise<String[] | null>
 }

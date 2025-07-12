@@ -9,7 +9,7 @@ export interface UserProps{
     updatedAt?: Date;
     lastLoginAt?:Date;
     isActive:boolean;
-    role?: string;
+    roleId?: string;
 }
 
 export class User{
@@ -45,7 +45,7 @@ export class User{
             createdAt: this.props.createdAt,
             updatedAt: this.props.updatedAt,
             lastLoginAt: this.props.lastLoginAt,
-            role: this.props.role
+            roleId: this.props.roleId
         };
     }
 

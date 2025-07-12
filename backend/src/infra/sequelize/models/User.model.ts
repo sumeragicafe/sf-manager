@@ -68,6 +68,4 @@ export function initUserModel(sequelize: Sequelize) {
     tableName: 'users',
     timestamps: false
   });
-
-  UserModel.belongsTo(Role, { foreignKey: 'roleId', as: 'role' });
 }

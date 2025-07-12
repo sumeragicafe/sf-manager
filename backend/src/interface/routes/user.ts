@@ -6,6 +6,7 @@ const router = Router();
 router.get('/list', UserController.list);
 router.post('/register', UserController.register);
 router.post('/login', UserController.login);
+router.get('/permissions', UserController.getUserPermissions);
 
 // outras rotas de usuário, como update, profile etc:
 // router.put('/profile', UserController.updateProfile);

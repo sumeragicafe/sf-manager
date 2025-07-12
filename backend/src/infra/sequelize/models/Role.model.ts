@@ -25,3 +25,4 @@ export function initRoleModel(sequelize: Sequelize) {
     timestamps: false,
   });
 }
+

@@ -10,7 +10,7 @@ export class SequelizeUserRepository implements IUserRepository{
 
     async findById(id: string): Promise<User | null> {
         const user = await UserModel.findByPk(id);
-        return user ? user.toJSON() as User : null;
+        return user ? new User(user.toJSON()) : null;
     }
 
     async findByEmail(email: string): Promise<User | null> {
@@ -30,7 +30,26 @@ export class SequelizeUserRepository implements IUserRepository{
 
     async list(): Promise<User[]> {
         const users = await UserModel.findAll();
-        return users.map(u => u.toJSON() as User);
+        return users.map(u => new User(u.toJSON()));
+    }
+
+    async getUserPermissions(userId: string): Promise<string[]> {
+        const user = await UserModel.findByPk(userId, {
+        include: {
+            model: Role,
+            as: 'role',
+            include: [{
+            model: Permission,
+            as: 'permissions'
+            }]
+        }
+        });
+
+        if (!user || !user.role || !user.role.permissions) {
+        return [];
+        }
+
+        return user.role.permissions.map(p => p.name);
     }
 
 

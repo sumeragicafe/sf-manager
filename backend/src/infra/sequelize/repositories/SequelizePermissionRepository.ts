@@ -8,4 +8,9 @@ export class SequelizePermissionRepository {
   async list() {
     return Permission.findAll();
   }
+
+  async delete(permissionId: string) {
+    await Permission.destroy({ where: { id: permissionId } });
+  }
+  
 }
