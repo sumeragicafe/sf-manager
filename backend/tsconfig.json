@@ -13,7 +13,7 @@
       "@domain/*": ["src/domain/*"],
       "@interface/*": ["src/interface/*"],
       "@usecases/*": ["src/usecases/*"],
-      "@routes/*": ["src/routes/*"]
+      "@routes/*": ["src/interface/routes/*"]
     },
     "outDir": "dist"
   },
