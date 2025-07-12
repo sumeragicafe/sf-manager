@@ -6,11 +6,8 @@ services:
     container_name: mysql_container
     platform: linux/amd64
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    env_file:
+      - .env
     ports:
       - "${MYSQL_PORT}:3306"
     volumes:
@@ -33,9 +30,10 @@ services:
     container_name: backend_container
     platform: linux/amd64
     restart: always
+    command: >
+      sh -c "npm install && npm run dev"
     volumes:
       - ./backend:/srv/app
-      - /srv/app/node_modules
     ports:
       - "3000:3000"
     depends_on:
@@ -48,9 +46,10 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    command: >
+      sh -c "npm install && npm run dev"
     volumes:
       - ./frontend:/srv/app
-      - frontend-node_modules:/srv/app/node_modules
     ports:
       - "80:5173"
     environment:
@@ -62,8 +61,6 @@ services:
 
 volumes:
   mysql_data:
-  frontend-node_modules:
-  #backend-node_modules:
 
 networks:
   network:
