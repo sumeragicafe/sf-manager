@@ -1,17 +1,19 @@
-import { Role } from '@infra/sequelize/models/Role.model';
-import { Permission } from '@infra/sequelize/models/Permission.model';
+import { RoleModel } from '@infra/sequelize/models/Role.model';
+import { IRoleRepository } from '@domain/repositories/IRoleRepository';
 
-export async function createRoleWithPermissions(roleData: {
-  name: string;
-  description?: string;
-  permissionIds: string[];
-}) {
-  const role = await Role.create({
-    name: roleData.name,
-    description: roleData.description
-  });
+export function createRole(roleRepository: IRoleRepository) {
 
-  await role.$set('Permissions', roleData.permissionIds);
+  return async (name:string, description: string) => {
+    const existingRoles = await roleRepository.list();
+    const exists = existingRoles.some(r => r.props.name === name);
+  
+     if (exists) {
+      throw new Error('Cargo já existe');
+    }
 
-  return role;
+    const role = await roleRepository.create(name, description);
+  
+    return role;
+  }
+  
 }

@@ -1,9 +1,13 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
-export class Permission extends Model {}
+export class PermissionModel extends Model {
+  public id!: string;
+  public name!: string;
+  public description?: string;
+}
 
 export function initPermissionModel(sequelize: Sequelize) {
-  Permission.init({
+  PermissionModel.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,

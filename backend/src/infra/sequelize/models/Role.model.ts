@@ -1,9 +1,16 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import { PermissionModel } from '@infra/sequelize/models/Permission.model';
 
-export class Role extends Model {}
+export class RoleModel extends Model {
+  public id!: string;
+  public name!: string;
+  public description?: string;
+
+  public setPermissions!: (permissions: string[] | PermissionModel[]) => Promise<void>;
+}
 
 export function initRoleModel(sequelize: Sequelize) {
-  Role.init({
+  RoleModel.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
