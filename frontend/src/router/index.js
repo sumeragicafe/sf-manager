@@ -52,7 +52,13 @@ const router = createRouter({
                     name: 'PetsPage',
                     component: () => import('../views/Staff/pets/Pets.vue')
                    
-                }
+                },
+                {
+                    path: 'users',
+                    name: 'UsersPage',
+                    component: () => import('../views/Staff/users/UsersPage.vue')
+                   
+                },
             ]
         },
         {
@@ -68,4 +74,16 @@ const router = createRouter({
         
     ]
 });
+
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.meta.requiresAuth;
+
+  if (requiresAuth && !isAuthenticated()) {
+    next({ name: 'login' }); // redireciona para login
+  } else {
+    next(); // segue para a rota
+  }
+});
+
+
 export default router;

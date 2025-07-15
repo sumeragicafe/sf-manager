@@ -63,13 +63,13 @@ const route = useRoute();
 const navigation = [
   { name: 'Dashboard', href: '/staff', icon: Home, exact: true },
   { name: 'Animais em Adoção', href: '/staff/pets', icon: Heart },
-  { name: 'Adotantes', href: '/staff/adopters', icon: UserCheck },
+  // { name: 'Adotantes', href: '/staff/adopters', icon: UserCheck },
   { name: 'Eventos', href: '/staff/events', icon: Calendar },
-  { name: 'Contatos', href: '/staff/contacts', icon: MessageSquare },
-  { name: 'Formulários', href: '/staff/forms', icon: FileText },
+  // { name: 'Contatos', href: '/staff/contacts', icon: MessageSquare },
+  // { name: 'Formulários', href: '/staff/forms', icon: FileText },
   { name: 'Usuários', href: '/staff/users', icon: Users },
   { name: 'Cargos & Permissões', href: '/staff/roles', icon: Shield },
-  { name: 'Configurações', href: '/staff/settings', icon: Settings },
+  // { name: 'Configurações', href: '/staff/settings', icon: Settings },
 ];
 
 function isActive(item) {
