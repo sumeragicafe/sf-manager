@@ -10,12 +10,17 @@ export function loginUser(userRepo: IUserRepository, authService: AuthService){
         const valid = await bcrypt.compare(password, user.props.password);
         if(!valid) throw new Error("Invalid credentials");
 
+        //const permissionList = await userRepo.getUserPermissions(user.props.id || "");
+
+        const userRole = await userRepo.getUserRoleWithPermissions(user.props.id || "");
+
         return authService.generateToken(
             {
                 id: user.props.id,
                 name: user.props.name,
                 email: user.props.email,
-                profile_picture_url: user.props.profilePictureUrl
+                profile_picture_url: user.props.profilePictureUrl,
+                role: userRole
             });
     }
 }

@@ -13,7 +13,9 @@
       "@domain/*": ["src/domain/*"],
       "@interface/*": ["src/interface/*"],
       "@usecases/*": ["src/usecases/*"],
-      "@routes/*": ["src/interface/routes/*"]
+      "@routes/*": ["src/interface/routes/*"],
+      "@dependencies/*": ["src/dependencies/*"],
+
     },
     "outDir": "dist"
   },

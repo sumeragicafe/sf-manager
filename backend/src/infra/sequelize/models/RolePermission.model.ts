@@ -1,11 +1,11 @@
 import { Sequelize } from 'sequelize';
-import { Role } from '@infra/sequelize/models/Role.model';
-import { Permission } from '@infra/sequelize/models/Permission.model';
+import { RoleModel } from '@infra/sequelize/models/Role.model';
+import { PermissionModel } from '@infra/sequelize/models/Permission.model';
 import { UserModel } from '@infra/sequelize/models/User.model';
 
 export function associateRolePermission(sequelize: Sequelize) {
   // Role -> Permission (M:N)
-  Role.belongsToMany(Permission, {
+  RoleModel.belongsToMany(PermissionModel, {
     through: 'role_permissions',
     as: 'Permissions',
     foreignKey: 'role_id',
@@ -14,7 +14,7 @@ export function associateRolePermission(sequelize: Sequelize) {
   });
 
   // Permission -> Role (M:N)
-  Permission.belongsToMany(Role, {
+  PermissionModel.belongsToMany(RoleModel, {
     through: 'role_permissions',
     as: 'Roles',
     foreignKey: 'permission_id',
@@ -23,7 +23,7 @@ export function associateRolePermission(sequelize: Sequelize) {
   });
 
   // User -> Role (1:N)
-  UserModel.belongsTo(Role, {
+  UserModel.belongsTo(RoleModel, {
     foreignKey: 'role_id',
     as: 'role'
   });

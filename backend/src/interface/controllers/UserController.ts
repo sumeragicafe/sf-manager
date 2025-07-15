@@ -1,17 +1,15 @@
 import { Request, Response } from 'express';
-import { SequelizeUserRepository } from '@infra/sequelize/repositories/SequelizeUserRepository';
-import { AuthService } from '@infra/services/AuthService';
+import { userRepositorySingleton } from 'src/dependencies/singletons';
+import { authServiceSingleton } from 'src/dependencies/singletons';
+
 import { registerUser } from '@usecases/User/registerUser';
 import { loginUser } from '@usecases/User/loginUser';
-import { getUserPermissions } from '@usecases/User/getUserPermissions';
-
-const userRepo = new SequelizeUserRepository();
-const authService = new AuthService(process.env.JWT_SECRET || 'secret');
+import { listUserPermissions } from '@usecases/User/listUserPermissions';
 
 export class UserController {
   static async register(req: Request, res: Response) {
     try {
-      const user = await registerUser(userRepo)(req.body); // usa o DTO
+      const user = await registerUser(userRepositorySingleton)(req.body); // usa o DTO
       res.status(201).json({
         id: user.props.id,
         email: user.props.email,
@@ -24,7 +22,7 @@ export class UserController {
 
   static async login(req: Request, res: Response) {
     try {
-      const token = await loginUser(userRepo, authService)(
+      const token = await loginUser(userRepositorySingleton, authServiceSingleton)(
         req.body.email,
         req.body.password
       );
@@ -39,7 +37,7 @@ export class UserController {
 
   static async list(req: Request, res: Response) {
     try {
-      const users = await userRepo.list();
+      const users = await userRepositorySingleton.list();
 
       const serialized = users.map(user => user.toPersistence());
 
@@ -49,23 +47,27 @@ export class UserController {
     }
   }
 
-  static async getUserPermissions(req: Request, res: Response) {
-    const token = req.cookies.token;
+  static async listPermissions(req: Request, res: Response) {
+    const token = req.session.token;
 
-    console.log(token);
-
-    if (!token) return res.status(401).json({ error: 'Token não enviado' });
+    if (!token){
+      res.status(401).json({ error: 'Token não enviado' });
+      return;
+    } 
 
     try {
-      const payload = authService.verifyToken(token);
+      const payload = authServiceSingleton.verifyToken(token);
       req.session.userId = payload.id;  // Salva userId na sessão para uso futuro
 
       // Agora busque as permissões
-      const permissions = await userRepo.getUserPermissions(payload.id);
+      //const permissions = await getUserPermissions(payload.id);
+      const permissions = await listUserPermissions(userRepositorySingleton)(req.session.userId);
 
-      return res.status(200).json(permissions);
+      res.status(200).json(permissions);
+      return;
     } catch (err: any) {
-      return res.status(401).json({ error: err.message });
+      res.status(401).json({ error: err.message });
+      return;
     }
   }
 

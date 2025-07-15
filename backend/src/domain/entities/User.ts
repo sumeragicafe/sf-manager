@@ -29,7 +29,7 @@ export class User{
         ...data,
         isActive: true,
         createdAt: now,
-        updatedAt: now
+        updatedAt: now,
         });
     }
 

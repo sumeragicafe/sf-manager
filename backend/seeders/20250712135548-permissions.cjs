@@ -11,6 +11,15 @@ module.exports = {
       { name: 'USER_DELETE', description: 'Excluir usuários' },
       { name: 'USER_UPDATE_ROLE', description: 'Alterar permissões de usuários' },
 
+      { name: 'PERMISSION_GET', description: 'Criar novos usuários' },
+      { name: 'PERMISSION_CREATE', description: 'Criar novos usuários' },
+      { name: 'PERMISSION_DELETE', description: 'Excluir usuários' },
+
+      { name: 'ROLE_GET', description: 'Alterar permissões de usuários' },
+      { name: 'ROLE_CREATE', description: 'Alterar permissões de usuários' },
+      { name: 'ROLE_DELETE', description: 'Alterar permissões de usuários' },
+      { name: 'ROLE_UPDATE_PERMISSIONS', description: 'Alterar permissões de usuários' },
+
       { name: 'PET_CREATE', description: 'Cadastrar novo pet' },
       { name: 'PET_EDIT', description: 'Editar dados de pet' },
       { name: 'PET_DELETE', description: 'Excluir pet' },

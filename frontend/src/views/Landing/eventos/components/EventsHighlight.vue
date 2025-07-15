@@ -4,7 +4,7 @@
       
       <!-- Próximo Evento -->
       <div class="pr-0 md:pr-6 pb-6 md:pb-0">
-        <h5 class="text-ngo-text mb-4 flex items-center gap-2">
+        <h5 class="text-ong-text mb-4 flex items-center gap-2">
           <Calendar size="24" />
           Próximo Evento
         </h5>
@@ -13,7 +13,7 @@
 
       <!-- Outros Eventos -->
       <div class="pl-0 md:pl-6 pt-6 md:pt-0">
-        <h5 class="text-ngo-text mb-6 flex items-center gap-2">
+        <h5 class="text-ong-text mb-6 flex items-center gap-2">
           <Calendar size="24" />
           Outros Eventos
         </h5>
