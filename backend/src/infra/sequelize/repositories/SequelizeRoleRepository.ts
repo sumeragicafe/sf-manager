@@ -11,7 +11,7 @@ export class SequelizeRoleRepository implements IRoleRepository {
 
   async findByIdWithPermissions(id: string): Promise<Role | null> {
     const roleModel = await RoleModel.findByPk(id, {
-      include: [{ model: PermissionModel, as: 'permissions' }]
+      include: [{ model: PermissionModel, as: 'Permissions' }]
     });
 
     if (!roleModel) return null;
@@ -22,7 +22,7 @@ export class SequelizeRoleRepository implements IRoleRepository {
       id: roleJson.id,
       name: roleJson.name,
       description: roleJson.description,
-      permissions: roleJson.permissions?.map((perm: any) => ({
+      permissions: roleJson.Permissions?.map((perm: any) => ({
         id: perm.id,
         name: perm.name,
         description: perm.description

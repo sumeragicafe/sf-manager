@@ -55,5 +55,43 @@ export class SequelizeUserRepository implements IUserRepository{
         return user.role.Permissions.map(p => p.name);
     }
 
+    async getUserRoleWithPermissions(userId: string): Promise<{
+        id: string;
+        name: string;
+        description?: string;
+        permissions: {
+            id: string;
+            name: string;
+            description?: string;
+        }[];
+        } | null> {
+        const user = await UserModel.findByPk(userId, {
+            include: {
+            model: RoleModel,
+            as: 'role',
+            include: [{
+                model: PermissionModel,
+                as: 'Permissions'
+            }]
+            }
+        });
+
+        if (!user || !user.role) return null;
+
+        const role = user.role as any;
+
+        return {
+            id: role.id,
+            name: role.name,
+            description: role.description,
+            permissions: role.Permissions?.map((perm: any) => ({
+            id: perm.id,
+            name: perm.name,
+            description: perm.description
+            })) || []
+        };
+        }
+
+
 
 }

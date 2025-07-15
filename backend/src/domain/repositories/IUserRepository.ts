@@ -7,4 +7,5 @@ export interface IUserRepository {
     findByName(name: string): Promise<User[] | null>;
     save(user: User): Promise<User>;
     getUserPermissions(userId: string): Promise<String[] | null>
+    getUserRoleWithPermissions(userId: string): Promise<Object | null>
 }
