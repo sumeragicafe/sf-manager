@@ -1,22 +1,3 @@
-// import { defineConfig } from 'vite'
-// import vue from '@vitejs/plugin-vue'
-// import tailwindcss from '@tailwindcss/vite'
-
-// export default defineConfig({
-//   plugins: [
-//     vue(),
-//     tailwindcss(),
-//   ],
-//   server: {
-//     watch: {
-//       usePolling: true,
-//     },
-//     host: '0.0.0.0',
-//     strictPort: true,
-//     port: 5173, 
-//   }
-// })
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
@@ -29,5 +10,13 @@ export default defineConfig({
     host: '0.0.0.0',
     strictPort: true,
     port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://host.docker.internal:3000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'), 
+        // Aqui a rota /api continua igual; você pode ajustar caso queira
+      },
+    },
   },
 })
