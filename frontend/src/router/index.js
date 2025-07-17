@@ -45,6 +45,7 @@ const router = createRouter({
         {
             path: '/staff',
             name: 'staff',
+            meta: { requiresAuth: true },
             component: () => import('../layouts/staff/Staff.vue'),
              children:[
                 {
@@ -75,15 +76,33 @@ const router = createRouter({
     ]
 });
 
-router.beforeEach((to, from, next) => {
-  const requiresAuth = to.meta.requiresAuth;
-
-  if (requiresAuth && !isAuthenticated()) {
-    next({ name: 'login' }); // redireciona para login
-  } else {
-    next(); // segue para a rota
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAuth) {
+    const ok = await isAuthenticated();
+    if (!ok) {
+      return next({ name: 'login' });
+    }
   }
+  next();
 });
+
+
+async function isAuthenticated() {
+  try {
+    const res = await fetch('/api/user/session', {
+      credentials: 'include', // muito importante para enviar cookies
+    });
+    if (!res.ok) return false;
+
+    const data = await res.json();
+    return !!data.user;
+  } catch (err) {
+    return false;
+  }
+}
+
+
+
 
 
 export default router;

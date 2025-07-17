@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ArrowLeft } from 'lucide-vue-next';
+import { onMounted } from 'vue';
 
 const router = useRouter();
 
@@ -9,6 +10,27 @@ const email = ref('');
 const password = ref('');
 const loading = ref(false);
 const errorMessage = ref('');
+
+async function verifySession() {
+  try {
+    const response = await fetch('/api/user/session', {
+      method: 'GET',
+      credentials: 'include', // IMPORTANTE: envia o cookie da sessão
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.user) {
+        router.push({ name: 'staff' }); // redireciona para o painel administrativo
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao verificar sessão:', error);
+  }
+}
 
 async function login() {
   loading.value = true;
@@ -42,6 +64,10 @@ async function login() {
     loading.value = false;
   }
 }
+
+onMounted(() => {
+  verifySession();
+});
 </script>
 
 <template>
