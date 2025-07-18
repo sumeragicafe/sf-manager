@@ -10,8 +10,8 @@ module.exports = {
     const userId = uuidv4();
 
     await queryInterface.bulkInsert('roles', [
-      { id: adminId, name: 'ADMIN', description: 'Administrador do sistema' },
-      { id: userId, name: 'USER', description: 'Usuário com permissões limitadas' }
+      { id: adminId, name: 'Administrador', description: 'Administrador do sistema' },
+      { id: userId, name: 'Voluntário', description: 'Usuário com permissões limitadas' }
     ]);
 
     // Buscar todas as permissões

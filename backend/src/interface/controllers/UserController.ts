@@ -19,7 +19,7 @@ export class UserController {
       res.status(400).json({ error: err.message });
     }
   }
-
+  
   static async login(req: Request, res: Response) {
     try {
       const token = await loginUser(userRepositorySingleton, authServiceSingleton)(

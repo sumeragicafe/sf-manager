@@ -49,17 +49,24 @@ const router = createRouter({
             component: () => import('../layouts/staff/Staff.vue'),
              children:[
                 {
-                    path: 'pets',
-                    name: 'PetsPage',
+                    path: 'pet',
+                    name: 'PetPage',
                     component: () => import('../views/Staff/pets/Pets.vue')
                    
                 },
                 {
-                    path: 'users',
-                    name: 'UsersPage',
+                    path: 'user',
+                    name: 'UserPage',
                     component: () => import('../views/Staff/users/UsersPage.vue')
                    
                 },
+                {
+                    path: 'role',
+                    name: 'RolePage',
+                    component: () => import('../views/Staff/roles/RolePage.vue')
+                   
+                },
+
             ]
         },
         {

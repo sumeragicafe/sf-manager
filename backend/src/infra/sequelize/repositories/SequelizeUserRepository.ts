@@ -32,7 +32,15 @@ export class SequelizeUserRepository implements IUserRepository{
     }
 
     async list(): Promise<User[]> {
-        const users = await UserModel.findAll();
+        const users = await UserModel.findAll({
+            include: [
+            {
+                model: RoleModel,
+                as: 'role',
+                attributes: ['name'],
+            }
+            ],
+        });
         return users.map(u => new User(u.toJSON()));
     }
 

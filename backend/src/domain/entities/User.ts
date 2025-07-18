@@ -4,12 +4,14 @@ export interface UserProps{
     username: string;
     email: string;
     password: string;
+    
     profilePictureUrl?: string;
     createdAt?: Date;
     updatedAt?: Date;
     lastLoginAt?:Date;
     isActive:boolean;
     roleId?: string;
+    role?: string;
 }
 
 export class User{
@@ -45,7 +47,8 @@ export class User{
             createdAt: this.props.createdAt,
             updatedAt: this.props.updatedAt,
             lastLoginAt: this.props.lastLoginAt,
-            roleId: this.props.roleId
+            roleId: this.props.roleId,
+            role: this.props.role
         };
     }
 
