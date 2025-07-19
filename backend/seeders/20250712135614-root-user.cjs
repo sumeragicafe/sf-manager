@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 module.exports = {
   async up (queryInterface, Sequelize) {
     const [adminRole] = await queryInterface.sequelize.query(
-      `SELECT id FROM roles WHERE name = 'ADMIN' LIMIT 1;`,
+      `SELECT id FROM roles WHERE name = 'Administrador' LIMIT 1;`,
       { type: Sequelize.QueryTypes.SELECT }
     );
 

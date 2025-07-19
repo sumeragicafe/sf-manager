@@ -5,8 +5,8 @@
 <ImpactSection></ImpactSection>
 </template>
 <script setup>
-import HeroSection from './components/HeroSection.vue';
-import AnimalAdoptionGrid from './components/AnimalAdoptionGrid.vue';
-import MissionSection from './components/MissionSection.vue';
-import ImpactSection from './components/ImpactSection.vue';
+import HeroSection from '@/views/Landing/home/components/HeroSection.vue';
+import AnimalAdoptionGrid from '@/views/Landing/home/components/AnimalAdoptionGrid.vue';
+import MissionSection from '@/views/Landing/home/components/MissionSection.vue';
+import ImpactSection from '@/views/Landing/home/components/ImpactSection.vue';
 </script>

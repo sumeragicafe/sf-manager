@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory} from 'vue-router';
+import { useSessionStore } from '@/stores/session'
 import NotFound from '../views/NotFound.vue';
 
 
@@ -45,20 +46,28 @@ const router = createRouter({
         {
             path: '/staff',
             name: 'staff',
+            meta: { requiresAuth: true },
             component: () => import('../layouts/staff/Staff.vue'),
              children:[
                 {
-                    path: 'pets',
-                    name: 'PetsPage',
+                    path: 'pet',
+                    name: 'PetPage',
                     component: () => import('../views/Staff/pets/Pets.vue')
                    
                 },
                 {
-                    path: 'users',
-                    name: 'UsersPage',
+                    path: 'user',
+                    name: 'UserPage',
                     component: () => import('../views/Staff/users/UsersPage.vue')
                    
                 },
+                {
+                    path: 'role',
+                    name: 'RolePage',
+                    component: () => import('../views/Staff/roles/RolePage.vue')
+                   
+                },
+
             ]
         },
         {
@@ -75,15 +84,38 @@ const router = createRouter({
     ]
 });
 
-router.beforeEach((to, from, next) => {
-  const requiresAuth = to.meta.requiresAuth;
+router.beforeEach(async (to, from, next) => {
+  const session = useSessionStore();
 
-  if (requiresAuth && !isAuthenticated()) {
-    next({ name: 'login' }); // redireciona para login
+  // Verifica se a sessão já foi carregada, se não, carrega
+  if (!session.isLoggedIn) {
+    await session.fetchSession();
+  }
+
+  // Exemplo de rota protegida
+  if (to.meta.requiresAuth && !session.isLoggedIn) {
+    next({ name: 'login' });
   } else {
-    next(); // segue para a rota
+    next();
   }
 });
+
+// async function isAuthenticated() {
+//   try {
+//     const res = await fetch('/api/user/session', {
+//       credentials: 'include', // muito importante para enviar cookies
+//     });
+//     if (!res.ok) return false;
+
+//     const data = await res.json();
+//     return !!data.user;
+//   } catch (err) {
+//     return false;
+//   }
+// }
+
+
+
 
 
 export default router;

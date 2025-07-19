@@ -37,7 +37,7 @@ router.delete(
 
 // Atribuir permissões a um cargo pelo ID
 router.post(
-  '/:id/permissions',
+  '/:id/add-permission',
   hasPermissions(["PERMISSION_ASSIGN"], authServiceSingleton, userRepositorySingleton),
   RoleController.assignPermissions
 );

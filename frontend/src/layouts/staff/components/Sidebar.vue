@@ -38,19 +38,20 @@
         </RouterLink>
       </nav>
 
-      <UserProfileSection />
+      <UserProfileSection :session="session" />
     </div>
   </div>
 </template>
 
 <script setup>
+import { defineProps, defineEmits, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   Home, Users, Calendar, Heart, MessageSquare,
   FileText, Settings, UserCheck, Shield, X
 } from 'lucide-vue-next';
-import { defineProps, defineEmits } from 'vue';
-import UserProfileSection from './UserProfileSection.vue';
+import UserProfileSection from '@/layouts/staff/components/UserProfileSection.vue';
+import { useSessionStore } from '@/stores/session';
 
 const props = defineProps({
   isOpen: Boolean
@@ -60,15 +61,17 @@ defineEmits(['close']);
 
 const route = useRoute();
 
+const session = useSessionStore()
+
 const navigation = [
   { name: 'Dashboard', href: '/staff', icon: Home, exact: true },
-  { name: 'Animais em Adoção', href: '/staff/pets', icon: Heart },
+  { name: 'Animais em Adoção', href: '/staff/pet', icon: Heart },
   // { name: 'Adotantes', href: '/staff/adopters', icon: UserCheck },
-  { name: 'Eventos', href: '/staff/events', icon: Calendar },
+  { name: 'Eventos', href: '/staff/event', icon: Calendar },
   // { name: 'Contatos', href: '/staff/contacts', icon: MessageSquare },
   // { name: 'Formulários', href: '/staff/forms', icon: FileText },
-  { name: 'Usuários', href: '/staff/users', icon: Users },
-  { name: 'Cargos & Permissões', href: '/staff/roles', icon: Shield },
+  { name: 'Usuários', href: '/staff/user', icon: Users },
+  { name: 'Cargos & Permissões', href: '/staff/role', icon: Shield },
   // { name: 'Configurações', href: '/staff/settings', icon: Settings },
 ];
 
@@ -76,4 +79,8 @@ function isActive(item) {
   return item.exact ? route.path === item.href : route.path.startsWith(item.href);
 }
 
+onMounted(async () => {
+  await session.fetchSession();
+  console.log(session);
+})
 </script>

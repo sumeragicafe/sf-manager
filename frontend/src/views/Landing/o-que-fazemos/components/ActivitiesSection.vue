@@ -19,5 +19,5 @@
 </template>
 
 <script setup>
-import ActivityCard from './ActivityCard.vue'
+import ActivityCard from '@/views/Landing/o-que-fazemos/components/ActivityCard.vue';
 </script>

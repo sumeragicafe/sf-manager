@@ -1,14 +1,38 @@
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { ArrowLeft } from 'lucide-vue-next';
+import { onMounted } from 'vue';
+import {useSessionStore} from '@/stores/session'
 
 const router = useRouter();
+const route = useRoute();
 
 const email = ref('');
 const password = ref('');
 const loading = ref(false);
 const errorMessage = ref('');
+
+async function verifySession() {
+  try {
+    const response = await fetch('/api/user/session', {
+      method: 'GET',
+      credentials: 'include', // IMPORTANTE: envia o cookie da sessão
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.user) {
+        router.push({ name: 'staff' }); // redireciona para o painel administrativo
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao verificar sessão:', error);
+  }
+}
 
 async function login() {
   loading.value = true;
@@ -34,7 +58,8 @@ async function login() {
     }
 
     const data = await response.json();
-    localStorage.setItem('token', data.token); // <- ajuste aqui se o backend retornar outro nome
+
+
     router.push('/staff');
   } catch (error) {
     errorMessage.value = 'Erro ao conectar com o servidor';
@@ -42,6 +67,23 @@ async function login() {
     loading.value = false;
   }
 }
+
+
+
+onMounted(() => {
+   if (route.query.loggedOut === '1') {
+      Swal.fire({
+        position: 'center',
+        icon: 'success',
+        title: 'Você saiu com sucesso!',
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+      })
+  }
+
+  verifySession();
+});
 </script>
 
 <template>

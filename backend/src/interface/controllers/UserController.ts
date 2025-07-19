@@ -9,17 +9,22 @@ import { listUserPermissions } from '@usecases/User/listUserPermissions';
 export class UserController {
   static async register(req: Request, res: Response) {
     try {
+
       const user = await registerUser(userRepositorySingleton)(req.body); // usa o DTO
       res.status(201).json({
         id: user.props.id,
         email: user.props.email,
-        username: user.props.username
+        username: user.props.username,
+        createdAt: user.props.createdAt,
+        lastLoginAt: user.props.lastLoginAt,
+        roleId: user.props.roleId,
+        role: user.props.role
       });
     } catch (err: any) {
       res.status(400).json({ error: err.message });
     }
   }
-
+  
   static async login(req: Request, res: Response) {
     try {
       const token = await loginUser(userRepositorySingleton, authServiceSingleton)(
@@ -34,6 +39,17 @@ export class UserController {
       res.status(401).json({ error: err.message });
     }
   }
+
+  static async logout(req: Request, res: Response) {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ error: 'Erro ao encerrar sessão' });
+      }
+      res.clearCookie('connect.sid'); // nome do cookie pode variar
+      return res.status(200).json({ message: 'Logout realizado com sucesso' });
+    });
+  }
+
 
   static async list(req: Request, res: Response) {
     try {

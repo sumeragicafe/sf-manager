@@ -27,7 +27,7 @@ export function registerUser(userRepo: IUserRepository) {
       email,
       password: hashedPassword,
       isActive: true,
-      role
+      roleId: data.role
     });
 
     return await userRepo.save(user);
