@@ -20,3 +20,26 @@ export async function verifySession() {
     console.error('Erro ao verificar sessão:', error);
   }
 }
+
+export async function logout() {
+  try {
+    const res = await fetch('/api/user/logout', {
+      method: 'POST',
+      credentials: 'include',
+    });
+
+    if (res.ok) {
+      // Opcional: limpar estado local (Pinia, etc)
+      // Exemplo:
+      // const session = useSessionStore();
+      // session.logout();
+      console.log(res);
+
+      router.push({ name: 'login', query:  { loggedOut: '1' } });
+    } else {
+      console.error('Erro ao deslogar');
+    }
+  } catch (error) {
+    console.error('Erro ao deslogar:', error);
+  }
+}

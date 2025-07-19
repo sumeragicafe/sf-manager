@@ -1,10 +1,12 @@
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { ArrowLeft } from 'lucide-vue-next';
 import { onMounted } from 'vue';
+import {useSessionStore} from '@/stores/session'
 
 const router = useRouter();
+const route = useRoute();
 
 const email = ref('');
 const password = ref('');
@@ -56,7 +58,8 @@ async function login() {
     }
 
     const data = await response.json();
-    localStorage.setItem('token', data.token); // <- ajuste aqui se o backend retornar outro nome
+
+
     router.push('/staff');
   } catch (error) {
     errorMessage.value = 'Erro ao conectar com o servidor';
@@ -65,7 +68,20 @@ async function login() {
   }
 }
 
+
+
 onMounted(() => {
+   if (route.query.loggedOut === '1') {
+      Swal.fire({
+        position: 'center',
+        icon: 'success',
+        title: 'Você saiu com sucesso!',
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+      })
+  }
+
   verifySession();
 });
 </script>

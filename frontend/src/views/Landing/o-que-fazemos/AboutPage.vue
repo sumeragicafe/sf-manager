@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import MissionSection from '@/views/Landing/nossa-historia/components/MissionSection.vue'
-import CarouselSection from '@/views/Landing/nossa-historia/components/CarouselSection.vue'
-import ActivitiesSection from '@/views/Landing/nossa-historia/components/ActivitiesSection.vue'
+import MissionSection from '@/views/Landing/o-que-fazemos/components/MissionSection.vue'
+import CarouselSection from '@/views/Landing/o-que-fazemos/components/CarouselSection.vue'
+import ActivitiesSection from '@/views/Landing/o-que-fazemos/components/ActivitiesSection.vue'
 </script>

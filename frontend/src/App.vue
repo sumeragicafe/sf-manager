@@ -7,5 +7,5 @@ function toggleTheme() {
 </script>
 
 <template>
-  <RouterView />
+  <RouterView/>
 </template>

@@ -77,14 +77,6 @@
             <td class="px-4 py-3">{{ formatarData(user.createdAt)}}</td>
             <td class="px-4 py-3 text-center">
               <div class="flex justify-center gap-2">
-                <button @click="openEditModal(user)" class="text-sm px-3 py-1 border rounded-md hover:bg-muted flex items-center gap-1">
-                  <Edit class="w-3 h-3" />
-                  Editar
-                </button>
-                <button class="text-sm px-3 py-1 border rounded-md hover:bg-muted flex items-center gap-1">
-                  <Shield class="w-3 h-3" />
-                  Permissões
-                </button>
                 <button @click="openDeleteModal(user)" class="text-sm px-3 py-1 border rounded-md text-destructive hover:text-destructive-foreground">
                   <Trash2 class="w-3 h-3" />
                 </button>
@@ -128,121 +120,106 @@
 </div>
 
 <!-- Modal de Confirmação de Exclusão -->
-<div
-  v-if="modalDeleteOpen"
-  class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
->
-  <div class="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
-    <h2 class="text-lg font-semibold text-red-600">Confirmar Exclusão</h2>
-    <p class="mt-2 text-sm text-gray-600">Deseja realmente excluir o usuário <strong>{{ selectedUser.name }}</strong>?</p>
-    <div class="mt-6 flex justify-end gap-2">
-      <button @click="modalDeleteOpen = false" class="px-4 py-2 bg-gray-200 rounded-md">Cancelar</button>
-      <button @click="deleteUser" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Excluir</button>
-    </div>
-  </div>
-</div>
 
-<!-- Modal de Adição de Usuário -->
 <div
   v-if="showAddUserModal"
-  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 "
 >
-  <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-bold text-ong-text">Adicionar Usuário</h2>
-      <button @click="showAddUserModal = false" class="text-gray-500 hover:text-gray-700">&times;</button>
-    </div>
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-2xl  animate-fade-in">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-ong-text">Adicionar Usuário</h2>
+        <button @click="showAddUserModal = false" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
+      </div>
 
-    <form @submit.prevent="submitAddUser">
-      <div class="space-y-4">
-        <div>
-          <label class="text-sm font-medium text-gray-700">Nome</label>
-          <input
-            v-model="newUser.name"
-            type="text"
-            class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-ong-primary"
-            required
-          />
+      <form @submit.prevent="submitAddUser">
+        <div class="space-y-4">
+
+          <!-- Nome + username -->
+          <div class="flex gap-4">
+            <div class="w-2/3">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+              <input
+                v-model="newUser.name"
+                type="text"
+                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-ong-primary"
+                required
+              />
+            </div>
+
+            <div class="w-1/3">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Usuário</label>
+              <input
+                v-model="newUser.username"
+                type="text"
+                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-ong-primary"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Email + senha -->
+          <div class="flex gap-4">
+            <div class="w-1/2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input
+                v-model="newUser.email"
+                type="email"
+                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-ong-primary"
+                required
+              />
+            </div>
+
+            <div class="w-1/2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+              <input
+                v-model="newUser.password"
+                type="password"
+                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-ong-primary"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Cargo -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+            <select
+              v-model="newUser.role"
+              class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-ong-primary"
+              required
+            >
+              <option value="" disabled selected>Selecione um cargo</option>
+              <option v-for="role in roles" :key="role.id" :value="role.id">
+                {{ role.name }}
+              </option>
+            </select>
+          </div>
         </div>
 
-        <div>
-          <label class="text-sm font-medium text-gray-700">Username</label>
-          <input
-            v-model="newUser.username"
-            type="text"
-            class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-ong-primary"
-            required
-          />
-        </div>
-
-        <div>
-          <label class="text-sm font-medium text-gray-700">Email</label>
-          <input
-            v-model="newUser.email"
-            type="email"
-            class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-ong-primary"
-            required
-          />
-        </div>
-
-        <div>
-          <label class="text-sm font-medium text-gray-700">Senha</label>
-          <input
-            v-model="newUser.password"
-            type="password"
-            class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-ong-primary"
-            required
-          />
-        </div>
-
-        <!-- <div>
-          <label class="text-sm font-medium text-gray-700">URL da Foto de Perfil</label>
-          <input
-            v-model="newUser.profilePictureUrl"
-            type="text"
-            class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-ong-primary"
-          />
-        </div> -->
-
-        <div>
-          <label class="text-sm font-medium text-gray-700">Cargo</label>
-          <select
-            v-model="newUser.role"
-            class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-ong-primary"
-            required
+        <!-- Botões -->
+        <div class="mt-6 flex justify-end gap-2">
+          <button
+            type="button"
+            @click="showAddUserModal = false"
+            class="px-4 py-2 rounded-md border text-gray-700 hover:bg-gray-100"
           >
-            <option value="" disabled selected>Selecione um cargo</option>
-            <option v-for="role in roles" :key="role.id" :value="role.id">
-              {{ role.name }}
-            </option>
-          </select>
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 bg-ong-primary text-white rounded-md hover:bg-ong-accent"
+          >
+            Adicionar
+          </button>
         </div>
-
-      </div>
-
-      <div class="mt-6 flex justify-end gap-2">
-        <button
-          type="button"
-          @click="showAddUserModal = false"
-          class="px-4 py-2 rounded-md border text-gray-700 hover:bg-gray-100"
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          class="px-4 py-2 bg-ong-primary text-white rounded-md hover:bg-ong-accent"
-        >
-          Adicionar
-        </button>
-      </div>
-    </form>
-  </div>
+      </form>
+    </div>
 </div>
 
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue';
 import {
   Search,
   Plus,
@@ -250,9 +227,10 @@ import {
   Trash2,
   Shield,
   User
-} from 'lucide-vue-next'
+} from 'lucide-vue-next';
 
-import {formatarData} from '../../../utils/format/index.js';
+import {formatarData} from '@/utils/format/index.js';
+import { showToast } from '@/utils/uiAlerts/toast';
 
 const searchTerm = ref('')
 
@@ -286,12 +264,15 @@ async function fetchAllRoles(){
 }
 
 const filteredUsers = computed(() => {
-  const term = searchTerm.value.toLowerCase()
-  return users.value.filter(user =>
-    user.name.toLowerCase().includes(term) ||
-    user.email.toLowerCase().includes(term)
-  )
-})
+  const term = searchTerm.value.toLowerCase();
+  return (users.value || []).filter(user => {
+    const name = user?.name?.toLowerCase() || '';
+    const email = user?.email?.toLowerCase() || '';
+    return name.includes(term) || email.includes(term);
+  });
+});
+
+
 
 function getRoleColor(role) {
   switch (role) {
@@ -360,10 +341,20 @@ async function submitAddUser() {
 
 
     const created = await response.json();
-    users.value.push(created); // atualiza a lista
+    // users.value.push(created); // atualiza a lista
+    users.value = await fetchUsers();
 
     showAddUserModal.value = false;
-    resetForm()
+    resetForm();
+
+    
+    showToast({
+      icon: 'success',
+      title: 'Usuário criado com sucesso!',
+      description: 'Um e-mail será enviado para o mesmo.',
+      timer: 4000,
+    });
+
   } catch (error) {
     console.error('Erro ao adicionar usuário:', error)
   }
@@ -390,7 +381,7 @@ watch(showAddUserModal, async (opened) => {
 });
 
 onMounted(async () => {
-  users.value = await fetchUsers()
+  users.value = await fetchUsers();
 })
 
 

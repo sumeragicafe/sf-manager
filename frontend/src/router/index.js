@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory} from 'vue-router';
+import { useSessionStore } from '@/stores/session'
 import NotFound from '../views/NotFound.vue';
 
 
@@ -84,29 +85,34 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  if (to.meta.requiresAuth) {
-    const ok = await isAuthenticated();
-    if (!ok) {
-      return next({ name: 'login' });
-    }
+  const session = useSessionStore();
+
+  // Verifica se a sessão já foi carregada, se não, carrega
+  if (!session.isLoggedIn) {
+    await session.fetchSession();
   }
-  next();
+
+  // Exemplo de rota protegida
+  if (to.meta.requiresAuth && !session.isLoggedIn) {
+    next({ name: 'login' });
+  } else {
+    next();
+  }
 });
 
+// async function isAuthenticated() {
+//   try {
+//     const res = await fetch('/api/user/session', {
+//       credentials: 'include', // muito importante para enviar cookies
+//     });
+//     if (!res.ok) return false;
 
-async function isAuthenticated() {
-  try {
-    const res = await fetch('/api/user/session', {
-      credentials: 'include', // muito importante para enviar cookies
-    });
-    if (!res.ok) return false;
-
-    const data = await res.json();
-    return !!data.user;
-  } catch (err) {
-    return false;
-  }
-}
+//     const data = await res.json();
+//     return !!data.user;
+//   } catch (err) {
+//     return false;
+//   }
+// }
 
 
 

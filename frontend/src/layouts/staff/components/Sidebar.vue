@@ -38,19 +38,20 @@
         </RouterLink>
       </nav>
 
-      <UserProfileSection />
+      <UserProfileSection :session="session" />
     </div>
   </div>
 </template>
 
 <script setup>
+import { defineProps, defineEmits, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   Home, Users, Calendar, Heart, MessageSquare,
   FileText, Settings, UserCheck, Shield, X
 } from 'lucide-vue-next';
-import { defineProps, defineEmits } from 'vue';
 import UserProfileSection from '@/layouts/staff/components/UserProfileSection.vue';
+import { useSessionStore } from '@/stores/session';
 
 const props = defineProps({
   isOpen: Boolean
@@ -59,6 +60,8 @@ const props = defineProps({
 defineEmits(['close']);
 
 const route = useRoute();
+
+const session = useSessionStore()
 
 const navigation = [
   { name: 'Dashboard', href: '/staff', icon: Home, exact: true },
@@ -76,4 +79,8 @@ function isActive(item) {
   return item.exact ? route.path === item.href : route.path.startsWith(item.href);
 }
 
+onMounted(async () => {
+  await session.fetchSession();
+  console.log(session);
+})
 </script>
