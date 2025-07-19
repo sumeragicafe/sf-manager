@@ -1,7 +1,8 @@
 <script setup>
 import { RouterView } from 'vue-router';
-import Header from './components/Header.vue';
-import Footer from './components/Footer.vue';
+import Header from '@/layouts/landing/components/Header.vue';
+import Footer from '@/layouts/landing/components/Footer.vue';
+
 function toggleTheme() {
   document.documentElement.classList.toggle('dark')
 }

@@ -34,7 +34,8 @@
 <script setup>
 import { ref } from 'vue';
 import { Menu } from 'lucide-vue-next';
-import Sidebar from './components/Sidebar.vue';
+
+import Sidebar from '@/layouts/staff/components/Sidebar.vue';
 
 const sidebarOpen = ref(false);
 </script>

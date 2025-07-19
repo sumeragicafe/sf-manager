@@ -50,7 +50,7 @@ import {
   FileText, Settings, UserCheck, Shield, X
 } from 'lucide-vue-next';
 import { defineProps, defineEmits } from 'vue';
-import UserProfileSection from './UserProfileSection.vue';
+import UserProfileSection from '@/layouts/staff/components/UserProfileSection.vue';
 
 const props = defineProps({
   isOpen: Boolean

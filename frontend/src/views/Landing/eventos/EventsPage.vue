@@ -9,6 +9,6 @@
 </template>
 
 <script setup>
-import EventsCalendar from './components/EventsCalendar.vue';
-import EventsHighlight from './components/EventsHighlight.vue';
+import EventsCalendar from '@/views/Landing/eventos/components/EventsCalendar.vue';
+import EventsHighlight from '@/views/Landing/eventos/components/EventsHighlight.vue';
 </script>
