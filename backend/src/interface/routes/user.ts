@@ -6,6 +6,7 @@ import { authServiceSingleton } from '@dependencies/singletons';
 const router = Router();
 
 router.post('/login', UserController.login);
+router.post('/logout', requireAuth(authServiceSingleton), UserController.logout);
 
 router.get('/list', requireAuth(authServiceSingleton), UserController.list);
 router.post('/register', requireAuth(authServiceSingleton), UserController.register);
