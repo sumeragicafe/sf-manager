@@ -6,10 +6,14 @@
         <h1 class="text-3xl font-heading font-bold text-ong-text">Usuários</h1>
         <p class="text-muted-foreground mt-2">Gerencie usuários e suas permissões de acesso</p>
       </div>
-      <button @click="showAddUserModal = true" class="flex items-center gap-2 px-4 py-2 bg-ong-primary text-white rounded-lg hover:bg-ong-accent transition">
-        <Plus class="w-4 h-4" />
-        Adicionar Usuário
-      </button>
+
+      <BaseButton
+        :icon="Plus"
+        text="Adicionar Usuário"
+        :onClick="() => showAddUserModal = true"
+        variant="primary"
+      />
+
     </div>
 
     <!-- Search -->
@@ -77,9 +81,16 @@
             <td class="px-4 py-3">{{ formatarData(user.createdAt)}}</td>
             <td class="px-4 py-3 text-center">
               <div class="flex justify-center gap-2">
-                <button @click="openDeleteModal(user)" class="text-sm px-3 py-1 border rounded-md text-destructive hover:text-destructive-foreground">
-                  <Trash2 class="w-3 h-3" />
-                </button>
+                  <BaseButton
+                    :icon="Edit"
+                    :onClick="() => openEditModal(user)"
+                    variant="default"
+                  />
+                 <BaseButton
+                    :icon="Trash2"
+                    :onClick="() => openDeleteModal(user)"
+                    variant="danger"
+                  />
               </div>
             </td>
           </tr>
@@ -118,8 +129,6 @@
     </div>
   </div>
 </div>
-
-<!-- Modal de Confirmação de Exclusão -->
 
 <div
   v-if="showAddUserModal"
@@ -219,50 +228,33 @@
 </template>
 
 <script setup>
+/* ──────────────── IMPORTS ──────────────── */
 import { ref, computed, onMounted, watch } from 'vue';
-import {
-  Search,
-  Plus,
-  Edit,
-  Trash2,
-  Shield,
-  User
-} from 'lucide-vue-next';
+import { Search, Plus, Edit, Trash2, Shield, User } from 'lucide-vue-next';
 
-import {formatarData} from '@/utils/format/index.js';
+import BaseButton from '@/components/BaseButton.vue';
+
+import { formatarData } from '@/utils/format/index.js';
 import { showToast } from '@/utils/uiAlerts/toast';
+import { showConfirm } from '@/utils/uiAlerts/confirm.js';
 
-const searchTerm = ref('')
+/* ──────────────── STATE ──────────────── */
+const searchTerm = ref('');
+const users = ref([]);
+const roles = ref([]);
+const showAddUserModal = ref(false);
+const modalEditOpen = ref(false);
+const modalDeleteOpen = ref(false);
+const selectedUser = ref({});
+const newUser = ref({
+  name: '',
+  username: '',
+  email: '',
+  password: '',
+  role: ''
+});
 
-
-async function fetchUsers() {
-  try {
-    const response = await fetch('/api/user/list')
-    if (!response.ok) {
-      throw new Error('Erro ao buscar usuários')
-    }
-    const data = await response.json()
-    return data
-  } catch (error) {
-    console.error('Erro na requisição:', error)
-    return []
-  }
-}
-
-async function fetchAllRoles(){
-  try {
-    const response = await fetch('/api/role');
-    if (!response.ok) {
-      throw new Error('Erro ao buscar usuários');
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Erro na requisição:', error);
-    return [];
-  }
-}
-
+/* ──────────────── COMPUTED ──────────────── */
 const filteredUsers = computed(() => {
   const term = searchTerm.value.toLowerCase();
   return (users.value || []).filter(user => {
@@ -272,91 +264,13 @@ const filteredUsers = computed(() => {
   });
 });
 
-
-
+/* ──────────────── UTILS ──────────────── */
 function getRoleColor(role) {
   switch (role) {
-    case 'Administrador':
-      return 'bg-red-100 text-red-800'
-    case 'MODERATOR':
-      return 'bg-blue-100 text-blue-800'
-    case 'Voluntário':
-      return 'bg-green-100 text-green-800'
-    default:
-      return 'bg-gray-100 text-gray-800'
-  }
-}
-
-// modais
-const modalEditOpen = ref(false)
-const modalDeleteOpen = ref(false)
-const selectedUser = ref({})
-
-function openEditModal(user) {
-  selectedUser.value = { ...user }
-  modalEditOpen.value = true
-}
-
-function openDeleteModal(user) {
-  selectedUser.value = { ...user }
-  modalDeleteOpen.value = true
-}
-
-function saveUserEdits() {
-  console.log('Salvando usuário:', selectedUser.value)
-  // Aqui você faria uma requisição PUT/PATCH
-  modalEditOpen.value = false
-}
-
-function deleteUser() {
-  console.log('Deletando usuário:', selectedUser.value.id)
-  // Aqui você faria uma requisição DELETE
-  users.value = users.value.filter(u => u.id !== selectedUser.value.id)
-  modalDeleteOpen.value = false
-}
-
-const showAddUserModal = ref(false)
-
-const newUser = ref({
-  name: '',
-  username: '',
-  email: '',
-  password: '',
-  role: ''
-});
-
-async function submitAddUser() {
-  try {
-    const response = await fetch('/api/user/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newUser.value)
-    })
-
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Erro ao registrar usuário');
-    }
-
-
-    const created = await response.json();
-    // users.value.push(created); // atualiza a lista
-    users.value = await fetchUsers();
-
-    showAddUserModal.value = false;
-    resetForm();
-
-    
-    showToast({
-      icon: 'success',
-      title: 'Usuário criado com sucesso!',
-      description: 'Um e-mail será enviado para o mesmo.',
-      timer: 4000,
-    });
-
-  } catch (error) {
-    console.error('Erro ao adicionar usuário:', error)
+    case 'Administrador': return 'bg-red-100 text-red-800';
+    case 'MODERATOR':     return 'bg-blue-100 text-blue-800';
+    case 'Voluntário':    return 'bg-green-100 text-green-800';
+    default:              return 'bg-gray-100 text-gray-800';
   }
 }
 
@@ -367,13 +281,99 @@ function resetForm() {
     email: '',
     password: '',
     profilePictureUrl: ''
+  };
+}
+
+/* ──────────────── MODALS & ACTIONS ──────────────── */
+function openEditModal(user) {
+  selectedUser.value = { ...user };
+  modalEditOpen.value = true;
+}
+
+async function openDeleteModal(user) {
+  selectedUser.value = { ...user };
+
+  const confirmed = await showConfirm({
+    title: 'Excluir usuário',
+    text: `Tem certeza que deseja excluir ${user.name}?`,
+    icon: 'warning',
+    confirmButtonText: 'Excluir',
+    cancelButtonText: 'Cancelar',
+  });
+
+  if (confirmed) {
+    await deleteUser(); // chama sua função de exclusão real
   }
 }
 
-const users = ref([])
-const roles = ref([]);
+function saveUserEdits() {
+  console.log('Salvando usuário:', selectedUser.value);
+  // TODO: Requisição PATCH
+  modalEditOpen.value = false;
+}
+
+/* ──────────────── API CALLS ──────────────── */
+async function fetchUsers() {
+  try {
+    const response = await fetch('/api/user/list');
+    if (!response.ok) throw new Error('Erro ao buscar usuários');
+    return await response.json();
+  } catch (error) {
+    console.error('Erro na requisição:', error);
+    return [];
+  }
+}
+
+async function fetchAllRoles() {
+  try {
+    const response = await fetch('/api/role');
+    if (!response.ok) throw new Error('Erro ao buscar cargos');
+    return await response.json();
+  } catch (error) {
+    console.error('Erro na requisição:', error);
+    return [];
+  }
+}
+
+async function submitAddUser() {
+  try {
+    const response = await fetch('/api/user/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newUser.value)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Erro ao registrar usuário');
+    }
+
+    const created = await response.json();
+    users.value = await fetchUsers();
+    showAddUserModal.value = false;
+    resetForm();
+
+    showToast({
+      icon: 'success',
+      title: 'Usuário criado com sucesso!',
+      description: 'Um e-mail será enviado para o mesmo.',
+      timer: 4000,
+    });
+  } catch (error) {
+    console.error('Erro ao adicionar usuário:', error);
+  }
+}
+
+async function deleteUser() {
+  console.log('Deletando usuário:', selectedUser.value.id);
+  // TODO: Requisição DELETE
+  users.value = users.value.filter(u => u.id !== selectedUser.value.id);
+  modalDeleteOpen.value = false;
+}
 
 
+
+/* ──────────────── WATCHERS & MOUNT ──────────────── */
 watch(showAddUserModal, async (opened) => {
   if (opened) {
     roles.value = await fetchAllRoles();
@@ -382,7 +382,5 @@ watch(showAddUserModal, async (opened) => {
 
 onMounted(async () => {
   users.value = await fetchUsers();
-})
-
-
+});
 </script>
