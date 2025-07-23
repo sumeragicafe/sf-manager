@@ -98,8 +98,15 @@ export class SequelizeUserRepository implements IUserRepository{
             description: perm.description
             })) || []
         };
-        }
+    }
 
+    async deleteById(id: string): Promise<void> {
+        const deletedCount = await UserModel.destroy({ where: { id } });
+
+        if (deletedCount === 0) {
+            throw new Error(`Usuário com id ${id} não encontrado para exclusão.`);
+        }
+    }
 
 
 }

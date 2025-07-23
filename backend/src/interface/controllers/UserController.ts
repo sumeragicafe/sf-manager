@@ -5,6 +5,8 @@ import { authServiceSingleton } from 'src/dependencies/singletons';
 import { registerUser } from '@usecases/User/registerUser';
 import { loginUser } from '@usecases/User/loginUser';
 import { listUserPermissions } from '@usecases/User/listUserPermissions';
+import { deleteUser } from '@usecases/User/deleteUser';
+
 
 export class UserController {
   static async register(req: Request, res: Response) {
@@ -86,5 +88,17 @@ export class UserController {
       return;
     }
   }
+
+  static async delete(req: Request, res: Response) {
+    const { id } = req.params;
+
+    try {
+      await deleteUser(userRepositorySingleton)(id);
+      res.status(200).json({ message: 'Usuário deletado com sucesso' });
+    } catch (err: any) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+
 
 }
