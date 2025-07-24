@@ -11,6 +11,18 @@ export class SequelizeUserRepository implements IUserRepository{
         return new User(created.toJSON());
     }
 
+    async update(user: User): Promise<User> {
+        const persistedUser = await UserModel.findByPk(user.props.id);
+
+        if (!persistedUser) {
+            throw new Error(`Usuário com id ${user.props.id} não encontrado para atualização.`);
+        }
+
+        await persistedUser.update(user.toPersistence());
+
+        return new User(persistedUser.toJSON());
+    }
+
     async findById(id: string): Promise<User | null> {
         const user = await UserModel.findByPk(id);
         return user ? new User(user.toJSON()) : null;
