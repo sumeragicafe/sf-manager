@@ -6,6 +6,7 @@ import { registerUser } from '@usecases/User/registerUser';
 import { loginUser } from '@usecases/User/loginUser';
 import { listUserPermissions } from '@usecases/User/listUserPermissions';
 import { deleteUser } from '@usecases/User/deleteUser';
+import { updateUser } from '@usecases/User/updateUser';
 
 
 export class UserController {
@@ -100,5 +101,36 @@ export class UserController {
     }
   }
 
+  static async update(req: Request, res: Response) {
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ error: 'ID do usuário não informado' });
+      return;
+    }
+
+    const updatedUserProps = { ...req.body, id };
+
+    try {
+      const updatedUser = await updateUser(userRepositorySingleton)(updatedUserProps);
+
+      if (!updatedUser) {
+        res.status(404).json({ error: 'Usuário não encontrado' });
+      }
+
+      res.status(200).json({
+        message: 'Usuário atualizado com sucesso',
+        user: updatedUser.toPersistence()
+      });
+    } catch (err: any) {
+      // Se o erro for de usuário não encontrado, retorne 404
+      if (err.message === 'Usuário não encontrado') {
+        res.status(404).json({ error: err.message });
+      }else{
+        res.status(400).json({ error: err.message });
+      }
+    } finally {
+      return;
+    }
+  }
 
 }

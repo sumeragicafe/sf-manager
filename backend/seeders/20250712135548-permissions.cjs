@@ -9,7 +9,7 @@ module.exports = {
     const permissions = [
       { name: 'USER_CREATE', description: 'Criar novos usuários' },
       { name: 'USER_DELETE', description: 'Excluir usuários' },
-      { name: 'USER_UPDATE_ROLE', description: 'Alterar permissões de usuários' },
+      { name: 'USER_UPDATE', description: 'Alterar dados de usuários' },
 
       { name: 'PERMISSION_GET', description: 'Criar novos usuários' },
       { name: 'PERMISSION_CREATE', description: 'Criar novos usuários' },

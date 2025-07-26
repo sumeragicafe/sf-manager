@@ -15,6 +15,8 @@ router.get('/permissions', requireAuth(authServiceSingleton), UserController.lis
 router.get('/session', requireAuth(authServiceSingleton), (req, res) => {
   res.json({ user: req.user });
 });
+router.put('/:id', hasPermissions(['USER_UPDATE'], authServiceSingleton, userRepositorySingleton), UserController.update);
+
 router.delete('/:id', hasPermissions(['USER_DELETE'], authServiceSingleton, userRepositorySingleton), UserController.delete);
 
 export default router;

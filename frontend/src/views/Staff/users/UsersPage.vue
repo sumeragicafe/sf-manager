@@ -110,7 +110,7 @@
       <button @click="modalEditOpen = false" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
     </div>
 
-    <form @submit.prevent="saveUserEdits">
+    <form @submit.prevent="submitEditUser">
       <div class="space-y-4">
         <!-- Nome + username -->
         <div class="flex gap-4">
@@ -382,11 +382,8 @@ async function openDeleteModal(user) {
   }
 }
 
-function saveUserEdits() {
-  console.log('Salvando usuário:', selectedUser.value);
-  // TODO: Requisição PATCH
-  modalEditOpen.value = false;
-}
+
+
 
 /* ──────────────── API CALLS ──────────────── */
 async function fetchUsers() {
@@ -445,6 +442,44 @@ async function submitAddUser() {
     });
   } catch (error) {
     console.error('Erro ao adicionar usuário:', error);
+  }
+}
+
+async function submitEditUser() {
+  try {
+    const user = selectedUser.value;
+
+    const response = await fetch(`/api/user/${user.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: user.name,
+        email: user.email,
+        roleId: user.roleId,
+        username: user.username
+        // Inclua aqui outros campos editáveis, se necessário
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Erro ao atualizar usuário');
+    }
+
+    const updated = await response.json();
+    users.value = await fetchUsers();
+    modalEditOpen.value = false;
+
+    showToast({
+      icon: 'success',
+      title: 'Usuário atualizado com sucesso!',
+      description: 'As alterações foram salvas.',
+      timer: 3000,
+    });
+
+  } catch (error) {
+    console.error('Erro ao atualizar usuário:', error);
+    alert(error.message || 'Erro ao tentar atualizar o usuário');
   }
 }
 
