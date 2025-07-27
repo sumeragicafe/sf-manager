@@ -52,6 +52,12 @@ const variantClasses = computed(() => {
         hover:bg-transparent hover:text-destructive
         focus:outline-none
       `;
+    case 'warning':
+      return `
+        bg-yellow-400 text-white border-yellow-400
+        hover:bg-transparent hover:text-yellow-400
+        focus:outline-none
+      `;
     default:
       return `
         bg-gray-200 text-gray-800 border-gray-200
