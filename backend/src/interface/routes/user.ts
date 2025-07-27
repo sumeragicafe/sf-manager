@@ -10,13 +10,13 @@ router.post('/login', UserController.login);
 router.post('/logout', requireAuth(authServiceSingleton), UserController.logout);
 
 router.get('/list', requireAuth(authServiceSingleton), UserController.list);
-router.post('/register', hasPermissions(['USER_CREATE'], authServiceSingleton, userRepositorySingleton), UserController.register);
+router.post('/register', hasPermissions(['user.create'], authServiceSingleton, userRepositorySingleton), UserController.register);
 router.get('/permissions', requireAuth(authServiceSingleton), UserController.listPermissions);
 router.get('/session', requireAuth(authServiceSingleton), (req, res) => {
   res.json({ user: req.user });
 });
-router.put('/:id', hasPermissions(['USER_UPDATE'], authServiceSingleton, userRepositorySingleton), UserController.update);
+router.put('/:id', hasPermissions(['user.update'], authServiceSingleton, userRepositorySingleton), UserController.update);
 
-router.delete('/:id', hasPermissions(['USER_DELETE'], authServiceSingleton, userRepositorySingleton), UserController.delete);
+router.delete('/:id', hasPermissions(['user.delte'], authServiceSingleton, userRepositorySingleton), UserController.delete);
 
 export default router;
