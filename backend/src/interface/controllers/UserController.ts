@@ -7,6 +7,8 @@ import { loginUser } from '@usecases/User/loginUser';
 import { listUserPermissions } from '@usecases/User/listUserPermissions';
 import { deleteUser } from '@usecases/User/deleteUser';
 import { updateUser } from '@usecases/User/updateUser';
+import { adminChangePassword } from '@usecases/User/adminChangePassword';
+import { changePassword } from '@usecases/User/changePassword';
 
 
 export class UserController {
@@ -129,6 +131,46 @@ export class UserController {
         res.status(400).json({ error: err.message });
       }
     } finally {
+      return;
+    }
+  }
+
+   // Usuário troca a própria senha (precisa informar senha antiga)
+  static async changePassword(req: Request, res: Response) {
+    const userId = req.user?.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({ error: 'Senha atual e nova senha são obrigatórias.' });
+      return;
+    }
+
+    try {
+      await changePassword(userRepositorySingleton)(userId, currentPassword, newPassword);
+      res.status(200).json({ message: 'Senha alterada com sucesso.' });
+    } catch (err: any) {
+      res.status(400).json({ error: err.message });
+    } finally{
+      return;
+    }
+  }
+
+  // Admin troca a senha de um usuário (sem senha antiga)
+  static async adminChangePassword(req: Request, res: Response) {
+    const userId = req.params.id;
+    const { newPassword } = req.body;
+
+    if (!newPassword) {
+      res.status(400).json({ error: 'Nova senha é obrigatória.' });
+      return;
+    }
+
+    try {
+      const message = await adminChangePassword(userRepositorySingleton)(userId, newPassword);
+      res.status(200).json({ message: message });
+    } catch (err: any) {
+      res.status(400).json({ error: err.message });
+    } finally{
       return;
     }
   }

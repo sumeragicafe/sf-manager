@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { IUserRepository } from "@domain/repositories/IUserRepository";
 import { User } from '@domain/entities/User';
 import { UserModel } from '@infra/sequelize/models/User.model';
@@ -119,6 +120,37 @@ export class SequelizeUserRepository implements IUserRepository{
             throw new Error(`Usuário com id ${id} não encontrado para exclusão.`);
         }
     }
+
+    // async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<string> {
+    //     const user = await UserModel.findByPk(userId);
+
+    //     if (!user) {
+    //     throw new Error('Usuário não encontrado.');
+    //     }
+
+    //     const isMatch = await bcrypt.compare(currentPassword, user.password);
+    //     if (!isMatch) {
+    //     throw new Error('Senha atual incorreta.');
+    //     }
+
+    //     const hashedPassword = await bcrypt.hash(newPassword, 10);
+    //     await user.update({ password: hashedPassword, updatedAt: new Date() });
+        
+    //     return "Senha alterada com sucesso!";
+    // }
+
+    // async adminChangePassword(userId: string, newPassword: string): Promise<boolean> {
+    //     const user = await UserModel.findByPk(userId);
+
+    //     if (!user) {
+    //     throw new Error('Usuário não encontrado.');
+    //     }
+
+    //     const hashedPassword = await bcrypt.hash(newPassword, 10);
+    //     await user.update({ password: hashedPassword, updatedAt: new Date() });
+
+    //     return true;
+    // }
 
 
 }

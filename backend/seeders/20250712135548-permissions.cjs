@@ -11,6 +11,7 @@ module.exports = {
       { name: 'user.create', description: 'Criar novos usuários' },
       { name: 'user.delete', description: 'Excluir usuários' },
       { name: 'user.update', description: 'Alterar dados de usuários' },
+      { name: 'user.change_password', description: 'Alterar senha de outros usuários' },
 
       { name: 'permission.get', description: 'Visualizar permissões' },
       { name: 'permission.create', description: 'Criar permissões' },
