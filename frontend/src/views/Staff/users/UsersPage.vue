@@ -82,11 +82,20 @@
             <td class="px-4 py-3 text-center">
               <div class="flex justify-center gap-2">
                   <BaseButton
+                    :icon="RectangleEllipsis"
+                    v-if="hasPermission('user.update')"
+                    :onClick="() => openChangePasswordModal(user)"
+                    variant="warning"
+                  >
+                  </BaseButton>
+                  <BaseButton
+                    v-if="hasPermission('user.update')"
                     :icon="Edit"
                     :onClick="() => openEditModal(user)"
                     variant="default"
                   />
                  <BaseButton
+                    v-if="hasPermission('user.delete')"
                     :icon="Trash2"
                     :onClick="() => openDeleteModal(user)"
                     variant="danger"
@@ -293,10 +302,11 @@
 <script setup>
 /* ──────────────── IMPORTS ──────────────── */
 import { ref, computed, onMounted, watch } from 'vue';
-import { Search, Plus, Edit, Trash2, Shield, User } from 'lucide-vue-next';
+import { Search, Plus, Edit, Trash2, Shield, RectangleEllipsis, User } from 'lucide-vue-next';
 
 import BaseButton from '@/components/BaseButton.vue';
 
+import { verifyPermission } from '@/composables';
 import { formatarData } from '@/utils/format/index.js';
 import { showToast } from '@/utils/uiAlerts/toast';
 import { showConfirm } from '@/utils/uiAlerts/confirm.js';
@@ -322,6 +332,7 @@ const newUser = ref({
   password: '',
   role: ''
 });
+const hasPermission = verifyPermission();
 
 /* ──────────────── COMPUTED ──────────────── */
 const filteredUsers = computed(() => {
@@ -380,6 +391,11 @@ async function openDeleteModal(user) {
   if (confirmed) {
     await deleteUser(); // chama sua função de exclusão real
   }
+}
+
+function openChangePasswordModal(user) {
+  console.log('trocar senha:', user);
+
 }
 
 
@@ -537,6 +553,8 @@ async function deleteUser() {
 
 onMounted(async () => {
   users.value = await fetchUsers();
+
   roles.value = await fetchAllRoles();
+  
 });
 </script>
