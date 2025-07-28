@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { IUserRepository } from "@domain/repositories/IUserRepository";
 import { User } from '@domain/entities/User';
 import { UserModel } from '@infra/sequelize/models/User.model';
@@ -9,6 +10,18 @@ export class SequelizeUserRepository implements IUserRepository{
     async save(user: User): Promise <User> {
         const created = await UserModel.create(user.toPersistence());
         return new User(created.toJSON());
+    }
+
+    async update(user: User): Promise<User> {
+        const persistedUser = await UserModel.findByPk(user.props.id);
+
+        if (!persistedUser) {
+            throw new Error(`Usuário com id ${user.props.id} não encontrado para atualização.`);
+        }
+
+        await persistedUser.update(user.toPersistence());
+
+        return new User(persistedUser.toJSON());
     }
 
     async findById(id: string): Promise<User | null> {
@@ -98,8 +111,46 @@ export class SequelizeUserRepository implements IUserRepository{
             description: perm.description
             })) || []
         };
-        }
+    }
 
+    async deleteById(id: string): Promise<void> {
+        const deletedCount = await UserModel.destroy({ where: { id } });
+
+        if (deletedCount === 0) {
+            throw new Error(`Usuário com id ${id} não encontrado para exclusão.`);
+        }
+    }
+
+    // async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<string> {
+    //     const user = await UserModel.findByPk(userId);
+
+    //     if (!user) {
+    //     throw new Error('Usuário não encontrado.');
+    //     }
+
+    //     const isMatch = await bcrypt.compare(currentPassword, user.password);
+    //     if (!isMatch) {
+    //     throw new Error('Senha atual incorreta.');
+    //     }
+
+    //     const hashedPassword = await bcrypt.hash(newPassword, 10);
+    //     await user.update({ password: hashedPassword, updatedAt: new Date() });
+        
+    //     return "Senha alterada com sucesso!";
+    // }
+
+    // async adminChangePassword(userId: string, newPassword: string): Promise<boolean> {
+    //     const user = await UserModel.findByPk(userId);
+
+    //     if (!user) {
+    //     throw new Error('Usuário não encontrado.');
+    //     }
+
+    //     const hashedPassword = await bcrypt.hash(newPassword, 10);
+    //     await user.update({ password: hashedPassword, updatedAt: new Date() });
+
+    //     return true;
+    // }
 
 
 }

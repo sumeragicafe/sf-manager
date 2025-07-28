@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, onMounted } from 'vue';
+import { defineProps, defineEmits, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   Home, Users, Calendar, Heart, MessageSquare,
@@ -52,6 +52,9 @@ import {
 } from 'lucide-vue-next';
 import UserProfileSection from '@/layouts/staff/components/UserProfileSection.vue';
 import { useSessionStore } from '@/stores/session';
+import { verifyPermission } from '@/composables';
+
+const hasPermission = verifyPermission();
 
 const props = defineProps({
   isOpen: Boolean
@@ -63,17 +66,29 @@ const route = useRoute();
 
 const session = useSessionStore()
 
-const navigation = [
-  { name: 'Dashboard', href: '/staff', icon: Home, exact: true },
+const fullNavigation = [
+  { name: 'Dashboard', href: '/staff', icon: Home },
   { name: 'Animais em Adoção', href: '/staff/pet', icon: Heart },
   // { name: 'Adotantes', href: '/staff/adopters', icon: UserCheck },
   { name: 'Eventos', href: '/staff/event', icon: Calendar },
-  // { name: 'Contatos', href: '/staff/contacts', icon: MessageSquare },
+    // { name: 'Contatos', href: '/staff/contacts', icon: MessageSquare },
   // { name: 'Formulários', href: '/staff/forms', icon: FileText },
-  { name: 'Usuários', href: '/staff/user', icon: Users },
-  { name: 'Cargos & Permissões', href: '/staff/role', icon: Shield },
-  // { name: 'Configurações', href: '/staff/settings', icon: Settings },
+  { name: 'Usuários', href: '/staff/user', icon: Users, permission: 'user.create' },
+  { name: 'Cargos & Permissões', href: '/staff/role', icon: Shield, permission: 'role.create' },
+    // { name: 'Configurações', href: '/staff/settings', icon: Settings },
 ];
+
+const can = verifyPermission();
+
+const navigation = computed(() => {
+  return fullNavigation.filter(item => {
+    // Se não precisa de permissão, mantém
+    if (!item.permission) return true;
+    
+    // Só mantém se a permissão existir
+    return hasPermission(item.permission);
+  });
+});
 
 function isActive(item) {
   return item.exact ? route.path === item.href : route.path.startsWith(item.href);

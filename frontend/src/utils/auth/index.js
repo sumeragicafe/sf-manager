@@ -21,6 +21,14 @@ export async function verifySession() {
   }
 }
 
+export function hasPermission(userPermissions, required) {
+  if (!userPermissions) return false;
+  if (Array.isArray(required)) {
+    return required.some(perm => userPermissions.includes(perm));
+  }
+  return userPermissions.includes(required);
+}
+
 export async function logout() {
   try {
     const res = await fetch('/api/user/logout', {
@@ -29,10 +37,6 @@ export async function logout() {
     });
 
     if (res.ok) {
-      // Opcional: limpar estado local (Pinia, etc)
-      // Exemplo:
-      // const session = useSessionStore();
-      // session.logout();
       console.log(res);
 
       router.push({ name: 'login', query:  { loggedOut: '1' } });

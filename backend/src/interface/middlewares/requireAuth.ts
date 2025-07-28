@@ -13,7 +13,7 @@ export function requireAuth(authService: AuthService) {
     const token = req.session?.token;
 
     if (!token) {
-      res.status(401).json({ error: 'Sessão não encontrada' });
+      res.status(401).json({ message: 'Sessão não encontrada' });
       return;
     }
 
