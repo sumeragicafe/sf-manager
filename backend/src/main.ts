@@ -8,6 +8,7 @@ import router from '@interface/routes/index';
 import { initUserModel } from '@infra/sequelize/models/User.model';
 import { initPermissionModel } from '@infra/sequelize/models/Permission.model';
 import { initRoleModel } from '@infra/sequelize/models/Role.model';
+import { initEventModel } from '@infra/sequelize/models/Event.model';
 import { associateRolePermission } from '@infra/sequelize/models/RolePermission.model';
 
 //import { initPetModel } from './infra/db/models/Pet.model';
@@ -52,6 +53,7 @@ const sequelize = new Sequelize(
 initRoleModel(sequelize);
 initPermissionModel(sequelize);
 initUserModel(sequelize);
+initEventModel(sequelize);
 associateRolePermission(sequelize);
 
 // Middlewares
