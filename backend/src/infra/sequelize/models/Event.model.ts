@@ -18,19 +18,22 @@ export function initEventModel(sequelize: Sequelize) {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
     },
     description: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    startAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
+    place: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
-    endAt: {
-        type: DataTypes.DATE,
-        allowNull: false
+    start_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    end_at: {
+      type: DataTypes.DATE,
+      allowNull: false
     }
   }, {
     sequelize,

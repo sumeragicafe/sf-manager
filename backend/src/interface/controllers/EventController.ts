@@ -10,28 +10,36 @@ const eventRepository = new SequelizeEventRepository();
 export class EventController {
   static async create(req: Request, res: Response) {
     try {
-      const { name, description, startAt, endAt } = req.body;
+      const { name, description, place, start_at, end_at } = req.body;
 
-      // todo, tem um jeito melhor (biblioteca) de descrever quais campos tem que vim, o tamanho etc
-      if (!name || !description || !startAt || !endAt) {
-        return res.status(400).json({ message: 'Campo obrigatório' });
+      const requiredFields = { name, start_at, end_at };
+
+      for (const [field, value] of Object.entries(requiredFields)) {
+        if (!value) {
+          res.status(400).json({ message: `Campo obrigatório: ${field}` });
+          return;
+        }
       }
 
-      const event = await createEvent(eventRepository)(name, description, startAt, endAt);
-      return res.status(201).json(event);
+      const event = await createEvent(eventRepository)(name, description, place, start_at, end_at);
+      res.status(201).json(event);
 
     } catch (err: any) {
-      return res.status(400).json({ message: err.message });
+      res.status(400).json({ message: err.message });
+    } finally {
+      return;
     }
   }
 
   static async list(req: Request, res: Response) {
     try {
       const events = await listEvents(eventRepository)();
-      return res.json(events);
+      res.json(events);
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ message: 'Erro ao buscar eventos' });
+      res.status(500).json({ message: 'Erro ao buscar eventos' });
+    } finally {
+      return;
     }
   }
 
@@ -40,14 +48,17 @@ export class EventController {
       const { id } = req.body;
 
       if (!id) {
-        return res.status(400).json({ message: 'ID do evento é obrigatório' });
+        res.status(400).json({ message: 'ID do evento é obrigatório' });
+        return;
       }
 
       await deleteEvent(eventRepository)(id);
-      return res.status(200).json({ message: 'Evento deletada com sucesso' });
+      res.status(200).json({ message: 'Evento deletada com sucesso' });
 
     } catch (err: any) {
-      return res.status(404).json({ message: err.message });
+      res.status(404).json({ message: err.message });
+    }finally{
+      return;
     }
   }
 }

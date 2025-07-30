@@ -2,8 +2,9 @@ export interface EventProps {
     id?: string; //uuid
     name: string;
     description: string;
-    startAt: Date;
-    endAt: Date;
+    place: string;
+    start_at: Date;
+    end_at: Date;
 }
 
 export class Event {
@@ -21,8 +22,9 @@ export class Event {
             id: this.props.id,
             name: this.props.name,
             description: this.props.description,
-            createdAt: this.props.startAt,
-            updatedAt: this.props.endAt,
+            place: this.props.place,
+            start_at: this.props.start_at,
+            end_at: this.props.end_at,
         };
     }
 }
