@@ -1,8 +1,6 @@
 <template>
   <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div
-      class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-scale-in"
-    >
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-scale-in">
       <!-- Cabeçalho -->
       <div class="flex justify-between items-center border-b pb-4 mb-4">
         <h2 class="text-xl font-heading text-ong-text">Alterar Senha</h2>
@@ -12,7 +10,9 @@
       </div>
 
       <div class="mb-6">
-        <p class="text-sm">Alterando senha para <b>{{ props.user?.username || "*Usuário Desconhecido" }}</b>.</p>
+        <p class="text-sm">
+          Alterando senha para <b>{{ props.user?.username || "*Usuário Desconhecido" }}</b>.
+        </p>
       </div>
 
       <!-- Formulário -->
@@ -45,7 +45,11 @@
       </form>
 
       <!-- Feedback -->
-      <div v-if="message" class="mt-4 text-green-600 text-sm">
+      <div
+        v-if="message"
+        class="mt-4 text-sm"
+        :class="messageType === 'success' ? 'text-green-600' : 'text-red-600'"
+      >
         {{ message }}
       </div>
     </div>
@@ -53,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { X } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -65,10 +69,12 @@ const emit = defineEmits(['close'])
 
 const newPassword = ref('')
 const message = ref('')
+const messageType = ref('success') // 'success' ou 'error'
 
 const close = () => {
   newPassword.value = ''
   message.value = ''
+  messageType.value = 'success'
   emit('close')
 }
 
@@ -90,11 +96,12 @@ const submit = async () => {
 
     const data = await res.json()
     message.value = data.message || 'Senha alterada com sucesso.'
+    messageType.value = 'success'
     setTimeout(() => close(), 1500)
   } catch (err) {
-    console.error(err);
-    message.value = 'Erro ao alterar senha.' + message.error;
+    console.error(err)
+    message.value = 'Erro ao alterar senha.'
+    messageType.value = 'error'
   }
 }
-
 </script>
