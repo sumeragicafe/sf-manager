@@ -16,13 +16,19 @@
       </button>
     </div>
 
-    <!-- Dropdown (drop-up) -->
+    <!-- Dropdown -->
     <transition name="fade">
       <div
         v-if="dropdownOpen"
-        class="absolute bottom-14 right-0 w-40 bg-white border border-border rounded-lg shadow-lg z-50 animate-fade-in"
+        class="absolute bottom-14 right-0 w-48 bg-white border border-border rounded-lg shadow-lg z-50 animate-fade-in"
         @click.stop
       >
+        <button
+          class="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition"
+           @click="$emit('open-password-modal')"
+        >
+          Trocar senha
+        </button>
         <button
           class="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition"
           @click="logoutUser"
@@ -31,13 +37,15 @@
         </button>
       </div>
     </transition>
+
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { ChevronUp, ChevronDown } from 'lucide-vue-next'
-import { logout } from '@/utils/auth';
+import { logout } from '@/utils/auth'
+
 
 defineProps({
   session: {
@@ -47,8 +55,29 @@ defineProps({
 })
 
 const dropdownOpen = ref(false)
+const passwordModalOpen = ref(false)
+
+const form = ref({
+  currentPassword: '',
+  newPassword: ''
+})
+
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value
+}
+
+const openPasswordModal = () => {
+  passwordModalOpen.value = true
+  dropdownOpen.value = false
+}
+
+const closePasswordModal = () => {
+  passwordModalOpen.value = false
+  form.value = { currentPassword: '', newPassword: '' }
+}
+
+const logoutUser = () => {
+  logout()
 }
 
 const handleClickOutside = (e) => {
@@ -56,11 +85,6 @@ const handleClickOutside = (e) => {
   if (dropdownEl && !dropdownEl.contains(e.target)) {
     dropdownOpen.value = false
   }
-}
-
-const logoutUser = () => {
-  console.log('Deslogando...')
-  logout();
 }
 
 onMounted(() => {
@@ -71,15 +95,3 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 </script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(8px);
-}
-</style>

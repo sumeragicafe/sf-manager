@@ -1,4 +1,6 @@
 <template>
+  <ChangePasswordModal v-model="passwordModalOpen" />
+
   <div
     :class="[
       'fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out',
@@ -38,13 +40,15 @@
         </RouterLink>
       </nav>
 
-      <UserProfileSection :session="session" />
+      <UserProfileSection :session="session" @open-password-modal="openPasswordModal" />
     </div>
   </div>
+
+
 </template>
 
 <script setup>
-import { defineProps, defineEmits, onMounted, computed } from 'vue';
+import { defineProps, defineEmits, onMounted, computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   Home, Users, Calendar, Heart, MessageSquare,
@@ -53,6 +57,16 @@ import {
 import UserProfileSection from '@/layouts/staff/components/UserProfileSection.vue';
 import { useSessionStore } from '@/stores/session';
 import { verifyPermission } from '@/composables';
+import ChangePasswordModal from '@/layouts/staff/components/ChangePasswordModal.vue';
+
+
+
+
+const passwordModalOpen = ref(false);
+
+const openPasswordModal = () => {
+  passwordModalOpen.value = true
+};
 
 const hasPermission = verifyPermission();
 
@@ -64,7 +78,7 @@ defineEmits(['close']);
 
 const route = useRoute();
 
-const session = useSessionStore()
+const session = useSessionStore();
 
 const fullNavigation = [
   { name: 'Dashboard', href: '/staff', icon: Home },
