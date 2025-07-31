@@ -83,7 +83,7 @@
               <div class="flex justify-center gap-2">
                   <BaseButton
                     :icon="RectangleEllipsis"
-                    v-if="hasPermission('user.update')"
+                    v-if="hasPermission('user.change_password')"
                     :onClick="() => openChangePasswordModal(user)"
                     variant="warning"
                   >
@@ -107,7 +107,13 @@
       </table>
     </div>
   </div>
-
+  
+<ChangeUserPasswordModal
+  :open="passwordModalOpen"
+  :user="selectedUser"
+  @close="passwordModalOpen = false"
+/>
+  
 <!-- Modal de Edição -->
 <div
   v-if="modalEditOpen"
@@ -310,12 +316,14 @@ import { verifyPermission } from '@/composables';
 import { formatarData } from '@/utils/format/index.js';
 import { showToast } from '@/utils/uiAlerts/toast';
 import { showConfirm } from '@/utils/uiAlerts/confirm.js';
+import ChangeUserPasswordModal from '@/views/Staff/users/components/ChangeUserPasswordModal.vue'
 
 /* ──────────────── STATE ──────────────── */
 const searchTerm = ref('');
 const users = ref([]);
 const roles = ref([]);
 const showAddUserModal = ref(false);
+const passwordModalOpen = ref(false)
 const modalEditOpen = ref(false);
 const modalDeleteOpen = ref(false);
 const selectedUser = ref({
@@ -394,8 +402,8 @@ async function openDeleteModal(user) {
 }
 
 function openChangePasswordModal(user) {
-  console.log('trocar senha:', user);
-
+  selectedUser.value = { ...user };
+  passwordModalOpen.value = true;
 }
 
 
