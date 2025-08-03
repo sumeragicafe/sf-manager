@@ -2,6 +2,7 @@
 import { ref, reactive, onMounted, computed } from 'vue';
 import { Key, Shield, Settings, Users, Edit, Trash2, Plus, Search } from 'lucide-vue-next';
 import BaseButton from '@/components/BaseButton.vue';
+import { showConfirm } from '@/utils/uiAlerts/confirm.js';
 
 const roles = ref([]);
 const allPermissions = ref([]);
@@ -113,10 +114,19 @@ function savePermissions() {
   });
 }
 
-function deleteRole(id) {
-  if (!confirm('Deseja remover este cargo?')) return;
-  fetch(`/api/role/${id}`, { method: 'DELETE' })
-    .then(() => fetchRoles());
+async function deleteRole(role) {
+
+  const confirmed = await showConfirm({
+    title: 'Excluir cargo',
+    text: `Tem certeza que deseja excluir ${role.name}?`,
+    icon: 'warning',
+    confirmButtonText: 'Excluir',
+    cancelButtonText: 'Cancelar',
+  });
+
+  if (confirmed) {
+    fetch(`/api/role/${role.id}`, { method: 'DELETE' }).then(() => fetchRoles());
+  }
 }
 
 const groupedPermissions = computed(() => {
@@ -176,7 +186,7 @@ const groupedPermissions = computed(() => {
             <td class="p-3 flex gap-2">
               <BaseButton :icon="Key" @click="openPermissionDialog(role)" variant="default" />
               <BaseButton :icon="Edit" @click="handleEditRole(role)" variant="warning" />
-              <BaseButton :icon="Trash2" @click="deleteRole(role.id)" variant="danger" />
+              <BaseButton :icon="Trash2" @click="deleteRole(role)" variant="danger" />
             </td>
           </tr>
         </tbody>

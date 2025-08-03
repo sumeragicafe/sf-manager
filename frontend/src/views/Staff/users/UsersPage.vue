@@ -60,11 +60,11 @@
               <span
                 :class="[
                   'px-2 py-0.5 text-xs rounded-full font-semibold inline-flex items-center gap-1',
-                  getRoleColor(user.role.name)
+                  getRoleColor(user.role?.name || '')
                 ]"
               >
-                <Shield class="w-3 h-3" />
-                {{ user.role.name }}
+                <Shield v-if="user.role?.name" class="w-3 h-3" />
+                {{ user.role?.name ?? "Sem Cargo" }}
               </span>
             </td>
             <td class="px-4 py-3">
