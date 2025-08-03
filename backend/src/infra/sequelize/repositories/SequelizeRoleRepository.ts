@@ -113,11 +113,11 @@ export class SequelizeRoleRepository implements IRoleRepository {
           id: p.id,
           name: p.name,
           description: p.description,
-        }))
+        })),
       });
     });
-  }
 
+  }
 
   async delete(roleId: string){
     const deleted = await RoleModel.destroy({ where: { id: roleId } });

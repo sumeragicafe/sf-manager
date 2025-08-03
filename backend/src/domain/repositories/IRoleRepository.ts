@@ -9,6 +9,6 @@ export interface IRoleRepository {
   createWithPermissions(name: string, description: string, permissionIds: string[]): Promise<Role>;
   update(id: string, name: string, description: string, permissionIds: string[]): Promise<Role>;
 
-  list(): Promise<Role[]>;
+  list(): Promise<Object[]>;
   delete(id: string): Promise<boolean>;
 }
