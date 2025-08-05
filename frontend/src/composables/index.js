@@ -6,8 +6,6 @@ export function verifyPermission() {
   const session = useSessionStore()
   const { permissions } = storeToRefs(session)
   return (required) => {
-    console.log(session);
-    console.log(permissions.value);
     return hasPermission(permissions.value, required)
   }
 }

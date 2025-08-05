@@ -1,9 +1,12 @@
 <script setup>
+/* ──────────────── IMPORTS ──────────────── */
 import { ref, reactive, onMounted, computed } from 'vue';
 import { Key, Shield, Settings, Users, Edit, Trash2, Plus, Search } from 'lucide-vue-next';
 import BaseButton from '@/components/BaseButton.vue';
 import { showConfirm } from '@/utils/uiAlerts/confirm.js';
 
+
+/* ──────────────── STATE ──────────────── */
 const roles = ref([]);
 const allPermissions = ref([]);
 const selectedRole = ref(null);
@@ -17,13 +20,48 @@ const formErrors = reactive({ name: '', description: '' });
 
 const filters = reactive({ search: '', roleType: 'all', permissionCount: 'all' });
 
-onMounted(() => {
-  fetchRoles();
-  fetchPermissions();
-  isRoleDialogOpen.value = false;
-  isPermissionDialogOpen.value = false;
+/* ──────────────── UTILS ──────────────── */
+function togglePermission(id) {
+  const index = selectedPermissions.value.indexOf(id);
+  if (index === -1) selectedPermissions.value.push(id);
+  else selectedPermissions.value.splice(index, 1);
+}
+
+function resetForm() {
+  formValues.name = '';
+  formValues.description = '';
+  formErrors.name = '';
+  formErrors.description = '';
   selectedRole.value = null;
-})
+}
+
+/* ──────────────── MODALS & ACTIONS ──────────────── */
+
+function openRoleDialog() {
+  resetForm();
+  isRoleDialogOpen.value = true;
+}
+
+function openPermissionDialog(role) {
+  selectedRole.value = role;
+  selectedPermissions.value = role.permissions.map(p => p.id);
+  isPermissionDialogOpen.value = true;
+}
+
+function closePermissionDialog() {
+  selectedRole.value = null;
+  isPermissionDialogOpen.value = false;
+}
+
+function handleEditRole(role) {
+  selectedRole.value = role;
+  formValues.name = role.name;
+  formValues.description = role.description;
+  isRoleDialogOpen.value = true;
+}
+
+
+/* ──────────────── API CALLS ──────────────── */
 
 async function fetchRoles() {
   const res = await fetch('/api/role');
@@ -58,50 +96,30 @@ function handleCreateRole() {
   fetch(url, {
     method,
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(formValues)
-  }).then(() => {
-    fetchRoles();
-    isRoleDialogOpen.value = false;
-    resetForm();
-  });
+    body: JSON.stringify({
+      name: formValues.name,
+      description: formValues.description,
+      permissionIds: selectedPermissions.value
+    })
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const data = await res.json();
+        if (data?.error?.includes('Cargo já existe')) {
+          formErrors.name = 'Já existe um cargo com este nome';
+        }
+        return;
+      }
+
+      fetchRoles();
+      isRoleDialogOpen.value = false;
+      resetForm();
+    })
+    .catch(err => {
+      console.error('Erro ao criar cargo:', err);
+    });
 }
 
-function resetForm() {
-  formValues.name = '';
-  formValues.description = '';
-  formErrors.name = '';
-  formErrors.description = '';
-  selectedRole.value = null;
-}
-
-function openRoleDialog() {
-  resetForm();
-  isRoleDialogOpen.value = true;
-}
-
-function openPermissionDialog(role) {
-  selectedRole.value = role;
-  selectedPermissions.value = role.permissions.map(p => p.id);
-  isPermissionDialogOpen.value = true;
-}
-
-function closePermissionDialog() {
-  selectedRole.value = null;
-  isPermissionDialogOpen.value = false;
-}
-
-function handleEditRole(role) {
-  selectedRole.value = role;
-  formValues.name = role.name;
-  formValues.description = role.description;
-  isRoleDialogOpen.value = true;
-}
-
-function togglePermission(id) {
-  const index = selectedPermissions.value.indexOf(id);
-  if (index === -1) selectedPermissions.value.push(id);
-  else selectedPermissions.value.splice(index, 1);
-}
 
 function savePermissions() {
   fetch(`/api/role/${selectedRole.value.id}/add-permission`, {
@@ -129,6 +147,8 @@ async function deleteRole(role) {
   }
 }
 
+
+/* ──────────────── COMPUTED ──────────────── */
 const groupedPermissions = computed(() => {
   const groups = {};
   allPermissions.value.forEach(p => {
@@ -138,6 +158,19 @@ const groupedPermissions = computed(() => {
   });
   return groups;
 });
+
+
+
+/* ──────────────── WATCHERS & MOUNT ──────────────── */
+onMounted(() => {
+  fetchRoles();
+  fetchPermissions();
+  isRoleDialogOpen.value = false;
+  isPermissionDialogOpen.value = false;
+  selectedRole.value = null;
+})
+
+
 </script>
 
 <template>
@@ -182,6 +215,7 @@ const groupedPermissions = computed(() => {
             <td class="p-3">
               <span v-for="p in role.permissions.slice(0, 2)" :key="p.id" class="badge-outline text-xs mr-1">{{ p.name }}</span>
               <span v-if="role.permissions.length > 2" class="text-xs text-gray-500">+{{ role.permissions.length - 2 }} mais</span>
+              <span v-if="role.permissions.length <= 0" class="text-xs text-gray-500">Nenhuma permissão associada</span>
             </td>
             <td class="p-3 flex gap-2">
               <BaseButton :icon="Key" @click="openPermissionDialog(role)" variant="default" />
@@ -212,5 +246,39 @@ const groupedPermissions = computed(() => {
         </div>
       </div>
     </div>
+
+    <!-- Modal CreateRole-->
+    <div v-if="isRoleDialogOpen" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded w-full max-w-md space-y-4">
+        <h2 class="text-lg font-semibold">
+          {{ selectedRole ? 'Editar Cargo' : 'Novo Cargo' }}
+        </h2>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Nome</label>
+            <input
+              v-model="formValues.name"
+              type="text"
+              class="w-full mt-1 border border-gray-300 rounded px-3 py-2 text-sm"
+            />
+            <p v-if="formErrors.name" class="text-red-500 text-xs mt-1">{{ formErrors.name }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Descrição</label>
+            <textarea
+              v-model="formValues.description"
+              class="w-full mt-1 border border-gray-300 rounded px-3 py-2 text-sm"
+            ></textarea>
+            <p v-if="formErrors.description" class="text-red-500 text-xs mt-1">{{ formErrors.description }}</p>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button class="btn-outline px-4 py-2" @click="isRoleDialogOpen = false">Cancelar</button>
+          <button class="btn-primary px-4 py-2" @click="handleCreateRole">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+
   </div>
 </template>

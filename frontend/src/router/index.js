@@ -100,22 +100,4 @@ router.beforeEach(async (to, from, next) => {
   }
 });
 
-// async function isAuthenticated() {
-//   try {
-//     const res = await fetch('/api/user/session', {
-//       credentials: 'include', // muito importante para enviar cookies
-//     });
-//     if (!res.ok) return false;
-
-//     const data = await res.json();
-//     return !!data.user;
-//   } catch (err) {
-//     return false;
-//   }
-// }
-
-
-
-
-
 export default router;
