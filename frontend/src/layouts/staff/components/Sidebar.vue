@@ -66,7 +66,7 @@ const session = useSessionStore()
 const navigation = [
   { name: 'Dashboard', href: '/staff', icon: Home, exact: true },
   { name: 'Animais em Adoção', href: '/staff/pet', icon: Heart },
-  // { name: 'Adotantes', href: '/staff/adopters', icon: UserCheck },
+  { name: 'Pedidos de Adoção', href: '/staff/adoption-requests', icon: UserCheck },
   { name: 'Eventos', href: '/staff/event', icon: Calendar },
   // { name: 'Contatos', href: '/staff/contacts', icon: MessageSquare },
   // { name: 'Formulários', href: '/staff/forms', icon: FileText },

@@ -1,7 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { Heart, MapPin, Calendar, ChevronDown, ChevronUp } from 'lucide-vue-next'
 
+const router = useRouter()
 const showAll = ref(false)
 const favorites = ref([])
 
@@ -83,6 +85,10 @@ function toggleFavorite(animalId) {
     favorites.value.push(animalId)
   }
 }
+
+function goToAdoptionForm(animalId) {
+  router.push(`/formulario-de-adocao/${animalId}`)
+}
 </script>
 
 <template>
@@ -100,19 +106,20 @@ function toggleFavorite(animalId) {
         <div
           v-for="(animal, index) in displayedAnimals"
           :key="animal.id"
-          class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover animate-fade-in"
+          class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover animate-fade-in cursor-pointer group"
           :style="{ animationDelay: `${index * 0.1}s` }"
+          @click="goToAdoptionForm(animal.id)"
         >
           <div class="relative">
             <img
               :src="animal.image"
               :alt="animal.name"
-              class="w-full h-64 object-cover"
+              class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
             />
             <button
-              @click="toggleFavorite(animal.id)"
+              @click.stop="toggleFavorite(animal.id)"
               :class="[
-                'absolute top-4 right-4 p-2 rounded-full transition-all duration-300',
+                'absolute top-4 right-4 p-2 rounded-full transition-all duration-300 z-10',
                 favorites.includes(animal.id)
                   ? 'bg-red-500 text-white'
                   : 'bg-white/80 text-gray-600 hover:bg-white'
@@ -152,7 +159,12 @@ function toggleFavorite(animalId) {
               {{ animal.location }}
             </div>
 
-            <button class="w-full btn-primary">Quero Adotar</button>
+            <button 
+              @click.stop="goToAdoptionForm(animal.id)"
+              class="w-full btn-primary hover:bg-ong-accent transition-colors duration-300"
+            >
+              Quero Adotar
+            </button>
           </div>
         </div>
       </div>

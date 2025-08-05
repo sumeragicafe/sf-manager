@@ -42,7 +42,7 @@ const router = createRouter({
                     component: () => import('../views/Landing/parcerias/PartnersPage.vue')
                 },
                 {
-                    path:'/formulario-de-adocao',
+                    path:'/formulario-de-adocao/:animalId?',
                     name:'formulario-de-adocao',
                     component: () => import('../views/Landing/form/Form.vue')
                 }
@@ -71,6 +71,11 @@ const router = createRouter({
                     name: 'RolePage',
                     component: () => import('../views/Staff/roles/RolePage.vue')
                    
+                },
+                {
+                    path: 'adoption-requests',
+                    name: 'AdoptionRequestsPage',
+                    component: () => import('../views/Staff/adoption-requests/AdoptionRequestsPage.vue')
                 },
 
             ]
