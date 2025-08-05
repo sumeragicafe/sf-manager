@@ -8,9 +8,8 @@ import router from '@interface/routes/index';
 import { initUserModel } from '@infra/sequelize/models/User.model';
 import { initPermissionModel } from '@infra/sequelize/models/Permission.model';
 import { initRoleModel } from '@infra/sequelize/models/Role.model';
+import { initEventModel } from '@infra/sequelize/models/Event.model';
 import { associateRolePermission } from '@infra/sequelize/models/RolePermission.model';
-import { initAnimalModel } from '@infra/sequelize/models/Animal.model';
-import { initAdoptionRequestModel, defineAdoptionRequestAssociations } from '@infra/sequelize/models/AdoptionRequest.model';
 
 //import { initPetModel } from './infra/db/models/Pet.model';
 //import { initUsuarioModel } from './infra/db/models/Usuario.model';
@@ -54,12 +53,8 @@ const sequelize = new Sequelize(
 initRoleModel(sequelize);
 initPermissionModel(sequelize);
 initUserModel(sequelize);
-initAnimalModel(sequelize);
-initAdoptionRequestModel(sequelize);
-
-// Associações
+initEventModel(sequelize);
 associateRolePermission(sequelize);
-defineAdoptionRequestAssociations();
 
 // Middlewares
 app.use(cors());
@@ -84,7 +79,7 @@ sequelize
 app.use(cookieParser());
 
 app.use(session({
-  secret: process.env.SESSION_SECRET as string,
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false } // secure: true se usar HTTPS
