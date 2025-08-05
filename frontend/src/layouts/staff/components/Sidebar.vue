@@ -110,6 +110,5 @@ function isActive(item) {
 
 onMounted(async () => {
   await session.fetchSession();
-  console.log(session);
 })
 </script>
