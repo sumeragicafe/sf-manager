@@ -5,6 +5,7 @@ import { listRoles } from '@usecases/Roles/listRoles';
 import { deleteRole } from '@usecases/Roles/deleteRole';
 import { getRoleWithPermissions } from '@usecases/Roles/getRoleWithPermissions';
 import { assignPermissionsToRole } from '@usecases/Roles/assignPermissionsToRole';
+import { updateRole } from '@usecases/Roles/updateRole';
 
 const roleRepo = new SequelizeRoleRepository();
 
@@ -24,6 +25,24 @@ export class RoleController {
     } catch (err: any) {
       res.status(400).json({ error: err.message });
       return;
+    }
+  }
+
+  static async update(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { name, description, permissionIds } = req.body;
+
+      const role = await updateRole(roleRepo)(id, name, description, permissionIds);
+
+      res.status(200).json({
+        id: role.props.id,
+        name: role.props.name,
+        description: role.props.description,
+        permissions: role.props.permissions
+      });
+    } catch (err: any) {
+      res.status(400).json({ error: err.message });
     }
   }
 
