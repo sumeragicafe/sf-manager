@@ -8,7 +8,6 @@
     "skipLibCheck": true,
     "strict": true,
     "baseUrl": ".",
-    "typeRoots": ["node_modules/@types", "src/types"],
     "paths": {
       "@infra/*": ["src/infra/*"],
       "@domain/*": ["src/domain/*"],
@@ -24,5 +23,5 @@
     "esm": true,
     "experimentalSpecifierResolution": "node"
   },
-  "include": ["src/**/*.ts", "src/types/**/*.d.ts", "main.ts"]
+  "include": ["src/**/*.ts", "main.ts"]
 }

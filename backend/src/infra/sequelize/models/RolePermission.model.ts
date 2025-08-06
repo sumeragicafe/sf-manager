@@ -3,7 +3,7 @@ import { RoleModel } from '@infra/sequelize/models/Role.model';
 import { PermissionModel } from '@infra/sequelize/models/Permission.model';
 import { UserModel } from '@infra/sequelize/models/User.model';
 
-export function associateRolePermission(sequelize: Sequelize) {
+export function associateRolePermission() {
   // Role -> Permission (M:N)
   RoleModel.belongsToMany(PermissionModel, {
     through: 'role_permissions',

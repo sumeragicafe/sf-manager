@@ -5,6 +5,6 @@ import { SequelizeAdoptionRequestRepository } from '@infra/sequelize/repositorie
 import { AuthService } from '@infra/services/AuthService';
 
 export const userRepositorySingleton = new SequelizeUserRepository();
-export const animalRepositorySingleton = new SequelizeAnimalRepository();
-export const adoptionRequestRepositorySingleton = new SequelizeAdoptionRequestRepository();
 export const authServiceSingleton = new AuthService(process.env.SESSION_SECRET!);
+// export const animalRepositorySingleton = new SequelizeAnimalRepository();
+// export const adoptionRequestRepositorySingleton = new SequelizeAdoptionRequestRepository();

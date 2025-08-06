@@ -401,7 +401,7 @@ async function handleSubmit() {
   
   try {
     // Call our adoption request API endpoint
-    const response = await fetch('/api/adoption-requests', {
+    const response = await fetch('/api/adoption-request', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -411,7 +411,7 @@ async function handleSubmit() {
       body: JSON.stringify({
         responsibleName: formState.responsibleName.trim(),
         contactPhone: formState.contactPhone.replace(/\D/g, ''),
-        animalId: formState.animalId, // Animal ID will be passed as route param or prop
+        animalId: formState.animalId,
         termsAccepted: formState.termsAccepted
       })
     });

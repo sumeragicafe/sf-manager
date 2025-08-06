@@ -1,9 +1,14 @@
 import { Request, Response } from 'express';
-import { adoptionRequestRepositorySingleton, animalRepositorySingleton } from 'src/dependencies/singletons';
+// import { adoptionRequestRepositorySingleton, animalRepositorySingleton } from 'src/dependencies/singletons';
+import { SequelizeAdoptionRequestRepository } from '@infra/sequelize/repositories/SequelizeAdoptionRequestRepository';
+import { SequelizeAnimalRepository } from '@infra/sequelize/repositories/SequelizeAnimalRepository';
 
 import { createAdoptionRequest } from '@usecases/AdoptionRequest/createAdoptionRequest';
 import { listAdoptionRequests } from '@usecases/AdoptionRequest/listAdoptionRequests';
 import { reviewAdoptionRequest } from '@usecases/AdoptionRequest/reviewAdoptionRequest';
+
+const adoptionRequestRepo = new SequelizeAdoptionRequestRepository();
+const animalRepo = new SequelizeAnimalRepository();
 
 export class AdoptionRequestController {
   static async create(req: Request, res: Response) {
@@ -17,10 +22,8 @@ export class AdoptionRequestController {
         });
       }
 
-      const adoptionRequest = await createAdoptionRequest(
-        adoptionRequestRepositorySingleton,
-        animalRepositorySingleton
-      )({
+      const adoptionRequest = await createAdoptionRequest(adoptionRequestRepo, animalRepo)
+      ({
         responsibleName,
         contactPhone,
         animalId,
@@ -45,9 +48,8 @@ export class AdoptionRequestController {
     try {
       const { status, animalId } = req.query;
 
-      const adoptionRequests = await listAdoptionRequests(
-        adoptionRequestRepositorySingleton
-      )({
+      const adoptionRequests = await listAdoptionRequests(adoptionRequestRepo)
+      ({
         status: status as string,
         animalId: animalId as string
       });
@@ -74,8 +76,7 @@ export class AdoptionRequestController {
   static async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-
-      const adoptionRequest = await adoptionRequestRepositorySingleton.findById(id);
+      const adoptionRequest = await adoptionRequestRepo.findById(id);
       
       if (!adoptionRequest) {
         return res.status(404).json({ error: 'Pedido de adoção não encontrado.' });
@@ -113,8 +114,8 @@ export class AdoptionRequestController {
       }
 
       const updatedRequest = await reviewAdoptionRequest(
-        adoptionRequestRepositorySingleton,
-        animalRepositorySingleton
+        adoptionRequestRepo,
+        animalRepo
       )({
         adoptionRequestId: id,
         action,
