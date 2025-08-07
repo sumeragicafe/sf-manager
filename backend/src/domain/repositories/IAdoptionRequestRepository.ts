@@ -6,6 +6,6 @@ export interface IAdoptionRequestRepository {
     findAll(): Promise<AdoptionRequest[]>;
     findByAnimalId(animalId: string): Promise<AdoptionRequest[]>;
     findByStatus(status: string): Promise<AdoptionRequest[]>;
-    update(id: string, adoptionRequest: Partial<AdoptionRequest>): Promise<AdoptionRequest | null>;
+    update(id: string, adoptionRequest: AdoptionRequest): Promise<AdoptionRequest | null>;
     delete(id: string): Promise<boolean>;
 } 

@@ -135,4 +135,20 @@ export class AdoptionRequestController {
       res.status(400).json({ error: err.message });
     }
   }
+
+  static async delete(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const deleted = await adoptionRequestRepo.delete(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ error: 'Pedido de adoção não encontrado.' });
+      }
+
+      res.json({ message: 'Pedido de adoção removido com sucesso!' });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  }
 } 

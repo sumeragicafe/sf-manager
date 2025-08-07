@@ -108,94 +108,71 @@
       v-if="showViewModal"
       class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
     >
-      <div class="bg-white rounded-lg p-6 w-full max-w-2xl shadow-xl animate-scale-in">
+      <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl animate-scale-in">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-semibold text-ong-text">Detalhes do Pedido de Adoção</h2>
+          <h2 class="text-xl font-semibold text-ong-text">Detalhes do Adotante</h2>
           <button @click="showViewModal = false" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
         </div>
 
-        <div v-if="selectedRequest" class="space-y-6">
-          <!-- Informações do Animal -->
-          <div class="bg-ong-background/50 rounded-lg p-4">
-            <h3 class="font-semibold text-ong-text mb-3 flex items-center gap-2">
-              <Heart class="w-4 h-4" />
-              Animal para Adoção
-            </h3>
-            <div class="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span class="text-muted-foreground">Nome:</span>
-                <span class="ml-2 font-medium">{{ selectedRequest.animal?.name || 'N/A' }}</span>
-              </div>
-              <div>
-                <span class="text-muted-foreground">Espécie:</span>
-                <span class="ml-2 font-medium">{{ selectedRequest.animal?.species || 'N/A' }}</span>
-              </div>
-              <div>
-                <span class="text-muted-foreground">Raça:</span>
-                <span class="ml-2 font-medium">{{ selectedRequest.animal?.breed || 'N/A' }}</span>
-              </div>
-              <div>
-                <span class="text-muted-foreground">Idade:</span>
-                <span class="ml-2 font-medium">{{ selectedRequest.animal?.age ? `${selectedRequest.animal.age} meses` : 'N/A' }}</span>
+        <div v-if="selectedRequest" class="space-y-4">
+          <!-- Animal -->
+          <div class="flex items-center gap-3 p-3 bg-ong-background/30 rounded-lg">
+            <div class="w-10 h-10 bg-ong-primary/10 rounded-full flex items-center justify-center">
+              <Heart class="h-5 w-5 text-ong-primary" />
+            </div>
+            <div>
+              <div class="font-medium text-ong-text">{{ selectedRequest.animal?.name || 'Animal não encontrado' }}</div>
+              <div class="text-sm text-muted-foreground">{{ selectedRequest.animal?.species }} • {{ selectedRequest.animal?.breed }} • {{ selectedRequest.animal?.age ? `${selectedRequest.animal.age} meses` : 'N/A' }}</div>
+            </div>
+          </div>
+
+          <!-- Responsável -->
+          <div class="flex items-center gap-3 p-3 bg-ong-background/30 rounded-lg">
+            <div class="w-10 h-10 bg-ong-accent/10 rounded-full flex items-center justify-center">
+              <User class="h-5 w-5 text-ong-accent" />
+            </div>
+            <div>
+              <div class="font-medium text-ong-text">{{ selectedRequest.responsibleName }}</div>
+              <div class="text-sm text-muted-foreground flex items-center gap-1">
+                <Phone class="w-3 h-3" />
+                {{ selectedRequest.contactPhone }}
               </div>
             </div>
           </div>
 
-          <!-- Informações do Solicitante -->
-          <div class="bg-ong-background/50 rounded-lg p-4">
-            <h3 class="font-semibold text-ong-text mb-3 flex items-center gap-2">
-              <User class="w-4 h-4" />
-              Dados do Responsável
-            </h3>
-            <div class="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span class="text-muted-foreground">Nome:</span>
-                <span class="ml-2 font-medium">{{ selectedRequest.responsibleName }}</span>
-              </div>
-              <div>
-                <span class="text-muted-foreground">Telefone:</span>
-                <span class="ml-2 font-medium">{{ selectedRequest.contactPhone }}</span>
-              </div>
-            </div>
-          </div>
+                     <!-- Status e Data -->
+           <div class="flex items-center gap-3 p-3 bg-ong-background/30 rounded-lg">
+             <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+               <Calendar class="h-5 w-5 text-gray-600" />
+             </div>
+             <div>
+               <div class="flex items-center gap-2">
+                 <span class="text-sm text-muted-foreground">Revisão:</span>
+                 <span
+                   :class="[
+                     'px-2 py-0.5 text-xs rounded-full font-semibold',
+                     getStatusColor(selectedRequest.status)
+                   ]"
+                 >
+                   {{ getStatusText(selectedRequest.status) }}
+                 </span>
+               </div>
+               <div class="flex items-center gap-2 mt-1">
+                 <span class="text-sm text-muted-foreground">Data de envio:</span>
+                 <span class="text-sm font-medium">{{ formatarData(selectedRequest.submittedAt) }}</span>
+               </div>
+             </div>
+           </div>
 
-          <!-- Status e Datas -->
-          <div class="bg-ong-background/50 rounded-lg p-4">
-            <h3 class="font-semibold text-ong-text mb-3 flex items-center gap-2">
-              <Calendar class="w-4 h-4" />
-              Informações do Pedido
-            </h3>
-            <div class="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span class="text-muted-foreground">Status:</span>
-                <span
-                  :class="[
-                    'ml-2 px-2 py-0.5 text-xs rounded-full font-semibold',
-                    getStatusColor(selectedRequest.status)
-                  ]"
-                >
-                  {{ getStatusText(selectedRequest.status) }}
-                </span>
-              </div>
-              <div>
-                <span class="text-muted-foreground">Data do Pedido:</span>
-                <span class="ml-2 font-medium">{{ formatarData(selectedRequest.submittedAt) }}</span>
-              </div>
-              <div v-if="selectedRequest.reviewedAt">
-                <span class="text-muted-foreground">Revisado em:</span>
-                <span class="ml-2 font-medium">{{ formatarData(selectedRequest.reviewedAt) }}</span>
-              </div>
-            </div>
-            
-            <div v-if="selectedRequest.notes" class="mt-4">
-              <span class="text-muted-foreground">Observações:</span>
-              <p class="mt-1 text-sm bg-white p-3 rounded border">{{ selectedRequest.notes }}</p>
-            </div>
+          <!-- Observações (se houver) -->
+          <div v-if="selectedRequest.notes" class="p-3 bg-ong-background/30 rounded-lg">
+            <div class="text-sm font-medium text-ong-text mb-2">Observações</div>
+            <p class="text-sm text-muted-foreground">{{ selectedRequest.notes }}</p>
           </div>
         </div>
 
         <div class="mt-6 flex justify-end">
-          <button @click="showViewModal = false" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Fechar</button>
+          <button @click="showViewModal = false" class="px-4 py-2 bg-ong-primary text-white rounded-md hover:bg-ong-primary/90 transition-colors">Fechar</button>
         </div>
       </div>
     </div>
@@ -449,7 +426,10 @@ async function reviewRequest(action) {
 
 // Remove request function
 async function removeRequest(request) {
-  if (!confirm(`Tem certeza que deseja remover o pedido de ${request.responsibleName}?`)) {
+  // Show confirmation dialog
+  const confirmed = confirm(`Tem certeza que deseja remover o pedido de adoção de ${request.responsibleName}?\n\nEsta ação não pode ser desfeita.`);
+  
+  if (!confirmed) {
     return;
   }
   
@@ -458,7 +438,23 @@ async function removeRequest(request) {
   try {
     console.log('🗑️ Removendo pedido:', request.id);
     
-    // Remove from the local list (for now, we'll just hide it from the UI)
+    const response = await fetch(`/api/adoption-request/${request.id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    console.log('📨 Resposta da remoção:', response.status, response.statusText);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.log('❌ Erro na remoção:', errorData);
+      throw new Error(errorData.error || 'Erro ao remover pedido');
+    }
+
+    const result = await response.json();
+    console.log('✅ Remoção bem-sucedida:', result);
+    
+    // Remove from the local list
     const index = adoptionRequests.value.findIndex(r => r.id === request.id);
     if (index !== -1) {
       adoptionRequests.value.splice(index, 1);
@@ -467,7 +463,7 @@ async function removeRequest(request) {
     showToast({
       icon: 'success',
       title: 'Pedido removido!',
-      description: 'O pedido foi removido da lista.',
+      description: result.message || 'O pedido foi removido com sucesso.',
       timer: 4000,
     });
 
@@ -476,7 +472,7 @@ async function removeRequest(request) {
     showToast({
       icon: 'error',
       title: 'Erro ao remover',
-      description: 'Não foi possível remover o pedido.',
+      description: error.message || 'Não foi possível remover o pedido.',
       timer: 4000,
     });
   } finally {

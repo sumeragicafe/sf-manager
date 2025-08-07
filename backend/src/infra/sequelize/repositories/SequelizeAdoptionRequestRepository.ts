@@ -88,8 +88,9 @@ export class SequelizeAdoptionRequestRepository implements IAdoptionRequestRepos
         return adoptionRequests.map(req => new AdoptionRequest(req.dataValues as AdoptionRequestProps));
     }
 
-    async update(id: string, adoptionRequestData: Partial<AdoptionRequest>): Promise<AdoptionRequest | null> {
-        const [updatedRowsCount] = await AdoptionRequestModel.update(adoptionRequestData, {
+    async update(id: string, adoptionRequest: AdoptionRequest): Promise<AdoptionRequest | null> {
+        const persistenceData = adoptionRequest.toPersistence();
+        const [updatedRowsCount] = await AdoptionRequestModel.update(persistenceData, {
             where: { id }
         });
 

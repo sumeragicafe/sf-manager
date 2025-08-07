@@ -12,5 +12,6 @@ router.post('/', AdoptionRequestController.create);
 router.get('/', requireAuth(authServiceSingleton), AdoptionRequestController.list);
 router.get('/:id', requireAuth(authServiceSingleton), AdoptionRequestController.getById);
 router.patch('/:id/review', requireAuth(authServiceSingleton), AdoptionRequestController.review);
+router.delete('/:id', requireAuth(authServiceSingleton), AdoptionRequestController.delete);
 
 export default router; 
