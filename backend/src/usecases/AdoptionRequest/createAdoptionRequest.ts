@@ -11,7 +11,7 @@ interface CreateAdoptionRequestInput {
 
 export function createAdoptionRequest(adoptionRequestRepository: IAdoptionRequestRepository, animalRepository: IAnimalRepository){
     return async function (input: CreateAdoptionRequestInput):Promise<AdoptionRequest>{
-         // Validate animal exists and is available
+        // Validate animal exists and is available
         const animal = await animalRepository.findById(input.animalId);
         if (!animal) {
             throw new Error('Animal não encontrado.');

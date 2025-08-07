@@ -400,7 +400,6 @@ async function handleSubmit() {
   isSubmitting.value = true;
   
   try {
-    // Call our adoption request API endpoint
     const response = await fetch('/api/adoption-request', {
       method: 'POST',
       headers: { 
@@ -426,27 +425,17 @@ async function handleSubmit() {
       });
       resetForm();
     } else {
-      throw new Error('Erro no servidor');
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Erro ao enviar pedido de adoção');
     }
   } catch (error) {
     console.error('Erro ao enviar formulário:', error);
-    
-    // Fallback for development - remove in production
-    if (error.message.includes('fetch')) {
-      showToast({
-        icon: 'success',
-        title: 'Formulário Recebido! 🐾 (Modo Desenvolvimento)',
-        description: `Obrigado, ${formState.responsibleName}! Em produção, isso seria enviado para o servidor da ONG.`,
-        timer: 6000
-      });
-      resetForm();
-    } else {
-      showToast({
-        icon: 'error',
-        title: 'Erro no Envio',
-        description: 'Não foi possível enviar o formulário. Tente novamente mais tarde ou entre em contato conosco.'
-      });
-    }
+    showToast({
+      icon: 'error',
+      title: 'Erro no Envio',
+      description: 'Não foi possível enviar o pedido de adoção. Tente novamente.',
+      timer: 4000
+    });
   } finally {
     isSubmitting.value = false;
   }

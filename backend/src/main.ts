@@ -88,7 +88,7 @@ sequelize
 app.use(cookieParser());
 
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'minha-chave-secreta', // valor padrão
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false } // secure: true se usar HTTPS
