@@ -17,7 +17,7 @@ export class Event {
         });
     }
 
-    toPersistence(): Record<string, any> {
+    toJSON(): Record<string, any> {
         return {
             id: this.props.id,
             name: this.props.name,

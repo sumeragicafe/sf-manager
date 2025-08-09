@@ -2,7 +2,6 @@ import { createRouter, createWebHistory} from 'vue-router';
 import { useSessionStore } from '@/stores/session'
 import NotFound from '../views/NotFound.vue';
 
-
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes:[
@@ -67,7 +66,11 @@ const router = createRouter({
                     component: () => import('../views/Staff/roles/RolePage.vue')
                    
                 },
-
+                {
+                    path: 'event',
+                    name: 'EventPage',
+                    component: () => import('../views/Staff/events/EventsPage.vue')
+                },
             ]
         },
         {
