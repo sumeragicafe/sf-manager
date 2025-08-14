@@ -1,78 +1,38 @@
 import { Request, Response } from 'express';
-import { animalRepositorySingleton } from 'src/dependencies/singletons';
-
 import { createAnimal } from '@usecases/Animal/createAnimal';
 import { listAnimals } from '@usecases/Animal/listAnimals';
+import { updateAnimal } from '@usecases/Animal/updateAnimal';
+import { SequelizeAnimalRepository } from '@infra/sequelize/repositories/SequelizeAnimalRepository';
+
+const animalRepo = new SequelizeAnimalRepository();
 
 export class AnimalController {
   static async create(req: Request, res: Response) {
     try {
       const animalData = req.body;
 
-      // Validate required fields
-      if (!animalData.name || !animalData.species || !animalData.gender || !animalData.size) {
-        return res.status(400).json({
-          error: 'Nome, espécie, gênero e tamanho são obrigatórios.'
-        });
-      }
+      const animal = await createAnimal(animalRepo)(animalData);
 
-      const animal = await createAnimal(animalRepositorySingleton)(animalData);
-
-      res.status(201).json({
-        id: animal.props.id,
-        name: animal.props.name,
-        species: animal.props.species,
-        breed: animal.props.breed,
-        age: animal.props.age,
-        gender: animal.props.gender,
-        size: animal.props.size,
-        color: animal.props.color,
-        description: animal.props.description,
-        isVaccinated: animal.props.isVaccinated,
-        isCastrated: animal.props.isCastrated,
-        isAvailable: animal.props.isAvailable,
-        adoptionFee: animal.props.adoptionFee,
-        imageUrl: animal.props.imageUrl,
-        createdAt: animal.props.createdAt
-      });
+      res.status(201).json({ animal });
     } catch (err: any) {
       res.status(400).json({ error: err.message });
+    } finally {
+      return;
     }
   }
 
   static async list(req: Request, res: Response) {
     try {
-      const { availableOnly } = req.query;
+      const page = req.body.page ? parseInt(req.body.page as string, 10) : 1;
+      const pageSize = req.body.pageSize ? parseInt(req.body.pageSize as string, 10) : 10;
 
-      const animals = await listAnimals(animalRepositorySingleton)({
-        availableOnly: availableOnly === 'true'
-      });
-
-      const formattedAnimals = animals.map(animal => ({
-        id: animal.props.id,
-        name: animal.props.name,
-        species: animal.props.species,
-        breed: animal.props.breed,
-        age: animal.props.age,
-        ageInYears: animal.ageInYears,
-        gender: animal.props.gender,
-        size: animal.props.size,
-        color: animal.props.color,
-        description: animal.props.description,
-        healthStatus: animal.props.healthStatus,
-        isVaccinated: animal.props.isVaccinated,
-        isCastrated: animal.props.isCastrated,
-        isAvailable: animal.props.isAvailable,
-        adoptionFee: animal.props.adoptionFee,
-        imageUrl: animal.props.imageUrl,
-        rescueDate: animal.props.rescueDate,
-        createdAt: animal.props.createdAt,
-        displayName: animal.displayName
-      }));
-
-      res.json(formattedAnimals);
+      const animals = await listAnimals(animalRepo)({ page, pageSize });
+      
+      res.status(200).json(animals);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
+    } finally {
+      return;
     }
   }
 
@@ -80,35 +40,18 @@ export class AnimalController {
     try {
       const { id } = req.params;
 
-      const animal = await animalRepositorySingleton.findById(id);
+      const animal = await animalRepo.findById(id);
       
       if (!animal) {
-        return res.status(404).json({ error: 'Animal não encontrado.' });
+        res.status(404).json({ error: 'Animal não encontrado.' });
+        return;
       }
 
-      res.json({
-        id: animal.props.id,
-        name: animal.props.name,
-        species: animal.props.species,
-        breed: animal.props.breed,
-        age: animal.props.age,
-        ageInYears: animal.ageInYears,
-        gender: animal.props.gender,
-        size: animal.props.size,
-        color: animal.props.color,
-        description: animal.props.description,
-        healthStatus: animal.props.healthStatus,
-        isVaccinated: animal.props.isVaccinated,
-        isCastrated: animal.props.isCastrated,
-        isAvailable: animal.props.isAvailable,
-        adoptionFee: animal.props.adoptionFee,
-        imageUrl: animal.props.imageUrl,
-        rescueDate: animal.props.rescueDate,
-        createdAt: animal.props.createdAt,
-        displayName: animal.displayName
-      });
+      res.status(200).json(animal);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
+    }finally{
+      return;
     }
   }
 
@@ -117,22 +60,20 @@ export class AnimalController {
       const { id } = req.params;
       const updateData = req.body;
 
-      const updatedAnimal = await animalRepositorySingleton.update(id, updateData);
+      const updatedAnimal = await updateAnimal(animalRepo)(id, updateData);
       
       if (!updatedAnimal) {
         return res.status(404).json({ error: 'Animal não encontrado.' });
       }
 
-      res.json({
-        id: updatedAnimal.props.id,
-        name: updatedAnimal.props.name,
-        species: updatedAnimal.props.species,
-        isAvailable: updatedAnimal.props.isAvailable,
-        updatedAt: updatedAnimal.props.updatedAt,
+      res.status(201).json({
+        updatedAnimal,
         message: 'Animal atualizado com sucesso!'
       });
     } catch (err: any) {
       res.status(400).json({ error: err.message });
+    } finally {
+      return;
     }
   }
 
@@ -140,7 +81,7 @@ export class AnimalController {
     try {
       const { id } = req.params;
 
-      const deleted = await animalRepositorySingleton.delete(id);
+      const deleted = await animalRepo.delete(id);
       
       if (!deleted) {
         return res.status(404).json({ error: 'Animal não encontrado.' });
@@ -149,6 +90,8 @@ export class AnimalController {
       res.json({ message: 'Animal removido com sucesso!' });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
+    } finally{
+      return;
     }
   }
 } 

@@ -1,6 +1,4 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import { AnimalModel } from './Animal.model';
-import { UserModel } from './User.model';
 
 export class AdoptionRequestModel extends Model {}
 
@@ -86,20 +84,3 @@ export function initAdoptionRequestModel(sequelize: Sequelize) {
   return AdoptionRequestModel;
 }
 
-// Define associations function to be called after all models are initialized
-export function defineAdoptionRequestAssociations() {
-  AdoptionRequestModel.belongsTo(AnimalModel, {
-    foreignKey: 'animalId',
-    as: 'animal'
-  });
-
-  AdoptionRequestModel.belongsTo(UserModel, {
-    foreignKey: 'reviewedBy',
-    as: 'reviewer'
-  });
-
-  AnimalModel.hasMany(AdoptionRequestModel, {
-    foreignKey: 'animalId',
-    as: 'adoptionRequests'
-  });
-} 

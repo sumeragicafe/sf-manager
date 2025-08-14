@@ -1,16 +1,14 @@
 import { IAnimalRepository } from '@domain/repositories/IAnimalRepository';
-import { Animal, AnimalProps } from '@domain/entities/Animal';
+import { AnimalProps, Animal } from '@domain/entities/Animal';
 
-type CreateAnimalInput = Omit<AnimalProps, 'id' | 'createdAt' | 'updatedAt'>;
+export function createAnimal(animalRepository: IAnimalRepository) {
+  return async (data: Omit<AnimalProps, 'id'>): Promise<Animal> => {
+    // Validação básica
+    if (!data.name || !data.speciesId || !data.gender || !data.size) {
+      throw new Error('Faltando, nome, espécie, genero e tamanho.');
+    }
 
-export const createAnimal = (
-    animalRepository: IAnimalRepository
-) => async (input: CreateAnimalInput): Promise<Animal> => {
-    // Create new animal entity
-    const animal = Animal.createNew(input);
-
-    // Save to repository
-    const createdAnimal = await animalRepository.create(animal);
-
-    return createdAnimal;
-}; 
+    // O repositório cria a entidade
+    return await animalRepository.create(data);
+  };
+}

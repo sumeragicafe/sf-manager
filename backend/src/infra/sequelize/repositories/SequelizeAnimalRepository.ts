@@ -1,75 +1,68 @@
-import { IAnimalRepository } from '@domain/repositories/IAnimalRepository';
-import { Animal, AnimalProps } from '@domain/entities/Animal';
 import { AnimalModel } from '@infra/sequelize/models/Animal.model';
+import { AnimalProps, Animal } from '@domain/entities/Animal';
+import { PaginationOptions, PaginatedResult } from '@types/Pagination';
+import { IAnimalRepository} from '@domain/repositories/IAnimalRepository';
+import { Op } from 'sequelize';
 
 export class SequelizeAnimalRepository implements IAnimalRepository {
-    async create(animal: Animal): Promise<Animal> {
-        const createdAnimal = await AnimalModel.create(animal.toPersistence());
-        return new Animal(createdAnimal.dataValues as AnimalProps);
-    }
 
-    async findById(id: string): Promise<Animal | null> {
-        const animal = await AnimalModel.findByPk(id);
-        if (!animal) return null;
-        return new Animal(animal.dataValues as AnimalProps);
-    }
+  private mapToEntity(model: AnimalModel): Animal {
+    return new Animal(model.toJSON() as AnimalProps);
+  }
 
-    async findAll(): Promise<Animal[]> {
-        const animals = await AnimalModel.findAll({
-            order: [['createdAt', 'DESC']]
-        });
-        return animals.map(animal => new Animal(animal.dataValues as AnimalProps));
-    }
+  async findById(id: string): Promise<Animal | null> {
+    const animal = await AnimalModel.findByPk(id);
+    return animal ? this.mapToEntity(animal) : null;
+  }
 
-    async findAvailableForAdoption(): Promise<Animal[]> {
-        const animals = await AnimalModel.findAll({
-            where: {
-                isAvailable: true
-            },
-            order: [['createdAt', 'DESC']]
-        });
-        return animals.map(animal => new Animal(animal.dataValues as AnimalProps));
-    }
+  async searchByName(name: string, pagination?: PaginationOptions): Promise<PaginatedResult<Animal>> {
+    const { page = 1, pageSize = 10 } = pagination || {};
+    const { rows, count } = await AnimalModel.findAndCountAll({
+      where: { name: { [Op.iLike]: `%${name}%` } },
+      offset: (page - 1) * pageSize,
+      limit: pageSize,
+    });
+    return {
+      items: rows.map(row => this.mapToEntity(row)),
+      total: count,
+      page,
+      pageSize
+    };
+  }
 
-    async update(id: string, animalData: Partial<Animal>): Promise<Animal | null> {
-        const [updatedRowsCount] = await AnimalModel.update(animalData, {
-            where: { id }
-        });
+  async create(data: Omit<AnimalProps, 'id'>): Promise<Animal> {
+    const entity = Animal.createNew(data); 
+    const model = await AnimalModel.create(entity.toPersistence());
+    return this.mapToEntity(model);
+  }
 
-        if (updatedRowsCount === 0) return null;
+  async update(id: string, data: Partial<Omit<AnimalProps, 'id'>>): Promise<Animal | null> {
+    const animal = await AnimalModel.findByPk(id);
+    if (!animal) return null;
+    // const updated = await animal.update(data);
+    await animal.update(data);
+    await animal.reload();
 
-        const updatedAnimal = await AnimalModel.findByPk(id);
-        if (!updatedAnimal) return null;
+    return this.mapToEntity(animal);
+  }
 
-        return new Animal(updatedAnimal.dataValues as AnimalProps);
-    }
+  async delete(id: string): Promise<boolean> {
+    const deleted = await AnimalModel.destroy({ where: { id } });
+    return deleted > 0;
+  }
 
-    async delete(id: string): Promise<boolean> {
-        const deletedRowsCount = await AnimalModel.destroy({
-            where: { id }
-        });
-        return deletedRowsCount > 0;
-    }
-
-    async markAsAdopted(id: string): Promise<boolean> {
-        const [updatedRowsCount] = await AnimalModel.update(
-            { 
-                isAvailable: false,
-                updatedAt: new Date()
-            },
-            { where: { id } }
-        );
-        return updatedRowsCount > 0;
-    }
-
-    async markAsAvailable(id: string): Promise<boolean> {
-        const [updatedRowsCount] = await AnimalModel.update(
-            { 
-                isAvailable: true,
-                updatedAt: new Date()
-            },
-            { where: { id } }
-        );
-        return updatedRowsCount > 0;
-    }
-} 
+  async findAll(pagination?: PaginationOptions): Promise<PaginatedResult<Animal>> {
+    const { page = 1, pageSize = 10 } = pagination || {};
+    const { rows, count } = await AnimalModel.findAndCountAll({
+      offset: (page - 1) * pageSize,
+      limit: pageSize,
+      order: [['entry_date', 'DESC']]
+    });
+    return {
+      items: rows.map(row => this.mapToEntity(row)),
+      total: count,
+      page,
+      pageSize
+    };
+  }
+}

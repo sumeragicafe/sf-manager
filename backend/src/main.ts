@@ -5,21 +5,11 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { Sequelize } from 'sequelize';
 import router from '@interface/routes/index';
-
-import { initUserModel } from '@infra/sequelize/models/User.model';
-import { initPermissionModel } from '@infra/sequelize/models/Permission.model';
-import { initRoleModel } from '@infra/sequelize/models/Role.model';
-import { associateRolePermission } from '@infra/sequelize/models/RolePermission.model';
-
-import { initAnimalModel } from '@infra/sequelize/models/Animal.model';
-import { initAdoptionRequestModel, defineAdoptionRequestAssociations } from '@infra/sequelize/models/AdoptionRequest.model';
-
-
+import { initModels } from '@infra/sequelize/sequelize';
 
 //import { initPetModel } from './infra/db/models/Pet.model';
 //import { initUsuarioModel } from './infra/db/models/Usuario.model';
 // import routes from './routes'; // Pode ser criado posteriormente
-
 
 dotenv.config();
 
@@ -55,15 +45,7 @@ const sequelize = new Sequelize(
 );
 
 // Inicializa modelos
-initRoleModel(sequelize);
-initPermissionModel(sequelize);
-initUserModel(sequelize);
-initAnimalModel(sequelize);
-initAdoptionRequestModel(sequelize);
-
-
-associateRolePermission();
-defineAdoptionRequestAssociations();
+initModels(sequelize);
 
 // Middlewares
 app.use(cors());

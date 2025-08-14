@@ -1,89 +1,59 @@
+import crypto from 'crypto';
+import { SpeciesProps } from "@domain/entities/Species";
+import { BreedProps } from "@domain/entities/Breed";
+import { AnimalFactProps } from "@domain/entities/AnimalFact";
+import { AnimalVaccineProps } from "@domain/entities/AnimalVaccine";
+import { AnimalMediaProps } from "@domain/entities/AnimalMedia";
+
 export interface AnimalProps {
-    id?: string; // uuid
-    name: string;
-    species: string; // 'dog', 'cat', etc.
-    breed?: string;
-    age?: number; // in months
-    gender: 'male' | 'female';
-    size: 'small' | 'medium' | 'large';
-    color?: string;
-    description?: string;
-    healthStatus?: string;
-    isVaccinated: boolean;
-    isCastrated: boolean;
-    isAvailable: boolean;
-    adoptionFee?: number;
-    imageUrl?: string;
-    rescueDate?: Date;
-    createdAt?: Date;
-    updatedAt?: Date;
+  id: string; // uuid
+  name: string;
+  speciesId: number;
+  breedId?: number;
+  gender: string; // "M" or "F"
+  size: string;   // "Small", "Medium", "Large"
+  status: string;
+  isCastrated: boolean;
+  notes?: string;
+  entryDate: Date;
+  birthDate?: Date;
+  isBirthDateEstimated: boolean;
+
+  // Relations
+  adoption?: string;
+  species?: SpeciesProps;
+  breed?: BreedProps;
+  facts?: AnimalFactProps[];
+  vaccines?: AnimalVaccineProps[];
+  media?: AnimalMediaProps[];
 }
 
 export class Animal {
-    constructor(public props: AnimalProps) {
-        if (!props.name || !props.species) {
-            throw new Error("Nome e espécie são obrigatórios para criar um animal.");
-        }
+  constructor(public props: AnimalProps) {
+    if (!props.name) throw new Error("Animal name is required.");
+  }
 
-        if (props.age && props.age < 0) {
-            throw new Error("Idade deve ser um número positivo.");
-        }
+  static createNew(data: Omit<AnimalProps, 'id'>): Animal {
+    return new Animal({
+      ...data,
+      id: crypto.randomUUID(),
+    });
+  }
 
-        if (props.adoptionFee && props.adoptionFee < 0) {
-            throw new Error("Taxa de adoção deve ser um número positivo.");
-        }
-    }
-
-    static createNew(data: Omit<AnimalProps, 'id' | 'createdAt' | 'updatedAt'>): Animal {
-        const now = new Date();
-        return new Animal({
-            ...data,
-            isAvailable: data.isAvailable ?? true,
-            isVaccinated: data.isVaccinated ?? false,
-            isCastrated: data.isCastrated ?? false,
-            createdAt: now,
-            updatedAt: now,
-        });
-    }
-
-    toPersistence(): Record<string, any> {
-        return {
-            id: this.props.id,
-            name: this.props.name,
-            species: this.props.species,
-            breed: this.props.breed,
-            age: this.props.age,
-            gender: this.props.gender,
-            size: this.props.size,
-            color: this.props.color,
-            description: this.props.description,
-            healthStatus: this.props.healthStatus,
-            isVaccinated: this.props.isVaccinated,
-            isCastrated: this.props.isCastrated,
-            isAvailable: this.props.isAvailable,
-            adoptionFee: this.props.adoptionFee,
-            imageUrl: this.props.imageUrl,
-            rescueDate: this.props.rescueDate,
-            createdAt: this.props.createdAt,
-            updatedAt: this.props.updatedAt
-        };
-    }
-
-    markAsAdopted(): void {
-        this.props.isAvailable = false;
-        this.props.updatedAt = new Date();
-    }
-
-    markAsAvailable(): void {
-        this.props.isAvailable = true;
-        this.props.updatedAt = new Date();
-    }
-
-    get displayName(): string {
-        return `${this.props.name} (${this.props.species})`;
-    }
-
-    get ageInYears(): number {
-        return this.props.age ? Math.floor(this.props.age / 12) : 0;
-    }
-} 
+  toPersistence(): Record<string, any> {
+    return {
+      id: this.props.id,
+      name: this.props.name,
+      speciesId: this.props.speciesId,
+      breedId: this.props.breedId,
+      gender: this.props.gender,
+      size: this.props.size,
+      status: this.props.status,
+      isCastrated: this.props.isCastrated,
+      notes: this.props.notes,
+      entryDate: this.props.entryDate,
+      birthDate: this.props.birthDate,
+      isBirthDateEstimated: this.props.isBirthDateEstimated,
+    };
+  }
+}
