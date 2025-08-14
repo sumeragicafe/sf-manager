@@ -77,6 +77,11 @@ const router = createRouter({
                     name: 'AdoptionRequestsPage',
                     component: () => import('../views/Staff/adoption-requests/AdoptionRequestsPage.vue')
                 },
+                {
+                    path: 'media',
+                    name: 'MediaPage',
+                    component: () => import('../views/Staff/media/MediaPage.vue')
+                },
 
             ]
         },
