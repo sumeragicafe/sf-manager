@@ -15,7 +15,7 @@
       "@usecases/*": ["src/usecases/*"],
       "@routes/*": ["src/interface/routes/*"],
       "@dependencies/*": ["src/dependencies/*"],
-
+      "@types/*": ["src/types/*"]
     },
     "outDir": "dist"
   },
