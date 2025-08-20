@@ -46,7 +46,7 @@ export class MediaController {
     try {
       const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
       const pageSize = req.query.pageSize ? parseInt(req.query.pageSize as string, 10) : 10;
-      const result = await listMedia(mediaRepo)( req.session ,{ page, pageSize });
+      const result = await listMedia(mediaRepo)( req.session, { page, pageSize });
       res.status(200).json(result);
     } catch (err: any) {
       res.status(400).json({ error: err.message });
