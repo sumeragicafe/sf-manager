@@ -52,7 +52,9 @@ module.exports = {
       { name: 'PARTNER_DELETE', description: 'Excluir parceiro' },
 
       { name: 'ACCESS_ADMIN_PANEL', description: 'Acessar painel administrativo' },
-      { name: 'ACCESS_CONTENT_PANEL', description: 'Acessar painel de conteúdo' }
+      { name: 'ACCESS_CONTENT_PANEL', description: 'Acessar painel de conteúdo' },
+      { name: 'VIEW_PRIVATE_MEDIA', description: 'Ver conteúdo privado' },
+
     ];
 
     await queryInterface.bulkInsert('permissions', permissions.map(p => ({
