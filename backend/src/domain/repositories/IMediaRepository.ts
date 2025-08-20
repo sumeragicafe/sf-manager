@@ -6,6 +6,6 @@ export interface IMediaRepository {
   create(data: Omit<MediaProps, 'id'>): Promise<MediaProps>;
   update(id: string, data: Partial<Omit<MediaProps, 'id'>>): Promise<MediaProps | null>;
   delete(id: string): Promise<boolean>;
-  findAll(pagination?: PaginationOptions): Promise<PaginatedResult<MediaProps>>;
+  findAll(pagination?: PaginationOptions, canViewPrivate: bool): Promise<PaginatedResult<MediaProps>>;
   saveFile(file: { buffer: Buffer; fileName: string; mimeType: string }): Promise<MediaProps>;
 }

@@ -19,6 +19,11 @@ export default (sequelize: Sequelize) => {
         field: 'mime_type'
       },
       data: DataTypes.BLOB('long'),
+      isPublic: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        field: 'is_public'
+      },
       uploadDate: {
         type: DataTypes.DATE,
         field: 'upload_date'
