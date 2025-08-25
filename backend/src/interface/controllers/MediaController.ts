@@ -29,7 +29,7 @@ export class MediaController {
   static async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const media = await getMediaById(mediaRepo)(id);
+      const media = await getMediaById(mediaRepo)(id, req.session);
       if (!media) return res.status(404).json({ error: 'Media not found' });
 
       // Se quiser retornar o arquivo binário:
@@ -75,4 +75,46 @@ export class MediaController {
       res.status(400).json({ error: err.message });
     }
   }
+
+  static async view(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const media = await getMediaById(mediaRepo)(id, req.session);
+
+      if (!media.isPublic) { 
+        return res.status(403).json({ error: 'Você não pode visualizar esse arquivo!' });
+      }
+
+      res.contentType(media.mimeType).send(media.data);
+    } catch (err: any) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+
+  static async download(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const media = await getMediaById(mediaRepo)(id, req.session);
+
+      if (!media) {
+        return res.status(404).json({ error: 'Media not found' });
+      }
+
+      // Verifica permissão
+      if (!media.isPublic) { 
+        return res.status(403).json({ error: 'Esta mídia não é pública' });
+      }
+
+      // Força o download
+      res.setHeader('Content-Disposition', `attachment; filename="${media.fileName}"`);
+      res.contentType(media.mimeType).send(media.data);
+
+    } catch (err: any) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+
+
+
 }

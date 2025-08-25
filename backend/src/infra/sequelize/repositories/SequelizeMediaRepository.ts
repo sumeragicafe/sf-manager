@@ -4,8 +4,10 @@ import { PaginatedResult } from '@types/Pagination';
 import { IMediaRepository} from '@domain/repositories/IMediaRepository';
 
 export class SequelizeMediaRepository implements IMediaRepository {
-  async findById(id: string): Promise<MediaProps | null> {
-    const media = await Media.findByPk(id);
+  async findById(id: string, canViewPrivate = false): Promise<MediaProps | null> {
+    const where = canViewPrivate ? { id } : { id, isPublic: true };
+
+    const media = await Media.findOne({ where });
     return media ? (media.toJSON() as MediaProps) : null;
   }
 

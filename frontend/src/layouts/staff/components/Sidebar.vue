@@ -46,10 +46,7 @@
 <script setup>
 import { defineProps, defineEmits, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import {
-  Home, Users, Calendar, Heart, MessageSquare,
-  FileText, Settings, UserCheck, Shield, X
-} from 'lucide-vue-next';
+import { Home, Users, Calendar, Heart, MessageSquare, FileText, Settings, UserCheck, Shield, X, FolderDown  } from 'lucide-vue-next';
 import UserProfileSection from '@/layouts/staff/components/UserProfileSection.vue';
 import { useSessionStore } from '@/stores/session';
 
@@ -70,6 +67,7 @@ const navigation = [
   { name: 'Eventos', href: '/staff/event', icon: Calendar },
   // { name: 'Contatos', href: '/staff/contacts', icon: MessageSquare },
   // { name: 'Formulários', href: '/staff/forms', icon: FileText },
+  { name: 'Mídia', href: '/staff/media', icon: FolderDown  },
   { name: 'Usuários', href: '/staff/user', icon: Users },
   { name: 'Cargos & Permissões', href: '/staff/role', icon: Shield },
   // { name: 'Configurações', href: '/staff/settings', icon: Settings },

@@ -9,7 +9,7 @@ const favorites = ref([])
 
 const animals = [
   {
-    id: "f7a5c1e5-7270-11f0-a43b-0242ac140002", // teste com id gerado ao inserir animais no banco (testando formulário de adoção)
+    id: "c1992d52-74a9-11f0-b260-0242ac130003", // teste com id gerado ao inserir animais no banco (testando formulário de adoção)
     name: "Malu",
     species: "Cachorra",
     age: "2 anos",
