@@ -4,6 +4,7 @@ export interface MediaProps {
   mimeType: string;
   data: Buffer;
   uploadDate: Date;
+  isPublic: boolean;
 }
 
 export class Media {
@@ -11,13 +12,14 @@ export class Media {
     if (!props.fileName) throw new Error("Nome da mídia é obrigatório");
   }
 
-  static createNew(fileName: string, mimeType: string, data: Buffer): Media {
+  static createNew(fileName: string, mimeType: string, data: Buffer, isPublic = false): Media {
     return new Media({
       id: crypto.randomUUID(),
       fileName,
       mimeType,
       data,
       uploadDate: new Date(),
+      isPublic, 
     });
   }
 
@@ -28,6 +30,7 @@ export class Media {
       mime_type: this.props.mimeType,
       data: this.props.data,
       upload_date: this.props.uploadDate,
+      is_public: this.props.isPublic, 
     };
   }
 }
