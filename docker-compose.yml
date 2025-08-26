@@ -40,6 +40,8 @@ services:
       - mysql
     env_file:
       - .env
+    extra_hosts: 
+      - "host.docker.internal:host-gateway"
 
   vue-web:
     container_name: frontend_container
@@ -58,6 +60,9 @@ services:
     stop_grace_period: 1s
     networks:
       - network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      
 
 volumes:
   mysql_data:
@@ -65,4 +70,3 @@ volumes:
 networks:
   network:
     driver: bridge
-
