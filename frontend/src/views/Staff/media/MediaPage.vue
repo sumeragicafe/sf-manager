@@ -163,15 +163,24 @@
 
     <!-- Modal -->
     <div v-if="modalOpen" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div class="bg-white rounded-xl p-6 w-[80vw] max-w-4xl h-[80vh] relative shadow-lg flex flex-col">
-        <!-- Botão fechar -->
-        <button 
-          class="absolute top-3 right-3 text-gray-500 hover:text-black text-xl"
-          @click="modalOpen = false"
-          aria-label="Fechar modal"
-        >
-          ✕
-        </button>
+      <div class="bg-white rounded-xl p-6 w-[80vw] max-w-8xl h-[90vh] relative shadow-lg flex flex-col">
+        <!-- Cabeçalho do modal -->
+        <div class="flex justify-between items-center mb-4 bg-card rounded-t-lg">
+          <!-- Info do arquivo -->
+          <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+            <p class="font-heading font-bold text-lg text-ong-text truncate max-w-xs sm:max-w-sm">
+              {{ modalItem?.fileName || 'Sem nome' }}
+            </p>
+          </div>
+
+          <!-- Botão fechar -->
+          <button 
+            @click="modalOpen = false"
+            aria-label="Fechar modal"
+          >
+            <X/>
+          </button>
+        </div>
 
         <!-- Área principal -->
         <div class="flex-1 flex flex-col">
@@ -215,18 +224,21 @@
           </div>
 
           <!-- Área dos botões de ação -->
-          <div class="mt-4 flex justify-end gap-3">
+          <div class="mt-4 flex justify-end gap-3 items-center">
+            <span class="text-sm text-muted-foreground">
+              <b>Tipo de Arquivo:</b> {{ modalItem?.mimeType || 'Desconhecido' }}
+            </span>
             <button 
               class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
-              @click="handleDownload"
+              @click="baixarItem(modalItem)"
             >
               Download
             </button>
             <button 
               class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600"
-              @click="handleShare"
+              @click="editarNome()"
             >
-              Compartilhar
+              Editar
             </button>
             <button 
               class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
@@ -237,20 +249,25 @@
           </div>
         </div>
       </div>
+
       <!-- Botão Anterior -->
       <button 
-        class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-3 rounded-full shadow"
+        class="absolute top-1/2 left-16 -translate-y-1/2 bg-white/70 hover:bg-white p-4 rounded-full shadow-md transition"
         @click="prevItem"
+        :disabled="modalIndex === 0"
+        aria-label="Arquivo anterior"
       >
-        ‹
+        <ChevronLeft class="w-6 h-6 text-gray-700" />
       </button>
 
       <!-- Botão Próximo -->
       <button 
-        class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-3 rounded-full shadow"
+        class="absolute top-1/2 right-16 -translate-y-1/2 bg-white/70 hover:bg-white p-4 rounded-full shadow-md transition"
         @click="nextItem"
+        :disabled="modalIndex === filteredItems.length - 1"
+        aria-label="Próximo arquivo"
       >
-        ›
+        <ChevronRight class="w-6 h-6 text-gray-700" />
       </button>
     </div>
 
@@ -260,7 +277,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Eye, MoreVertical, File, FileImage, FileVideo, RefreshCcw, Plus, Minus  } from 'lucide-vue-next'
+import Swal from 'sweetalert2'
+import { Eye, MoreVertical, File, FileImage, FileVideo, RefreshCcw, Plus, Minus,ChevronRight, ChevronLeft, X  } from 'lucide-vue-next'
 
 const items = ref([])
 const filter = ref('all')
@@ -306,6 +324,27 @@ function prevItem() {
     filteredItems.value.length
   modalIndex.value = prev
   carregarArquivo(filteredItems.value[prev])
+}
+
+async function editarNome(item) {
+  const { value: novoNome } = await Swal.fire({
+    title: 'Renomear arquivo',
+    html: `
+      <input id="swal-input1" class="swal2-input" placeholder="Novo nome" value="${item.fileName}">
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Salvar',
+    cancelButtonText: 'Cancelar',
+    preConfirm: () => {
+      const input = document.getElementById('swal-input1')
+      return input.value
+    }
+  })
+
+  if (novoNome) {
+    renomearItem(item.id, novoNome)
+    Swal.fire('Salvo!', 'O nome do arquivo foi atualizado.', 'success')
+  }
 }
 
 /* === Pan com arrastar === */
@@ -467,4 +506,13 @@ async function carregarMidia() {
   items.value = json.items
 }
 onMounted(carregarMidia)
+
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
 </script>

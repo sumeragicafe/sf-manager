@@ -81,10 +81,6 @@ export class MediaController {
       const { id } = req.params;
       const media = await getMediaById(mediaRepo)(id, req.session);
 
-      if (!media.isPublic) { 
-        return res.status(403).json({ error: 'Você não pode visualizar esse arquivo!' });
-      }
-
       res.contentType(media.mimeType).send(media.data);
     } catch (err: any) {
       res.status(400).json({ error: err.message });
@@ -99,11 +95,6 @@ export class MediaController {
 
       if (!media) {
         return res.status(404).json({ error: 'Media not found' });
-      }
-
-      // Verifica permissão
-      if (!media.isPublic) { 
-        return res.status(403).json({ error: 'Esta mídia não é pública' });
       }
 
       // Força o download
