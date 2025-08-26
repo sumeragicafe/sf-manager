@@ -50,10 +50,7 @@
 <script setup>
 import { defineProps, defineEmits, onMounted, computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import {
-  Home, Users, Calendar, Heart, MessageSquare,
-  FileText, Settings, UserCheck, Shield, X
-} from 'lucide-vue-next';
+import { Home, Users, Calendar, Heart, MessageSquare, FileText, Settings, UserCheck, Shield, X, FolderDown  } from 'lucide-vue-next';
 import UserProfileSection from '@/layouts/staff/components/UserProfileSection.vue';
 import { useSessionStore } from '@/stores/session';
 import { verifyPermission } from '@/composables';
@@ -83,13 +80,14 @@ const session = useSessionStore();
 const fullNavigation = [
   { name: 'Dashboard', href: '/staff', icon: Home },
   { name: 'Animais em Adoção', href: '/staff/pet', icon: Heart },
-  // { name: 'Adotantes', href: '/staff/adopters', icon: UserCheck },
+  { name: 'Pedidos de Adoção', href: '/staff/adoption-requests', icon: UserCheck },
   { name: 'Eventos', href: '/staff/event', icon: Calendar },
     // { name: 'Contatos', href: '/staff/contacts', icon: MessageSquare },
   // { name: 'Formulários', href: '/staff/forms', icon: FileText },
-  { name: 'Usuários', href: '/staff/user', icon: Users, permission: 'user.create' },
-  { name: 'Cargos & Permissões', href: '/staff/role', icon: Shield, permission: 'role.create' },
-    // { name: 'Configurações', href: '/staff/settings', icon: Settings },
+  { name: 'Mídia', href: '/staff/media', icon: FolderDown  },
+  { name: 'Usuários', href: '/staff/user', icon: Users },
+  { name: 'Cargos & Permissões', href: '/staff/role', icon: Shield },
+  // { name: 'Configurações', href: '/staff/settings', icon: Settings },
 ];
 
 const can = verifyPermission();
