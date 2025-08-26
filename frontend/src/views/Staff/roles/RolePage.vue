@@ -1,509 +1,284 @@
-<script setup lang="ts">
-import { ref, computed, reactive, watch } from 'vue'
-import { Search, Plus, Edit, Trash2, Shield, Settings, Users, Key, Filter, X } from 'lucide-vue-next'
+<script setup>
+/* ──────────────── IMPORTS ──────────────── */
+import { ref, reactive, onMounted, computed } from 'vue';
+import { Key, Shield, Settings, Users, Edit, Trash2, Plus, Search } from 'lucide-vue-next';
+import BaseButton from '@/components/BaseButton.vue';
+import { showConfirm } from '@/utils/uiAlerts/confirm.js';
 
-interface Permission {
-  id: number
-  name: string
-  description: string
-}
 
-interface Role {
-  id: number
-  name: string
-  description: string
-  permissions: Permission[]
-}
+/* ──────────────── STATE ──────────────── */
+const roles = ref([]);
+const allPermissions = ref([]);
+const selectedRole = ref(null);
+const selectedPermissions = ref([]);
 
-interface FilterState {
-  search: string
-  roleType: string
-  permissionCount: string
-}
+const isRoleDialogOpen = ref(false);
+const isPermissionDialogOpen = ref(false);
 
-// Mock: dados estáticos
-const roles = ref<Role[]>([
-  {
-    id: 1,
-    name: 'Administrador',
-    description: 'Acesso completo ao sistema',
-    permissions: [
-      { id: 1, name: 'users.create', description: 'Criar usuários' },
-      { id: 2, name: 'users.read', description: 'Visualizar usuários' },
-      { id: 3, name: 'users.update', description: 'Editar usuários' },
-      { id: 4, name: 'users.delete', description: 'Excluir usuários' },
-      { id: 5, name: 'roles.manage', description: 'Gerenciar cargos' },
-      { id: 6, name: 'animals.manage', description: 'Gerenciar animais' },
-      { id: 7, name: 'events.manage', description: 'Gerenciar eventos' },
-    ]
-  },
-  {
-    id: 2,
-    name: 'Moderador',
-    description: 'Gerenciamento de conteúdo e eventos',
-    permissions: [
-      { id: 2, name: 'users.read', description: 'Visualizar usuários' },
-      { id: 6, name: 'animals.manage', description: 'Gerenciar animais' },
-      { id: 7, name: 'events.manage', description: 'Gerenciar eventos' },
-      { id: 8, name: 'adopters.manage', description: 'Gerenciar adotantes' },
-    ]
-  },
-  {
-    id: 3,
-    name: 'Voluntário',
-    description: 'Acesso básico para voluntários',
-    permissions: [
-      { id: 2, name: 'users.read', description: 'Visualizar usuários' },
-      { id: 9, name: 'events.view', description: 'Visualizar eventos' },
-      { id: 10, name: 'animals.view', description: 'Visualizar animais' },
-    ]
-  }
-])
+const formValues = reactive({ name: '', description: '' });
+const formErrors = reactive({ name: '', description: '' });
 
-const allPermissions = ref<Permission[]>([
-  { id: 1, name: 'users.create', description: 'Criar usuários' },
-  { id: 2, name: 'users.read', description: 'Visualizar usuários' },
-  { id: 3, name: 'users.update', description: 'Editar usuários' },
-  { id: 4, name: 'users.delete', description: 'Excluir usuários' },
-  { id: 5, name: 'roles.manage', description: 'Gerenciar cargos' },
-  { id: 6, name: 'animals.manage', description: 'Gerenciar animais' },
-  { id: 7, name: 'events.manage', description: 'Gerenciar eventos' },
-  { id: 8, name: 'adopters.manage', description: 'Gerenciar adotantes' },
-  { id: 9, name: 'events.view', description: 'Visualizar eventos' },
-  { id: 10, name: 'animals.view', description: 'Visualizar animais' },
-  { id: 11, name: 'contacts.manage', description: 'Gerenciar contatos' },
-  { id: 12, name: 'settings.manage', description: 'Gerenciar configurações' },
-])
+const filters = reactive({ search: '', roleType: 'all', permissionCount: 'all' });
 
-const filters = reactive<FilterState>({
-  search: '',
-  roleType: 'all',
-  permissionCount: 'all',
-})
-
-const selectedRole = ref<Role | null>(null)
-const isRoleDialogOpen = ref(false)
-const isPermissionDialogOpen = ref(false)
-
-const filteredRoles = computed(() => {
-  return roles.value.filter(role => {
-    const searchLower = filters.search.toLowerCase()
-    const matchesSearch = role.name.toLowerCase().includes(searchLower) || role.description.toLowerCase().includes(searchLower)
-
-    const matchesRoleType =
-      filters.roleType === 'all' ||
-      (filters.roleType === 'admin' && role.name.toLowerCase().includes('administrador')) ||
-      (filters.roleType === 'moderador' && role.name.toLowerCase().includes('moderador')) ||
-      (filters.roleType === 'voluntario' && role.name.toLowerCase().includes('voluntário'))
-
-    const pcLen = role.permissions.length
-    const matchesPermissionCount =
-      filters.permissionCount === 'all' ||
-      (filters.permissionCount === 'high' && pcLen >= 5) ||
-      (filters.permissionCount === 'medium' && pcLen >= 3 && pcLen < 5) ||
-      (filters.permissionCount === 'low' && pcLen < 3)
-
-    return matchesSearch && matchesRoleType && matchesPermissionCount
-  })
-})
-
-function updateFilter(key: keyof FilterState, value: string) {
-  filters[key] = value
-}
-
-function clearAllFilters() {
-  filters.search = ''
-  filters.roleType = 'all'
-  filters.permissionCount = 'all'
-}
-
-function getActiveFiltersCount() {
-  let count = 0
-  if (filters.search) count++
-  if (filters.roleType !== 'all') count++
-  if (filters.permissionCount !== 'all') count++
-  return count
-}
-
-function getRoleIcon(roleName: string) {
-  switch (roleName.toLowerCase()) {
-    case 'administrador':
-      return 'shield'
-    case 'moderador':
-      return 'settings'
-    case 'voluntário':
-      return 'users'
-    default:
-      return 'key'
-  }
-}
-
-// 👇 Substituição do formulário com controle manual
-const formValues = reactive({
-  name: '',
-  description: ''
-})
-
-const formErrors = reactive({
-  name: '',
-  description: ''
-})
-
-function validateForm(): boolean {
-  formErrors.name = formValues.name.trim() ? '' : 'Nome do cargo é obrigatório'
-  formErrors.description = formValues.description.trim() ? '' : 'Descrição é obrigatória'
-  return !formErrors.name && !formErrors.description
+/* ──────────────── UTILS ──────────────── */
+function togglePermission(id) {
+  const index = selectedPermissions.value.indexOf(id);
+  if (index === -1) selectedPermissions.value.push(id);
+  else selectedPermissions.value.splice(index, 1);
 }
 
 function resetForm() {
-  formValues.name = ''
-  formValues.description = ''
-  formErrors.name = ''
-  formErrors.description = ''
+  formValues.name = '';
+  formValues.description = '';
+  formErrors.name = '';
+  formErrors.description = '';
+  selectedRole.value = null;
 }
 
-function setValues(values: { name: string; description: string }) {
-  formValues.name = values.name
-  formValues.description = values.description
+/* ──────────────── MODALS & ACTIONS ──────────────── */
+
+function openRoleDialog() {
+  resetForm();
+  isRoleDialogOpen.value = true;
+}
+
+function openPermissionDialog(role) {
+  selectedRole.value = role;
+  selectedPermissions.value = role.permissions.map(p => p.id);
+  isPermissionDialogOpen.value = true;
+}
+
+function closePermissionDialog() {
+  selectedRole.value = null;
+  isPermissionDialogOpen.value = false;
+}
+
+function handleEditRole(role) {
+  selectedRole.value = role;
+  formValues.name = role.name;
+  formValues.description = role.description;
+  isRoleDialogOpen.value = true;
+}
+
+
+/* ──────────────── API CALLS ──────────────── */
+
+async function fetchRoles() {
+  const res = await fetch('/api/role');
+  const data = await res.json();
+  roles.value = data.map(role => ({
+    ...role,
+    permissions: Array.isArray(role.permissions) ? role.permissions : []
+  }));
+}
+
+async function fetchPermissions() {
+  const res = await fetch('/api/permission');
+  allPermissions.value = await res.json();
 }
 
 function handleCreateRole() {
-  if (!validateForm()) return
+  formErrors.name = '';
+  formErrors.description = '';
 
-  if (selectedRole.value) {
-    // Editando
-    const index = roles.value.findIndex(r => r.id === selectedRole.value!.id)
-    if (index !== -1) {
-      roles.value[index].name = formValues.name
-      roles.value[index].description = formValues.description
-    }
-  } else {
-    // Criando novo cargo
-    const newRole: Role = {
-      id: roles.value.length + 1,
+  if (!formValues.name.trim()) {
+    formErrors.name = 'Nome obrigatório';
+    return;
+  }
+  if (!formValues.description.trim()) {
+    formErrors.description = 'Descrição obrigatória';
+    return;
+  }
+
+  const method = selectedRole.value ? 'PUT' : 'POST';
+  const url = selectedRole.value ? `/api/role/${selectedRole.value.id}` : '/api/role';
+
+  fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
       name: formValues.name,
       description: formValues.description,
-      permissions: []
-    }
-    roles.value.push(newRole)
-  }
+      permissionIds: selectedPermissions.value
+    })
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const data = await res.json();
+        if (data?.error?.includes('Cargo já existe')) {
+          formErrors.name = 'Já existe um cargo com este nome';
+        }
+        return;
+      }
 
-  isRoleDialogOpen.value = false
-  resetForm()
-  selectedRole.value = null
+      fetchRoles();
+      isRoleDialogOpen.value = false;
+      resetForm();
+    })
+    .catch(err => {
+      console.error('Erro ao criar cargo:', err);
+    });
 }
 
-function handleEditRole(role: Role) {
-  selectedRole.value = role
-  setValues({ name: role.name, description: role.description })
-  isRoleDialogOpen.value = true
-}
-
-function handleManagePermissions(role: Role) {
-  selectedRole.value = role
-  isPermissionDialogOpen.value = true
-}
-
-// 👇 Controle de permissões
-const selectedPermissions = ref<number[]>([])
-
-watch(selectedRole, newRole => {
-  selectedPermissions.value = newRole ? newRole.permissions.map(p => p.id) : []
-})
-
-function togglePermission(permissionId: number) {
-  const index = selectedPermissions.value.indexOf(permissionId)
-  if (index === -1) {
-    selectedPermissions.value.push(permissionId)
-  } else {
-    selectedPermissions.value.splice(index, 1)
-  }
-}
 
 function savePermissions() {
-  if (selectedRole.value) {
-    const updatedPermissions = allPermissions.value.filter(p => selectedPermissions.value.includes(p.id))
-    const roleIndex = roles.value.findIndex(r => r.id === selectedRole.value!.id)
-    if (roleIndex !== -1) {
-      roles.value[roleIndex].permissions = updatedPermissions
-    }
-  }
-  isPermissionDialogOpen.value = false
+  fetch(`/api/role/${selectedRole.value.id}/add-permission`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ permissionIds: selectedPermissions.value })
+  }).then(() => {
+    fetchRoles();
+    closePermissionDialog();
+  });
 }
-</script>
 
+async function deleteRole(role) {
+
+  const confirmed = await showConfirm({
+    title: 'Excluir cargo',
+    text: `Tem certeza que deseja excluir ${role.name}?`,
+    icon: 'warning',
+    confirmButtonText: 'Excluir',
+    cancelButtonText: 'Cancelar',
+  });
+
+  if (confirmed) {
+    fetch(`/api/role/${role.id}`, { method: 'DELETE' }).then(() => fetchRoles());
+  }
+}
+
+
+/* ──────────────── COMPUTED ──────────────── */
+const groupedPermissions = computed(() => {
+  const groups = {};
+  allPermissions.value.forEach(p => {
+    const [group] = p.name.split('.');
+    if (!groups[group]) groups[group] = [];
+    groups[group].push(p);
+  });
+  return groups;
+});
+
+
+
+/* ──────────────── WATCHERS & MOUNT ──────────────── */
+onMounted(() => {
+  fetchRoles();
+  fetchPermissions();
+  isRoleDialogOpen.value = false;
+  isPermissionDialogOpen.value = false;
+  selectedRole.value = null;
+})
+
+
+</script>
 
 <template>
   <div>
     <div class="flex justify-between items-center mb-8">
       <div>
-        <h1 class="text-3xl font-heading font-bold text-ong-text">Cargos &amp; Permissões</h1>
-        <p class="text-ong-text/70 mt-2">Configure cargos e suas permissões de acesso</p>
+        <h1 class="text-3xl font-bold text-ong-text">Cargos & Permissões</h1>
+        <p class="text-muted-foreground mt-2">Gerencie os cargos do sistema</p>
       </div>
-
-      <!-- Dialog para criar/editar cargo -->
-      <button
-        class="btn-primary flex items-center gap-2"
-        @click="() => { selectedRole = null; resetForm(); isRoleDialogOpen = true; }"
-      >
-        <Plus class="h-4 w-4" />
-        Novo Cargo
-      </button>
-
-      <Dialog v-model:open="isRoleDialogOpen">
-        <DialogContent class="bg-ong-background">
-          <DialogHeader>
-            <DialogTitle>{{ selectedRole ? 'Editar Cargo' : 'Criar Novo Cargo' }}</DialogTitle>
-          </DialogHeader>
-
-         <form @submit.prevent="handleCreateRole" class="space-y-4">
-            <div>
-                <label class="block mb-1" for="name">Nome do Cargo</label>
-                <input
-                id="name"
-                v-model="formValues.name"
-                type="text"
-                placeholder="Ex: Moderador"
-                class="input"
-                />
-                <p v-if="formErrors.name" class="text-destructive text-sm mt-1">{{ formErrors.name }}</p>
-            </div>
-            <div>
-                <label class="block mb-1" for="description">Descrição</label>
-                <input
-                id="description"
-                v-model="formValues.description"
-                type="text"
-                placeholder="Descreva as responsabilidades do cargo"
-                class="input"
-                />
-                <p v-if="formErrors.description" class="text-destructive text-sm mt-1">{{ formErrors.description }}</p>
-            </div>
-
-            <div class="flex justify-end gap-2">
-                <button type="button" class="btn-outline" @click="isRoleDialogOpen = false">Cancelar</button>
-                <button type="submit" class="btn-primary">{{ selectedRole ? 'Salvar' : 'Criar' }}</button>
-            </div>
-            </form>
-
-
-        </DialogContent>
-      </Dialog>
+      <BaseButton :icon="Plus" text="Novo Cargo" @click="openRoleDialog" variant="primary" />
     </div>
 
-    <!-- Filtros -->
-    <div class="mb-6 space-y-4">
-      <div class="flex flex-col sm:flex-row gap-4">
-        <!-- Busca -->
-        <div class="relative flex-1">
-          <Search class="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <input
-            v-model="filters.search"
-            placeholder="Buscar por cargo ou descrição..."
-            class="input pl-10"
-            type="search"
-          />
-        </div>
-
-        <!-- Tipo de Cargo -->
-        <select v-model="filters.roleType" class="select w-full sm:w-[180px]">
-          <option value="all">Todos os tipos</option>
-          <option value="admin">Administrador</option>
-          <option value="moderador">Moderador</option>
-          <option value="voluntario">Voluntário</option>
-        </select>
-
-        <!-- Nível de acesso -->
-        <select v-model="filters.permissionCount" class="select w-full sm:w-[180px]">
-          <option value="all">Todos os níveis</option>
-          <option value="high">Alto (5+ permissões)</option>
-          <option value="medium">Médio (3-4 permissões)</option>
-          <option value="low">Baixo (1-2 permissões)</option>
-        </select>
-
-        <!-- Menu de filtros avançados -->
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button class="btn-outline relative flex items-center gap-2">
-              <Filter class="h-4 w-4" />
-              Filtros
-              <span
-                v-if="getActiveFiltersCount() > 0"
-                class="badge ml-2 h-5 w-5 rounded-full p-0 text-xs"
-              >{{ getActiveFiltersCount() }}</span>
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" class="w-56">
-            <DropdownMenuLabel>Filtros Avançados</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem @click="clearAllFilters">
-              <X class="h-4 w-4 mr-2" />
-              Limpar todos os filtros
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      <!-- Filtros ativos exibidos -->
-      <div v-if="getActiveFiltersCount() > 0" class="flex flex-wrap gap-2">
-        <span
-          v-if="filters.search"
-          class="badge-secondary gap-1 flex items-center cursor-pointer"
-          @click="filters.search = ''"
-        >
-          Busca: "{{ filters.search }}"
-          <X class="h-3 w-3" />
-        </span>
-        <span
-          v-if="filters.roleType !== 'all'"
-          class="badge-secondary gap-1 flex items-center cursor-pointer"
-          @click="filters.roleType = 'all'"
-        >
-          Tipo:
-          {{ filters.roleType === 'admin' ? 'Administrador' : filters.roleType === 'moderador' ? 'Moderador' : 'Voluntário' }}
-          <X class="h-3 w-3" />
-        </span>
-        <span
-          v-if="filters.permissionCount !== 'all'"
-          class="badge-secondary gap-1 flex items-center cursor-pointer"
-          @click="filters.permissionCount = 'all'"
-        >
-          Nível:
-          {{ filters.permissionCount === 'high' ? 'Alto' : filters.permissionCount === 'medium' ? 'Médio' : 'Baixo' }}
-          <X class="h-3 w-3" />
-        </span>
+    <div class="mb-6">
+      <div class="relative max-w-md">
+        <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input
+          v-model="filters.search"
+          type="text"
+          placeholder="Buscar por nome ou descrição..."
+          class="pl-10 pr-4 py-2 w-full text-sm rounded-md border border-border focus:ring focus:outline-none bg-background text-foreground"
+        />
       </div>
     </div>
 
-    <!-- Resumo -->
-    <p class="text-sm text-ong-text/70 mb-4">
-      Mostrando {{ filteredRoles.length }} de {{ roles.length }} cargos
-    </p>
+    <div class="overflow-x-auto bg-card rounded-lg shadow-sm">
+      <table class="w-full table-auto text-sm">
+        <thead class="text-muted-foreground bg-ong-popover uppercase text-xs">
+          <tr>
+            <th class="px-4 py-3 text-left">Cargo</th>
+            <th class="px-4 py-3 text-left">Descrição</th>
+            <th class="px-4 py-3 text-left">Permissões</th>
+            <th class="px-4 py-3 text-left">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="role in roles" :key="role.id" class="border-t hover:bg-gray-50">
+            <td class="p-3 flex items-center gap-2">
+              <component :is="{administrador: Shield, moderador: Settings, voluntário: Users}[role.name.toLowerCase()] || Key" class="w-4 h-4 text-gray-500" />
+              {{ role.name }}
+            </td>
+            <td class="p-3">{{ role.description }}</td>
+            <td class="p-3">
+              <span v-for="p in role.permissions.slice(0, 2)" :key="p.id" class="badge-outline text-xs mr-1">{{ p.name }}</span>
+              <span v-if="role.permissions.length > 2" class="text-xs text-gray-500">+{{ role.permissions.length - 2 }} mais</span>
+              <span v-if="role.permissions.length <= 0" class="text-xs text-gray-500">Nenhuma permissão associada</span>
+            </td>
+            <td class="p-3 flex gap-2">
+              <BaseButton :icon="Key" @click="openPermissionDialog(role)" variant="default" />
+              <BaseButton :icon="Edit" @click="handleEditRole(role)" variant="warning" />
+              <BaseButton :icon="Trash2" @click="deleteRole(role)" variant="danger" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-    <!-- Tabela de cargos -->
-    <Card>
-      <CardHeader>
-        <CardTitle class="flex items-center gap-2">
-          <Shield class="h-5 w-5" />
-          Cargos Cadastrados
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <table class="table-auto w-full border-collapse border border-border">
-          <thead>
-            <tr class="border-b border-border">
-              <th class="p-2 text-left">Cargo</th>
-              <th class="p-2 text-left text-ong-text/70">Descrição</th>
-              <th class="p-2 text-left">Permissões</th>
-              <th class="p-2 text-left">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="filteredRoles.length === 0" class="text-center text-ong-text/70">
-              <td colspan="4" class="py-8">Nenhum cargo encontrado com os filtros aplicados</td>
-            </tr>
-            <tr v-for="role in filteredRoles" :key="role.id" class="border-b border-border">
-              <td class="p-2 flex items-center gap-2 font-medium">
-                <component :is="{
-                  shield: Shield,
-                  settings: Settings,
-                  users: Users,
-                  key: Key
-                }[getRoleIcon(role.name)]" class="h-4 w-4" :class="{
-                  shield: 'text-red-600',
-                  settings: 'text-blue-600',
-                  users: 'text-green-600',
-                  key: 'text-gray-600'
-                }[getRoleIcon(role.name)]" />
-                {{ role.name }}
-              </td>
-              <td class="p-2 text-ong-text/70">{{ role.description }}</td>
-              <td class="p-2">
-                <div class="flex flex-wrap gap-1">
-                  <span
-                    v-for="permission in role.permissions.slice(0, 3)"
-                    :key="permission.id"
-                    class="badge-outline text-xs"
-                  >
-                    {{ permission.name }}
-                  </span>
-                  <span
-                    v-if="role.permissions.length > 3"
-                    class="badge-outline text-xs"
-                  >
-                    +{{ role.permissions.length - 3 }} mais
-                  </span>
-                </div>
-              </td>
-              <td class="p-2">
-                <div class="flex gap-2">
-                  <button
-                    class="btn-outline btn-sm flex items-center gap-1"
-                    @click="handleManagePermissions(role)"
-                    title="Permissões"
-                  >
-                    <Key class="h-3 w-3" />
-                    Permissões
-                  </button>
-                  <button
-                    class="btn-outline btn-sm flex items-center gap-1"
-                    @click="handleEditRole(role)"
-                    title="Editar"
-                  >
-                    <Edit class="h-3 w-3" />
-                    Editar
-                  </button>
-                  <button
-                    class="btn-outline btn-sm text-red-600 hover:text-red-700 flex items-center justify-center"
-                    title="Excluir"
-                    
-                  >
-                    <Trash2 class="h-3 w-3" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </CardContent>
-    </Card>
-
-    <!-- Dialog para gerenciar permissões -->
-    <Dialog v-model:open="isPermissionDialogOpen">
-      <DialogContent class="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle class="flex items-center gap-2">
-            <Key class="h-5 w-5" />
-            Gerenciar Permissões - {{ selectedRole?.name }}
-          </DialogTitle>
-        </DialogHeader>
-
-        <div class="space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-            <div
-              v-for="permission in allPermissions"
-              :key="permission.id"
-              class="flex items-start space-x-3 p-3 border rounded-lg"
-            >
-              <input
-                type="checkbox"
-                :id="'perm-' + permission.id"
-                :checked="selectedPermissions.includes(permission.id)"
-                @change="togglePermission(permission.id)"
-                class="checkbox mt-1"
-              />
-              <label :for="'perm-' + permission.id" class="flex-1 cursor-pointer select-none">
-                <div class="font-medium text-sm">{{ permission.name }}</div>
-                <div class="text-xs text-ong-text/70">{{ permission.description }}</div>
-              </label>
+    <!-- Modal de Permissões -->
+    <div v-if="isPermissionDialogOpen && selectedRole" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded w-full max-w-3xl space-y-4">
+        <h2 class="text-lg font-semibold">Gerenciar Permissões - {{ selectedRole.name }}</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+          <div v-for="(permissions, group) in groupedPermissions" :key="group">
+            <h3 class="font-bold text-sm mb-2">{{ group }}</h3>
+            <div v-for="p in permissions" :key="p.id" class="flex items-center gap-2 mb-1">
+              <input type="checkbox" :id="'perm-' + p.id" :checked="selectedPermissions.includes(p.id)" @change="togglePermission(p.id)" />
+              <label :for="'perm-' + p.id" class="text-sm">{{ p.name }}</label>
             </div>
           </div>
-          <div class="flex justify-end gap-2">
-            <button class="btn-outline" @click="isPermissionDialogOpen = false">Cancelar</button>
-            <button class="btn-primary" @click="savePermissions">Salvar</button>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button class="btn-outline px-4 py-2" @click="closePermissionDialog">Cancelar</button>
+          <button class="btn-primary px-4 py-2" @click="savePermissions">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal CreateRole-->
+    <div v-if="isRoleDialogOpen" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded w-full max-w-md space-y-4">
+        <h2 class="text-lg font-semibold">
+          {{ selectedRole ? 'Editar Cargo' : 'Novo Cargo' }}
+        </h2>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Nome</label>
+            <input
+              v-model="formValues.name"
+              type="text"
+              class="w-full mt-1 border border-gray-300 rounded px-3 py-2 text-sm"
+            />
+            <p v-if="formErrors.name" class="text-red-500 text-xs mt-1">{{ formErrors.name }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Descrição</label>
+            <textarea
+              v-model="formValues.description"
+              class="w-full mt-1 border border-gray-300 rounded px-3 py-2 text-sm"
+            ></textarea>
+            <p v-if="formErrors.description" class="text-red-500 text-xs mt-1">{{ formErrors.description }}</p>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+        <div class="flex justify-end gap-2">
+          <button class="btn-outline px-4 py-2" @click="isRoleDialogOpen = false">Cancelar</button>
+          <button class="btn-primary px-4 py-2" @click="handleCreateRole">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+
   </div>
 </template>

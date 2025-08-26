@@ -18,6 +18,7 @@ export class Role {
       id: this.props.id,
       name: this.props.name,
       description: this.props.description,
+      permissions: this.props.permissions ?? []
     };
   }
 }

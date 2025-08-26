@@ -5,7 +5,9 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { Sequelize } from 'sequelize';
 import router from '@interface/routes/index';
+
 import { initModels } from '@infra/sequelize/sequelize';
+
 
 //import { initPetModel } from './infra/db/models/Pet.model';
 //import { initUsuarioModel } from './infra/db/models/Usuario.model';

@@ -1,7 +1,6 @@
 'use strict';
 
 const { v4: uuidv4 } = require('uuid');
-//import { v4 as uuidv4 } from 'uuid';
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -29,13 +28,25 @@ module.exports = {
         permission_id: permission.id
       });
 
-      // USER tem acesso apenas a conteúdo
-      if (['ACCESS_CONTENT_PANEL', 'INTEREST_FORM_LIST'].includes(permission.name)) {
+      // VOLUNTÁRIO: regras explícitas e legíveis
+      const allowedForVolunteer =
+        // Pode visualizar usuários, cargos e permissões
+        ['user.get', 'role.get', 'permission.get'].includes(permission.name)
+        // Pode acessar qualquer permissão que não seja de user, role ou permission (exceto admin panel)
+        || (
+          !permission.name.startsWith('user.')
+          && !permission.name.startsWith('role.')
+          && !permission.name.startsWith('permission.')
+          && permission.name !== 'access.admin_panel'
+        );
+
+      if (allowedForVolunteer) {
         rolePermissions.push({
           role_id: userId,
           permission_id: permission.id
         });
       }
+      
     }
 
     await queryInterface.bulkInsert('role_permissions', rolePermissions);

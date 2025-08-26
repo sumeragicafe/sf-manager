@@ -48,7 +48,7 @@ export class SequelizeRoleRepository implements IRoleRepository {
     await roleModel.setPermissions(permissionIds);
 
     const withPermissions = await RoleModel.findByPk(roleModel.id, {
-      include: [{ model: PermissionModel, as: 'permissions' }]
+      include: [{ model: PermissionModel, as: 'Permissions' }]
     });
 
     const json = withPermissions!.toJSON() as any;
@@ -57,7 +57,7 @@ export class SequelizeRoleRepository implements IRoleRepository {
       id: json.id,
       name: json.name,
       description: json.description,
-      permissions: json.permissions?.map((p: any) => ({
+      permissions: json.Permissions?.map((p: any) => ({
         id: p.id,
         name: p.name,
         description: p.description,
@@ -73,7 +73,7 @@ export class SequelizeRoleRepository implements IRoleRepository {
     await roleModel.setPermissions(permissionIds);
 
     const updated = await RoleModel.findByPk(roleId, {
-      include: [{ model: PermissionModel, as: 'permissions' }]
+      include: [{ model: PermissionModel, as: 'Permissions' }]
     });
 
     const json = updated!.toJSON() as any;
@@ -82,7 +82,7 @@ export class SequelizeRoleRepository implements IRoleRepository {
       id: json.id,
       name: json.name,
       description: json.description,
-      permissions: json.permissions?.map((p: any) => ({
+      permissions: json.Permissions?.map((p: any) => ({
         id: p.id,
         name: p.name,
         description: p.description,
@@ -91,7 +91,7 @@ export class SequelizeRoleRepository implements IRoleRepository {
   }
 
 
-  async list(){
+  async list() {
     const roles = await RoleModel.findAll({
       include: [{ model: PermissionModel, as: 'Permissions' }]
     });
@@ -99,17 +99,24 @@ export class SequelizeRoleRepository implements IRoleRepository {
     return roles.map((r) => {
       const json = r.toJSON() as any;
 
+      const perms = Array.isArray(json.Permissions)
+        ? json.Permissions
+        : Array.isArray(json.permissions)
+        ? json.permissions
+        : [];
+
       return new Role({
         id: json.id,
         name: json.name,
         description: json.description,
-        permissions: json.permissions?.map((p: any) => ({
+        permissions: perms.map((p: any) => ({
           id: p.id,
           name: p.name,
           description: p.description,
-        })) || [],
+        })),
       });
     });
+
   }
 
   async delete(roleId: string){

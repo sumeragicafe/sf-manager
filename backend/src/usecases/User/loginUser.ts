@@ -10,6 +10,9 @@ export function loginUser(userRepo: IUserRepository, authService: AuthService){
         const valid = await bcrypt.compare(password, user.props.password);
         if(!valid) throw new Error("Invalid credentials");
 
+        user.props.lastLoginAt = new Date();
+        await userRepo.update(user);
+
         //const permissionList = await userRepo.getUserPermissions(user.props.id || "");
 
         const userRole = await userRepo.getUserRoleWithPermissions(user.props.id || "");
