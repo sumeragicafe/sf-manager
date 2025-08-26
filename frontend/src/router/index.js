@@ -76,6 +76,7 @@ const router = createRouter({
                     name: 'EventPage',
                     component: () => import('../views/Staff/events/EventsPage.vue')
                 },
+                {
                     path: 'adoption-requests',
                     name: 'AdoptionRequestsPage',
                     component: () => import('../views/Staff/adoption-requests/AdoptionRequestsPage.vue')
