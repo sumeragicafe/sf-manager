@@ -1,5 +1,4 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import { RoleModel } from '@infra/sequelize/models/Role.model';
 
 export class UserModel extends Model {}
 

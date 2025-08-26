@@ -39,6 +39,11 @@ const router = createRouter({
                     path:'/parcerias',
                     name:'parcerias',
                     component: () => import('../views/Landing/parcerias/PartnersPage.vue')
+                },
+                {
+                    path:'/formulario-de-adocao/:animalId?',
+                    name:'formulario-de-adocao',
+                    component: () => import('../views/Landing/form/Form.vue')
                 }
             ]
         },
@@ -71,6 +76,15 @@ const router = createRouter({
                     name: 'EventPage',
                     component: () => import('../views/Staff/events/EventsPage.vue')
                 },
+                    path: 'adoption-requests',
+                    name: 'AdoptionRequestsPage',
+                    component: () => import('../views/Staff/adoption-requests/AdoptionRequestsPage.vue')
+                },
+                {
+                    path: 'media',
+                    name: 'MediaPage',
+                    component: () => import('../views/Staff/media/MediaPage.vue')
+                }
             ]
         },
         {

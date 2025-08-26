@@ -5,16 +5,13 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { Sequelize } from 'sequelize';
 import router from '@interface/routes/index';
-import { initUserModel } from '@infra/sequelize/models/User.model';
-import { initPermissionModel } from '@infra/sequelize/models/Permission.model';
-import { initRoleModel } from '@infra/sequelize/models/Role.model';
-import { initEventModel } from '@infra/sequelize/models/Event.model';
-import { associateRolePermission } from '@infra/sequelize/models/RolePermission.model';
+
+import { initModels } from '@infra/sequelize/sequelize';
+
 
 //import { initPetModel } from './infra/db/models/Pet.model';
 //import { initUsuarioModel } from './infra/db/models/Usuario.model';
 // import routes from './routes'; // Pode ser criado posteriormente
-
 
 dotenv.config();
 
@@ -50,11 +47,7 @@ const sequelize = new Sequelize(
 );
 
 // Inicializa modelos
-initRoleModel(sequelize);
-initPermissionModel(sequelize);
-initUserModel(sequelize);
-initEventModel(sequelize);
-associateRolePermission(sequelize);
+initModels(sequelize);
 
 // Middlewares
 app.use(cors());
@@ -79,7 +72,7 @@ sequelize
 app.use(cookieParser());
 
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'minha-chave-secreta', // valor padrão
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false } // secure: true se usar HTTPS

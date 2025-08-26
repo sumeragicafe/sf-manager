@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 
 export function requireAuth(authService: AuthService) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const token = req.session?.token;
+    const token = (req.session as any)?.token;
 
     if (!token) {
       res.status(401).json({ message: 'Sessão não encontrada' });
