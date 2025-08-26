@@ -2,7 +2,6 @@ import { createRouter, createWebHistory} from 'vue-router';
 import { useSessionStore } from '@/stores/session'
 import NotFound from '../views/NotFound.vue';
 
-
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes:[
@@ -73,6 +72,10 @@ const router = createRouter({
                    
                 },
                 {
+                    path: 'event',
+                    name: 'EventPage',
+                    component: () => import('../views/Staff/events/EventsPage.vue')
+                },
                     path: 'adoption-requests',
                     name: 'AdoptionRequestsPage',
                     component: () => import('../views/Staff/adoption-requests/AdoptionRequestsPage.vue')
@@ -81,8 +84,7 @@ const router = createRouter({
                     path: 'media',
                     name: 'MediaPage',
                     component: () => import('../views/Staff/media/MediaPage.vue')
-                },
-
+                }
             ]
         },
         {
