@@ -52,6 +52,11 @@ module.exports = {
       { name: 'partner.edit', description: 'Editar parceiro' },
       { name: 'partner.delete', description: 'Excluir parceiro' },
 
+      { name: 'media.view_private_media', description: 'Visualizar arquivos privados' },
+      { name: 'media.create', description: 'Criar arquivos' },
+      { name: 'media.update', description: 'Atualizar arquivos' },
+      { name: 'media.delete', description: 'Excluir arquivos' },
+
       { name: 'access.admin_panel', description: 'Acessar painel administrativo' },
       { name: 'access.content_panel', description: 'Acessar painel de conteúdo' }
     ];

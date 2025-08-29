@@ -11,7 +11,7 @@ export function listMedia(mediaRepository: IMediaRepository) {
       try {
         const payload = authServiceSingleton.verifyToken(session.token);
         const permissions = await userRepositorySingleton.getUserPermissions(payload.id);
-        canViewPrivate = permissions?.includes('VIEW_PRIVATE_MEDIA') ?? false;
+        canViewPrivate = permissions?.includes('media.view_private_media') ?? false;
       } catch (e) {
         // token inválido → não tem permissão
         throw Error("Ocorreu um erro ao validar o token" + e);
