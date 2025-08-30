@@ -15,9 +15,9 @@
         v-model="perPage"
         class="border border-border rounded-md px-3 py-1 bg-card text-card-foreground shadow-sm"
       >
-        <option :value="8">8 por página</option>
-        <option :value="16">16 por página</option>
+        <option :value="24">24 por página</option>
         <option :value="32">32 por página</option>
+        <option :value="48">48 por página</option>
         <option :value="64">64 por página</option>
       </select>
         <button
@@ -48,7 +48,10 @@
     </div>
 
     <!-- Conteúdo em Grade -->
-    <div v-if="view === 'grid'"  class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-4 mt-4">
+    <div
+      v-if="view === 'grid'"
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-4 mt-4 auto-rows-fr"
+    >
       <div
         v-for="item in paginatedItems"
         :key="item.id"
@@ -110,7 +113,16 @@
         <div class="w-full aspect-square flex items-center justify-center bg-muted rounded-md overflow-hidden">
           <div class="text-muted-foreground text-6xl">
             <div v-if="item.mimeType.includes('pdf')"><File /></div>
-            <div v-else-if="item.mimeType.startsWith('image/')"><FileImage /></div>
+            
+            <div v-else-if="item.mimeType.startsWith('image/')">
+              <img
+                v-if="item.mimeType.startsWith('image/')"
+                :src="`/api/media/view/${item.id}`"
+                alt="preview"
+                class="w-full h-full object-cover"
+              />
+              <!-- < FileImage /> -->
+            </div>
             <div v-else-if="item.mimeType.startsWith('video/')"><FileVideo /></div>
             <div v-else><File /></div>
           </div>
@@ -163,9 +175,10 @@
 
     <!-- Modal -->
     <div v-if="modalOpen" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div class="bg-white rounded-xl p-6 w-[80vw] max-w-8xl h-[90vh] relative shadow-lg flex flex-col">
-        <!-- Cabeçalho do modal -->
-        <div class="flex justify-between items-center mb-4 bg-card rounded-t-lg">
+        <div class="bg-white rounded-xl p-6 w-[95vw] sm:w-[90vw] md:w-[80vw] lg:w-[70vw] max-w-6xl h-[90vh] sm:h-[85vh] relative shadow-lg flex flex-col">
+        
+          <!-- Cabeçalho do modal -->
+        <div class="shrink-0 flex justify-between items-center mb-4 bg-card rounded-t-lg">
           <!-- Info do arquivo -->
           <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
             <p class="font-heading font-bold text-lg text-ong-text truncate max-w-xs sm:max-w-sm">
@@ -183,69 +196,58 @@
         </div>
 
         <!-- Área principal -->
-        <div class="flex-1 flex flex-col">
-          <!-- Frame da mídia -->
-          <div class="flex-1 border rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden relative">
-            <!-- IMAGE -->
-            <div v-if="modalItem?.mimeType.startsWith('image/')" class="w-full h-full flex items-center justify-center overflow-auto">
-              <img 
-                :src="modalItem.src" 
-                alt="Imagem no modal"
-                class="object-contain transition-transform duration-200"
-                :style="{ transform: `scale(${zoom}) translate(${translateX}px, ${translateY}px)` }"
-              />
-              <!-- Controles de Zoom -->
-              <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-white/80 rounded-lg shadow px-3 py-2">
-                <button @click="zoomIn" aria-label="Aumentar zoom"><Plus /></button>
-                <button @click="resetZoom" aria-label="Restaurar zoom"><RefreshCcw /></button>
-                <button @click="zoomOut" aria-label="Diminuir zoom"><Minus /></button>
+        <!-- Área principal: agora pode encolher para caber -->
+          <div class="flex-1 min-h-0 flex flex-col">
+            <!-- Frame da mídia: é quem encolhe e controla overflow -->
+            <div class="flex-1 min-h-0 border rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden relative">
+              
+              <!-- IMAGE -->
+              <div v-if="modalItem?.mimeType.startsWith('image/')" class="w-full h-full flex items-center justify-center overflow-auto">
+                <img
+                  :src="modalItem.src"
+                  alt="Imagem no modal"
+                  class="max-w-full max-h-full object-contain transition-transform duration-200"
+                  :style="{ transform: `scale(${zoom}) translate(${translateX}px, ${translateY}px)` }"
+                />
+                <!-- Controles de Zoom -->
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-white/80 rounded-lg shadow px-3 py-2">
+                  <button @click="zoomIn" aria-label="Aumentar zoom"><Plus /></button>
+                  <button @click="resetZoom" aria-label="Restaurar zoom"><RefreshCcw /></button>
+                  <button @click="zoomOut" aria-label="Diminuir zoom"><Minus /></button>
+                </div>
+              </div>
+
+              <!-- PDF -->
+              <div v-else-if="modalItem?.mimeType.startsWith('application/pdf')" class="w-full h-full">
+                <iframe v-if="modalItem.src" :src="modalItem.src" class="w-full h-full" frameborder="0"></iframe>
+              </div>
+
+              <!-- VIDEO -->
+              <div v-else-if="modalItem?.mimeType.startsWith('video/')" class="w-full h-full flex items-center justify-center">
+                <video controls class="max-h-full max-w-full object-contain">
+                  <source :src="modalItem.src" :type="modalItem.mimeType" />
+                </video>
+              </div>
+
+              <div v-else-if="modalItem?.mimeType.startsWith('text/') || modalItem?.mimeType.includes('json')" class="w-full h-full flex flex-col p-4 overflow-auto">
+                <pre class="whitespace-pre-wrap text-sm font-mono text-gray-800">{{ modalItem.content || 'Carregando conteúdo do arquivo...' }}</pre>
+              </div>
+
+
+              <div v-else class="flex items-center justify-center">
+                <p class="text-lg font-medium">{{ modalItem?.fileName || 'Arquivo não suportado' }}</p>
               </div>
             </div>
-            <!-- PDF -->
-            <div v-else-if="modalItem?.mimeType.startsWith('application/pdf')" class="w-full h-full flex items-center justify-center">
-              <iframe
-                v-if="modalItem.src"
-                :src="modalItem.src"
-                class="w-full h-full"
-                frameborder="0"
-              ></iframe>
-            </div>
 
-            <!-- VIDEO -->
-            <div v-else-if="modalItem?.mimeType.startsWith('video/')" class="w-full h-full flex items-center justify-center">
-              <video controls class="max-h-full max-w-full object-contain">
-                <source :src="modalItem.src" :type="modalItem.mimeType" />
-                Seu navegador não suporta o elemento de vídeo.
-              </video>
-            </div>
-            <div v-else class="flex items-center justify-center">
-              <p class="text-lg font-medium">{{ modalItem?.fileName || 'Arquivo não suportado' }}</p>
-            </div>
-          </div>
 
           <!-- Área dos botões de ação -->
-          <div class="mt-4 flex justify-end gap-3 items-center">
+          <div class="mt-4 shrink-0 flex justify-end gap-3 items-center border-t pt-3 bg-white">
             <span class="text-sm text-muted-foreground">
               <b>Tipo de Arquivo:</b> {{ modalItem?.mimeType || 'Desconhecido' }}
             </span>
-            <button 
-              class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
-              @click="baixarItem(modalItem)"
-            >
-              Download
-            </button>
-            <button 
-              class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600"
-              @click="editarNome()"
-            >
-              Editar
-            </button>
-            <button 
-              class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
-              @click="handleDelete"
-            >
-              Excluir
-            </button>
+            <button class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300" @click="baixarItem(modalItem)">Download</button>
+            <button class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600" @click="editarNome()">Editar</button>
+            <button class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600" @click="handleDelete">Excluir</button>
           </div>
         </div>
       </div>
@@ -276,15 +278,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import Swal from 'sweetalert2'
 import { Eye, MoreVertical, File, FileImage, FileVideo, RefreshCcw, Plus, Minus,ChevronRight, ChevronLeft, X  } from 'lucide-vue-next'
+import { showToast } from '@/utils/uiAlerts/toast'
 
 const items = ref([])
 const filter = ref('all')
 const view = ref('grid')
 const page = ref(1)
-const perPage = 8
+const perPage = ref(24)
 
 const modalItem = ref(null)
 const modalOpen = ref(false)
@@ -390,28 +393,50 @@ async function carregarArquivo(item) {
     const file = await res.json()
 
     let src = ''
+    let content = null
+
     if (file.mimeType.startsWith('image/') || file.mimeType.startsWith('video/')) {
+      // Binário -> base64
       const base64 = btoa(
-        new Uint8Array(file.data.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
+        new Uint8Array(file.data.data).reduce(
+          (data, byte) => data + String.fromCharCode(byte),
+          ''
+        )
       )
       src = `data:${file.mimeType};base64,${base64}`
-    }else if (file.mimeType.startsWith('application/pdf')) {
-      // PDF via fetch + blob
+
+    } else if (file.mimeType.startsWith('application/pdf')) {
+      // PDF via blob
       const pdfRes = await fetch(`/api/media/view/${item.id}`)
       if (!pdfRes.ok) throw new Error('Erro ao carregar PDF')
       const blob = await pdfRes.blob()
       src = URL.createObjectURL(blob)
+
+    } else if (file.mimeType.startsWith('text/') || file.mimeType === 'application/json') {
+      // Buffer -> texto legível
+      const uint8Array = new Uint8Array(file.data.data)
+      const decoder = new TextDecoder('utf-8')
+      content = decoder.decode(uint8Array)
+
+      // Se for JSON, formatar bonito
+      if (file.mimeType === 'application/json') {
+        try {
+          content = JSON.stringify(JSON.parse(content), null, 2)
+        } catch (err) {
+          console.warn('JSON inválido, mostrando bruto')
+        }
+      }
     }
 
-    modalItem.value = { ...file, src }
+    modalItem.value = { ...file, src, content }
     modalOpen.value = true
 
-    // 🔄 resetar zoom/posicionamento ao trocar
     resetZoom()
   } catch (err) {
     console.error('Erro ao abrir arquivo:', err)
   }
 }
+
 
 /* === Upload === */
 function selectFile() {
@@ -425,13 +450,42 @@ async function uploadFile(file) {
   const formData = new FormData()
   formData.append('file', file)
 
-  const res = await fetch('/api/media', { method: 'POST', body: formData })
-  if (!res.ok) {
-    console.error('Erro no upload:', await res.json())
-    return
+  try {
+    const res = await fetch('/api/media', { method: 'POST', body: formData })
+
+    if (!res.ok) {
+      const errorData = await res.json()
+      console.error('Erro no upload:', errorData)
+
+      showToast({
+        icon: 'error',
+        title: 'Erro ao enviar arquivo!',
+        description: errorData?.error || 'Tente novamente mais tarde',
+        timer: 2500,
+      })
+
+      return
+    }
+
+    const newFile = await res.json()
+
+    showToast({
+      icon: 'success',
+      title: 'Arquivo enviado!',
+      timer: 2000,
+    })
+
+    items.value.unshift(newFile)
+  } catch (err) {
+    console.error(err)
+
+    showToast({
+      icon: 'error',
+      title: 'Erro inesperado!',
+      description: err.message || 'Falha no envio',
+      timer: 2500,
+    })
   }
-  const newFile = await res.json()
-  items.value.unshift(newFile)
 }
 
 /* === Excluir === */
@@ -493,19 +547,24 @@ const filteredItems = computed(() => {
 })
 
 /* === Paginação === */
-const totalPages = computed(() => Math.ceil(filteredItems.value.length / perPage))
+const totalPages = computed(() => Math.ceil(filteredItems.value.length / perPage.value))
 const paginatedItems = computed(() => {
-  const start = (page.value - 1) * perPage
-  return filteredItems.value.slice(start, start + perPage)
+  const start = (page.value - 1) * perPage.value
+  return filteredItems.value.slice(start, start + perPage.value)
 })
 
 /* === Carregar lista === */
 async function carregarMidia() {
-  const res = await fetch(`/api/media?page=${page.value}&pageSize=${perPage}`)
+  const res = await fetch(`/api/media?page=${page.value}&pageSize=${perPage.value}`)
   const json = await res.json()
   items.value = json.items
 }
+
 onMounted(carregarMidia)
+
+watch([page, perPage], () => {
+  carregarMidia()
+})
 
 function formatFileSize(bytes) {
   if (bytes === 0) return '0 B'
