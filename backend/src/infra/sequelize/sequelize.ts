@@ -12,6 +12,7 @@ import AnimalVaccineModel from '@infra/sequelize/models/AnimalVaccine.model';
 import VaccineModel from '@infra/sequelize/models/Vaccine.model';
 import MediaModel from '@infra/sequelize/models/Media.model';
 import AnimalMediaModel from '@infra/sequelize/models/AnimalMedia.model';
+import { initEventModel, EventModel } from '@infra/sequelize/models/Event.model';
 
 export function initModels(sequelize: Sequelize) {
     // Inicializa os modelos
@@ -29,6 +30,17 @@ export function initModels(sequelize: Sequelize) {
     initUserModel(sequelize);
    
     initAdoptionRequestModel(sequelize);
+    initEventModel(sequelize);
+
+    // Ensure events table exists in development setups without migrations
+    try {
+        // This will create the table if it does not exist
+        // and will be a no-op if it already exists
+        EventModel.sync();
+    } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Erro ao sincronizar tabela events:', err);
+    }
 
 
    

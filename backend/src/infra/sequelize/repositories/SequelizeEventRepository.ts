@@ -16,4 +16,13 @@ export class SequelizeEventRepository implements IEventRepository {
   async delete(id: string): Promise<void> {
     await EventModel.destroy({ where: { id: id } });
   }
+
+  async update(id: string, data: Partial<{ name: string; description: string; place: string; start_at: Date; end_at: Date; }>): Promise<Event> {
+    const instance = await EventModel.findByPk(id);
+    if (!instance) {
+      throw new Error('Evento não encontrado');
+    }
+    await instance.update(data as any);
+    return new Event(instance.toJSON());
+  }
 }
