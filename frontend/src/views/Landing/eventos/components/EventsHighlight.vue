@@ -8,7 +8,8 @@
           <Calendar size="24" />
           Próximo Evento
         </h5>
-        <EventCard :event="nextEvent" :isHighlighted="true" />
+        <EventCard v-if="nextEvent" :event="nextEvent" :isHighlighted="true" />
+        <div v-else class="text-sm text-ong-text/70">Nenhum evento futuro cadastrado.</div>
       </div>
 
       <!-- Outros Eventos -->
@@ -19,16 +20,13 @@
         </h5>
 
         <div class="space-y-4 max-h-96 overflow-y-auto">
-          <EventCard
-            v-for="event in upcomingEvents"
-            :key="event.id"
-            :event="event"
-          />
+          <EventCard v-for="event in upcomingEvents" :key="event.id" :event="event" />
+          <div v-if="!loading && upcomingEvents.length === 0" class="text-sm text-ong-text/70">
+            Nenhum outro evento no momento.
+          </div>
         </div>
 
-        <button class="w-full mt-4 btn-secondary">
-          Ver Todos os Eventos
-        </button>
+        
       </div>
 
     </div>
@@ -36,49 +34,44 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue';
 import { Calendar } from 'lucide-vue-next';
 import EventCard from './EventCard.vue';
 
-const Events = [
-    {
-        id: '1',
-        title: 'Feira de adoção',
-        date: '10/05/2025',
-        time: '13:00 - 16:00',
-        description: 'Encontre seu melhor amigo de quatro patas! Venha para nossa feira de adoção e mude uma vida - a sua e a deles!',
-        location: 'Parque Central',
-        type: 'adoption'
-    },
-    {
-        id: '2',
-        title: 'Encontro de arrecadação',
-        date: '23/05/2025',
-        time: '14:00 - 17:00',
-        description: 'Evento para arrecadação de fundos e doações para manutenção do abrigo.',
-        location: 'Centro Comunitário',
-        type: 'fundraising'
-    },
-    {
-        id: '3',
-        title: 'Dia do Voluntário',
-        date: '15/06/2025',
-        time: '09:00 - 16:00',
-        description: 'Venha conhecer nosso trabalho e se tornar um voluntário.',
-        location: 'Sede da ONG',
-        type: 'volunteer'
-    },
-    {
-        id: '4',
-        title: 'Workshop de Cuidados',
-        date: '30/06/2025',
-        time: '10:00 - 12:00',
-        description: 'Aprenda como cuidar melhor dos animais de estimação.',
-        location: 'Auditório Municipal',
-        type: 'volunteer'
-    }
-];
+const events = ref([]);
+const loading = ref(true);
 
-const nextEvent = Events[0];
-const upcomingEvents = Events.slice(1);
+function mapToCard(e) {
+  const start = new Date(e.start_at);
+  const end = new Date(e.end_at);
+  const date = start.toLocaleDateString('pt-BR');
+  const time = `${start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+  return {
+    id: e.id,
+    title: e.name,
+    date,
+    time,
+    description: e.description,
+    location: e.place,
+    type: 'general'
+  };
+}
+
+const nextEvent = computed(() => events.value[0] || null);
+const upcomingEvents = computed(() => events.value.slice(1));
+
+onMounted(async () => {
+  try {
+    const res = await fetch('/api/event');
+    const data = await res.json();
+    const sorted = (Array.isArray(data) ? data : [])
+      .sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
+    events.value = sorted.map(mapToCard);
+  } catch (err) {
+    console.error('Erro ao carregar eventos:', err);
+  } finally {
+    loading.value = false;
+  }
+});
 
 </script>

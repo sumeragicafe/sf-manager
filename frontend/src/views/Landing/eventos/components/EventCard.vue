@@ -35,13 +35,9 @@
       <span>{{ event.location }}</span>
     </div>
 
-    <p :class="['text-ong-text/80 leading-relaxed', isHighlighted ? 'text-base mb-4' : 'text-sm']">
+    <p :class="['text-ong-text/80 leading-relaxed', isHighlighted ? 'text-base' : 'text-sm']">
       {{ event.description }}
     </p>
-
-    <button v-if="isHighlighted" class="btn-primary w-full">
-      Participar do Evento
-    </button>
   </div>
 </template>
 
