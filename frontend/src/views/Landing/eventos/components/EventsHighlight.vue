@@ -8,7 +8,7 @@
           <Calendar size="24" />
           Próximo Evento
         </h5>
-        <EventCard v-if="nextEvent" :event="nextEvent" :isHighlighted="true" />
+        <EventCard v-if="nextEvent" :event="nextEvent" :isHighlighted="true" :isNext="true"/>
         <div v-else class="text-sm text-ong-text/70">Nenhum evento futuro cadastrado.</div>
       </div>
 
@@ -19,7 +19,7 @@
           Outros Eventos
         </h5>
 
-        <div class="space-y-4 max-h-96 overflow-y-auto">
+        <div class="space-y-4 max-h-48 overflow-y-auto">
           <EventCard v-for="event in upcomingEvents" :key="event.id" :event="event" />
           <div v-if="!loading && upcomingEvents.length === 0" class="text-sm text-ong-text/70">
             Nenhum outro evento no momento.
@@ -44,16 +44,16 @@ const loading = ref(true);
 function mapToCard(e) {
   const start = new Date(e.start_at);
   const end = new Date(e.end_at);
-  const date = start.toLocaleDateString('pt-BR');
-  const time = `${start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+
   return {
     id: e.id,
     title: e.name,
-    date,
-    time,
+    date: start.toLocaleDateString('pt-BR'),
+    time: `${start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`,
     description: e.description,
     location: e.place,
-    type: 'general'
+    type: 'general',
+    startAt: start, // guardar objeto Date para comparação futura
   };
 }
 
@@ -64,14 +64,20 @@ onMounted(async () => {
   try {
     const res = await fetch('/api/event');
     const data = await res.json();
+
+    const now = new Date();
+
     const sorted = (Array.isArray(data) ? data : [])
-      .sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
-    events.value = sorted.map(mapToCard);
+      .map(mapToCard)
+      .filter(e => e.startAt >= now) // pega apenas eventos futuros
+      .sort((a, b) => a.startAt - b.startAt); // ordena por data
+
+    events.value = sorted;
   } catch (err) {
     console.error('Erro ao carregar eventos:', err);
   } finally {
     loading.value = false;
   }
 });
-
 </script>
+

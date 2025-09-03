@@ -21,14 +21,30 @@
     </div>
 
     <div class="grid grid-cols-7 gap-0 rounded-lg overflow-hidden">
-      <div v-for="(cell, index) in calendarCells" :key="index"
-           class="h-16 border border-gray-200 p-2 relative bg-white hover:bg-gray-50 transition-colors cursor-pointer">
-        <span v-if="cell.day" class="text-ong-text text-sm font-medium">{{ cell.day }}</span>
-        <div v-if="cell.event"
-             :class="['absolute bottom-1 left-1 right-1 h-2 rounded', getEventColor(cell.event.type)]"
-             :title="cell.event.title"></div>
-      </div>
+    <div 
+      v-for="(cell, index) in calendarCells" 
+      :key="index"
+      :class="[
+        'h-16 border border-gray-200 p-2 relative transition-colors cursor-pointer',
+        isToday(cell.day) ? 'bg-orange-100 hover:bg-orange-200' : 'bg-white hover:bg-gray-50'
+      ]"
+    >
+      <span 
+        v-if="cell.day" 
+        :class="[
+          'text-sm font-medium',
+          isToday(cell.day) ? 'text-orange-700 font-bold' : 'text-ong-text'
+        ]"
+      >
+        {{ cell.day }}
+      </span>
+
+      <div v-if="cell.event"
+          :class="['absolute bottom-1 left-1 right-1 h-2 rounded', getEventColor(cell.event)]"
+          :title="cell.event.title"></div>
     </div>
+  </div>
+
   </div>
 </template>
 
@@ -49,13 +65,23 @@ const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 const events = ref([]);
 
-const getEventColor = (type) => {
-  return {
-    adoption: 'bg-ong-primary',
-    fundraising: 'bg-green-500',
-    volunteer: 'bg-blue-500'
-  }[type] || 'bg-ong-secondary';
+const getEventColor = (event) => {
+  if (event?.isNext) {
+    return 'bg-ong-secondary'; // laranja só para o primeiro evento futuro
+  }else{
+    return 'bg-blue-300';
+  }
 };
+
+const isToday = (day) => {
+  if (!day) return false;
+  return (
+    day === today.getDate() &&
+    currentMonth.value === today.getMonth() &&
+    currentYear.value === today.getFullYear()
+  );
+};
+
 
 const nextMonth = () => {
   if (currentMonth.value === 11) {
@@ -106,10 +132,22 @@ async function loadEventsForMonth(year, month) {
       })
       .map(e => ({
         date: new Date(e.start_at).getDate(),
+        fullDate: new Date(e.start_at),
         title: e.name,
-        type: 'general'
+        type: 'general',
+        isNext: false
       }));
     events.value = filtered;
+
+    const now = new Date();
+    const futureEvents = filtered.filter(e => e.fullDate >= now);
+    if (futureEvents.length > 0) {
+      const firstEvent = futureEvents.sort((a, b) => a.fullDate - b.fullDate)[0];
+      firstEvent.isNext = true;
+    }
+
+    console.log(events.value);
+
   } catch (err) {
     console.error('Erro ao carregar eventos (calendar):', err);
     events.value = [];
