@@ -1,17 +1,19 @@
 <!-- EventCard.vue -->
 <template>
   <div
-    class="p-4 rounded-lg border-2 transition-all duration-300 hover:shadow-md cursor-pointer"
+    class="rounded-lg border-2 transition-all duration-300 hover:shadow-md cursor-pointer"
     :class="[
-      getEventColor(event.type),
-      isHighlighted ? 'ring-2 ring-ong-primary ring-offset-2' : ''
+      getEventColor(isNext),
+      isHighlighted
+        ? 'py-4 px-4 ring-2 ring-ong-primary ring-offset-2'
+        : 'py-2 px-4'
     ]"
     @click="onClick"
   >
     <div class="flex justify-between items-start mb-2">
-      <h4 :class="['font-semibold text-ong-text', isHighlighted ? 'text-xl' : '']">
+      <p :class="['font-bold', isHighlighted ? 'text-2xl' : 'text-xl']">
         {{ event.title }}
-      </h4>
+      </p>
       <span
         :class="[
           'text-ong-text/70 font-medium bg-white px-2 py-1 rounded',
@@ -35,13 +37,9 @@
       <span>{{ event.location }}</span>
     </div>
 
-    <p :class="['text-ong-text/80 leading-relaxed', isHighlighted ? 'text-base mb-4' : 'text-sm']">
+    <p :class="['text-ong-text/80 leading-relaxed', isHighlighted ? 'text-base' : 'text-sm']">
       {{ event.description }}
     </p>
-
-    <button v-if="isHighlighted" class="btn-primary w-full">
-      Participar do Evento
-    </button>
   </div>
 </template>
 
@@ -54,19 +52,18 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  isNext: {
+    type: Boolean,
+    default: false
+  },
   onClick: Function
 });
 
-const getEventColor = (type) => {
-  switch (type) {
-    case 'adoption':
-      return 'border-ong-primary bg-ong-primary/10';
-    case 'fundraising':
-      return 'border-green-500 bg-green-50';
-    case 'volunteer':
-      return 'border-blue-500 bg-blue-50';
-    default:
-      return 'border-ong-secondary bg-ong-secondary/10';
+const getEventColor = (isNext) => {
+  if(isNext){
+    return 'border-ong-secondary bg-ong-secondary/10';
+  }else{
+    return 'border-blue-500 bg-blue-50';
   }
 };
 </script>
