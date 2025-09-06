@@ -9,5 +9,6 @@ const router = Router();
 router.get('/', EventController.list);
 router.post('/', hasPermissions(["event.create"], authServiceSingleton, userRepositorySingleton), EventController.create);
 router.delete('/', hasPermissions(["event.delete"], authServiceSingleton, userRepositorySingleton), EventController.delete);
+router.put('/:id', hasPermissions(["event.edit"], authServiceSingleton, userRepositorySingleton), EventController.update);
 
 export default router;
