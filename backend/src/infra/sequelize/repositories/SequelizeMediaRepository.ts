@@ -1,6 +1,7 @@
+import { Op } from 'sequelize' 
 import { Media } from '@infra/sequelize/models/Media.model';
 import { MediaProps } from '@domain/entities/Media';
-import { PaginatedResult } from '@types/Pagination';
+import { PaginationOptions, PaginatedResult } from '@types/Pagination';
 import { IMediaRepository} from '@domain/repositories/IMediaRepository';
 
 export class SequelizeMediaRepository implements IMediaRepository {
@@ -28,9 +29,55 @@ export class SequelizeMediaRepository implements IMediaRepository {
     return deleted > 0;
   }
 
-  async findAll(pagination?: PaginationOptions, canViewPrivate = false): Promise<PaginatedResult<MediaProps>> {
-    const { page = 1, pageSize = 10 } = pagination || {};
-    const where = canViewPrivate ? {} : {isPublic: true};
+  // async findAll(pagination?: PaginationOptions, canViewPrivate = false): Promise<PaginatedResult<MediaProps>> {
+  //   const { page = 1, pageSize = 10 } = pagination || {};
+  //   const where = canViewPrivate ? {} : {isPublic: true};
+
+  //   const { rows, count } = await Media.findAndCountAll({
+  //     offset: (page - 1) * pageSize,
+  //     limit: pageSize,
+  //     order: [['uploadDate', 'DESC']],
+  //     attributes: ['id', 'fileName', 'mimeType', 'uploadDate'],
+  //     where
+  //   });
+  //   return { items: rows.map(m => m.toJSON() as MediaProps), total: count, page, pageSize };
+  // }
+
+  async findAll(
+    pagination?: PaginationOptions & {
+      search?: string
+      type?: 'image' | 'video' | 'document' | 'all'
+      dateFrom?: Date
+      dateTo?: Date
+    },
+    canViewPrivate = false
+  ): Promise<PaginatedResult<MediaProps>> {
+    const { page = 1, pageSize = 10, search, type, dateFrom, dateTo } = pagination || {}
+    
+    const where: any = {}
+    if (!canViewPrivate) where.isPublic = true
+
+    // Pesquisa por nome
+    if (search) {
+      where.fileName = { [Op.like]: `%${search}%` }
+    }
+
+    // Tipo
+    if (type && type !== 'all') {
+      if (type === 'document') {
+        where.mimeType = { [Op.notLike]: 'image/%' }
+        where.mimeType = { [Op.notLike]: 'video/%' }
+      } else {
+        where.mimeType = { [Op.like]: `${type}/%` }
+      }
+    }
+
+    // Intervalo de datas
+    if (dateFrom || dateTo) {
+      where.uploadDate = {}
+      if (dateFrom) where.uploadDate[Op.gte] = dateFrom
+      if (dateTo) where.uploadDate[Op.lte] = dateTo
+    }
 
     const { rows, count } = await Media.findAndCountAll({
       offset: (page - 1) * pageSize,
@@ -38,9 +85,16 @@ export class SequelizeMediaRepository implements IMediaRepository {
       order: [['uploadDate', 'DESC']],
       attributes: ['id', 'fileName', 'mimeType', 'uploadDate'],
       where
-    });
-    return { items: rows.map(m => m.toJSON() as MediaProps), total: count, page, pageSize };
+    })
+
+    return {
+      items: rows.map(m => m.toJSON() as MediaProps),
+      total: count,
+      page,
+      pageSize
+    }
   }
+
 
   async saveFile(file: { buffer: Buffer; fileName: string; mimeType: string }): Promise<MediaProps> {
     const media = await Media.create({
