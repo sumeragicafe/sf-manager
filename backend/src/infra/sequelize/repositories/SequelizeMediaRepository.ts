@@ -29,20 +29,6 @@ export class SequelizeMediaRepository implements IMediaRepository {
     return deleted > 0;
   }
 
-  // async findAll(pagination?: PaginationOptions, canViewPrivate = false): Promise<PaginatedResult<MediaProps>> {
-  //   const { page = 1, pageSize = 10 } = pagination || {};
-  //   const where = canViewPrivate ? {} : {isPublic: true};
-
-  //   const { rows, count } = await Media.findAndCountAll({
-  //     offset: (page - 1) * pageSize,
-  //     limit: pageSize,
-  //     order: [['uploadDate', 'DESC']],
-  //     attributes: ['id', 'fileName', 'mimeType', 'uploadDate'],
-  //     where
-  //   });
-  //   return { items: rows.map(m => m.toJSON() as MediaProps), total: count, page, pageSize };
-  // }
-
   async findAll(
     pagination?: PaginationOptions & {
       search?: string
