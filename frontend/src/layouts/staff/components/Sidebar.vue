@@ -78,7 +78,7 @@ const route = useRoute();
 const session = useSessionStore();
 
 const fullNavigation = [
-  { name: 'Dashboard', href: '/staff', icon: Home },
+  { name: 'Dashboard', href: '/staff', icon: Home, exact: true },
   { name: 'Animais em Adoção', href: '/staff/pet', icon: Heart },
   { name: 'Pedidos de Adoção', href: '/staff/adoption-requests', icon: UserCheck },
   { name: 'Eventos', href: '/staff/event', icon: Calendar },
