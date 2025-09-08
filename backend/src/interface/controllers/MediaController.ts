@@ -46,14 +46,26 @@ export class MediaController {
     try {
       const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
       const pageSize = req.query.pageSize ? parseInt(req.query.pageSize as string, 10) : 10;
-      const result = await listMedia(mediaRepo)( req.session, { page, pageSize });
+      const search = req.query.search as string | undefined;
+      const type = req.query.type as 'image' | 'video' | 'document' | 'all' | undefined;
+      const dateFrom = req.query.dateFrom ? new Date(req.query.dateFrom as string) : undefined;
+      const dateTo = req.query.dateTo ? new Date(req.query.dateTo as string) : undefined;
+
+      const result = await listMedia(mediaRepo)(req.session, {
+        page,
+        pageSize,
+        search,
+        type,
+        dateFrom,
+        dateTo,
+      });
+
       res.status(200).json(result);
     } catch (err: any) {
       res.status(400).json({ error: err.message });
-    }finally{
-        return;
     }
   }
+
 
   static async update(req: Request, res: Response) {
     try {
