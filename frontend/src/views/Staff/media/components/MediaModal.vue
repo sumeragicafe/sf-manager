@@ -76,9 +76,9 @@
           <span class="text-sm text-muted-foreground">
             <b>Tipo:</b> {{ item?.mimeType || 'Desconhecido' }}
           </span>
-          <button class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300" @click="$emit('download', item)">Download</button>
-          <button class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600" @click="$emit('rename', item)">Renomear</button>
-          <button class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600" @click="$emit('delete', item)">Excluir</button>
+          <button v-if="hasPermission(['media.view_private_media'])" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300" @click="$emit('download', item)">Download</button>
+          <button v-if="hasPermission(['media.update'])" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600" @click="$emit('rename', item)">Renomear</button>
+          <button v-if="hasPermission(['media.delete'])" class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600" @click="$emit('delete', item)">Excluir</button>
         </div>
       </div>
     </div>
@@ -108,7 +108,9 @@
 <script setup>
 import { ref } from 'vue'
 import { X, ChevronLeft, ChevronRight, Plus, Minus, RefreshCcw } from 'lucide-vue-next'
+import { verifyPermission } from '@/composables';
 
+const hasPermission = verifyPermission();
 /* Props */
 defineProps({
   open: Boolean,       // controla se modal está aberto
