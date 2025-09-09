@@ -56,21 +56,12 @@ function handleCloseModal() {
 </script>
 
 <template>
-  <div class="p-6">
-    <!-- Breadcrumb -->
-    <nav class="text-sm text-gray-600 mb-6">
-      <ol class="flex gap-2 items-center">
-        <li><RouterLink to="/admin" class="text-blue-600 hover:underline">Dashboard</RouterLink></li>
-        <li>/</li>
-        <li>Animais em Adoção</li>
-      </ol>
-    </nav>
-
+  <div>
     <!-- Header -->
     <div class="flex justify-between items-center mb-8">
       <div>
-        <h1 class="text-3xl font-bold text-gray-800">Animais em Adoção</h1>
-        <p class="text-gray-500">Gerencie todos os animais disponíveis para adoção</p>
+        <h1 class="text-3xl font-heading text-ong-text">Animais em Adoção</h1>
+        <p class="text-muted-foreground mt-2">Gerencie todos os animais disponíveis para adoção</p>
       </div>
       <button class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
         <Plus class="w-4 h-4" /> Adicionar Animal

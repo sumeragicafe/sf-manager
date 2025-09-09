@@ -11,9 +11,9 @@ export class AnimalController {
     try {
       const animalData = req.body;
 
-      const animal = await createAnimal(animalRepo)(animalData);
+      const animalProps = await createAnimal(animalRepo)(animalData);
 
-      res.status(201).json({ animal });
+      res.status(201).json({ animalProps });
     } catch (err: any) {
       res.status(400).json({ error: err.message });
     } finally {
