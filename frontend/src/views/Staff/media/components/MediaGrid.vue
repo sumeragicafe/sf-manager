@@ -68,7 +68,7 @@
         </div>
   
         <!-- Nome do arquivo -->
-        <p class="text-sm mt-2 truncate text-center w-full">{{ item.fileName }}</p>
+        <p class="text-sm mt-2 truncate text-center w-full" :title="item.fileName">{{ item.fileName }}</p>
       </div>
     </template>
   </div>
