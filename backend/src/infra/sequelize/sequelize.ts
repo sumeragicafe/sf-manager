@@ -98,8 +98,8 @@ export function initModels(sequelize: Sequelize) {
     Animal.hasMany(AnimalMedia, { foreignKey: 'pet_id' });
     AnimalMedia.belongsTo(Animal, { foreignKey: 'pet_id' });
 
-    Media.hasMany(AnimalMedia, { foreignKey: 'media_id' });
-    AnimalMedia.belongsTo(Media, { foreignKey: 'media_id' });
+    Media.hasMany(AnimalMedia, { foreignKey: 'media_id', as: 'animalMedia'  });
+    AnimalMedia.belongsTo(Media, { foreignKey: 'media_id', as: 'media' });
 
 
 }

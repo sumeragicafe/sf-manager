@@ -1,4 +1,5 @@
 import { AnimalMedia } from '@infra/sequelize/models/AnimalMedia.model';
+import { Media } from '@infra/sequelize/models/Media.model';
 import { IAnimalMediaRepository, AnimalMediaProps, PaginationOptions, PaginatedResult } from '@domain/repositories/IAnimalMediaRepository';
 
 export class SequelizeAnimalMediaRepository implements IAnimalMediaRepository {
@@ -30,8 +31,22 @@ export class SequelizeAnimalMediaRepository implements IAnimalMediaRepository {
       where: { petId },
       offset: (page - 1) * pageSize,
       limit: pageSize,
-      order: [['type', 'ASC']]
+      order: [[{ model: Media, as: 'media' }, 'uploadDate', 'DESC']],
+      attributes: ['id', 'type'],
+      include: [
+        {
+          model: Media, // inclui a mídia vinculada
+          as: 'media',  // precisa bater com o alias definido na associação
+          attributes: ['id', 'fileName', 'mimeType', 'isPublic', 'uploadDate']
+        }
+      ]
     });
-    return { items: rows.map(am => am.toJSON() as AnimalMediaProps), total: count, page, pageSize };
+
+    return {
+      items: rows.map(am => am.toJSON() as AnimalMediaProps),
+      total: count,
+      page,
+      pageSize
+    };
   }
 }

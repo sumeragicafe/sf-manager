@@ -69,7 +69,7 @@ export class SequelizeMediaRepository implements IMediaRepository {
       offset: (page - 1) * pageSize,
       limit: pageSize,
       order: [['uploadDate', 'DESC']],
-      attributes: ['id', 'fileName', 'mimeType', 'uploadDate'],
+      attributes: ['id', 'fileName', 'mimeType', 'uploadDate', 'isPublic'],
       where
     })
 

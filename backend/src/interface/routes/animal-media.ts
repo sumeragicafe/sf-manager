@@ -17,6 +17,6 @@ router.post('/:petId/media/upload', requireAuth(authServiceSingleton), upload.si
 //router.delete('/media/:id/unlink', requireAuth(authServiceSingleton), AnimalMediaController.unlink);
 
 // Listar mídias de um animal
-//router.get('/:petId/media', AnimalMediaController.listByPet);
+router.get('/:petId/media', AnimalMediaController.listByPet);
 
 export default router;
