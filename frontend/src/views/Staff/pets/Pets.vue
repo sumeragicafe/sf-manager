@@ -2,38 +2,41 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { Search, Plus, Edit, Trash2, Eye } from 'lucide-vue-next';
 import PetModal from '@/views/Staff/pets/components/PetModal.vue';
+import CreateAnimalModal from '@/views/Staff/pets/components/CreateAnimalModal.vue'; // import do modal de criação
 
 const searchTerm = ref('');
 const currentPage = ref(1);
 const selectedAnimal = ref(null);
-const isModalOpen = ref(false);
+const isViewModalOpen = ref(false); // modal de visualização
+const isAddModalOpen = ref(false);  // modal de criação
 const itemsPerPage = 10;
 
 const allAnimals = ref([]);
 const totalItems = ref(0);
 
+// Fetch animais
 async function fetchAnimals(page = 1, pageSize = itemsPerPage) {
   try {
     const url = `/api/animal?page=${page}&pageSize=${pageSize}`;
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
+    const res = await fetch(url);
     if (!res.ok) throw new Error(`Erro: ${res.status}`);
     const data = await res.json();
 
     allAnimals.value = data.items.map(animal => ({
       id: animal.id,
       name: animal.name,
-      type: animal.speciesId === 1 ? 'Cão' : 'Gato', // exemplo de mapping
-      breed: animal.breedId ? `Raça #${animal.breedId}` : 'SRD',
-      age: animal.birthDate ? calcularIdade(animal.birthDate) : 'Não informada',
+      species: animal.species.name,
+      breed: animal.breed.name,
+      age: animal.birthDate ? calcularIdade(animal.birthDate) : null,
       status: animal.status,
       vaccinated: animal.isVaccinated ?? false,
       castrated: animal.isCastrated ?? false,
+      size: animal.size,
       gender: animal.gender === 'F' ? 'Fêmea' : 'Macho',
-      weight: animal.weight ? `${animal.weight}kg` : '-',
-      dateAdded: animal.entryDate
+      entryDate: animal.entryDate,
+      notes: animal.notes,
+      birthDate: animal.birthDate,
+      isBirthDateEstimated: animal.isBirthDateEstimated
     }));
 
     totalItems.value = data.total;
@@ -46,30 +49,26 @@ function calcularIdade(dataNasc) {
   const hoje = new Date();
   const nasc = new Date(dataNasc);
   let anos = hoje.getFullYear() - nasc.getFullYear();
-  let meses = hoje.getMonth() - nasc.getMonth();
-  if (meses < 0 || (meses === 0 && hoje.getDate() < nasc.getDate())) {
+  if (hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate())) {
     anos--;
-    meses += 12;
   }
-  if (anos > 0) return `${anos} ano${anos > 1 ? 's' : ''}`;
-  return `${meses} mes${meses > 1 ? 'es' : ''}`;
+  return anos;
 }
 
+// Computeds
 const filteredAnimals = computed(() => {
   const term = searchTerm.value.toLowerCase();
   return allAnimals.value.filter(animal =>
     animal.name.toLowerCase().includes(term) ||
     animal.breed.toLowerCase().includes(term) ||
-    animal.type.toLowerCase().includes(term)
+    animal.species.toLowerCase().includes(term)
   );
 });
 
 const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage));
 const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage);
 const endIndex = computed(() => startIndex.value + itemsPerPage);
-const currentAnimals = computed(() =>
-  filteredAnimals.value.slice(startIndex.value, endIndex.value)
-);
+const currentAnimals = computed(() => filteredAnimals.value.slice(startIndex.value, endIndex.value));
 
 function getStatusColor(status) {
   switch (status) {
@@ -84,26 +83,38 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('pt-BR');
 }
 
+// Ações
 function handleViewAnimal(animal) {
   selectedAnimal.value = animal;
-  isModalOpen.value = true;
+  isViewModalOpen.value = true;
 }
 
-function handleCloseModal() {
-  isModalOpen.value = false;
+function handleCloseViewModal() {
+  isViewModalOpen.value = false;
   selectedAnimal.value = null;
 }
 
-// Buscar animais na carga inicial
+// Abrir modal de criação
+function handleOpenAddModal() {
+  isAddModalOpen.value = true;
+}
+
+// Após criar um animal, atualizar lista
+function handleAnimalCreated() {
+  isAddModalOpen.value = false;
+  fetchAnimals(currentPage.value, itemsPerPage); // refetch
+}
+
+// Inicial
 onMounted(() => {
   fetchAnimals(currentPage.value, itemsPerPage);
 });
 
-// Recarregar sempre que mudar a página
 watch(currentPage, (page) => {
   fetchAnimals(page, itemsPerPage);
 });
 </script>
+
 
 
 
@@ -115,7 +126,10 @@ watch(currentPage, (page) => {
         <h1 class="text-3xl font-heading text-ong-text">Animais em Adoção</h1>
         <p class="text-muted-foreground mt-2">Gerencie todos os animais disponíveis para adoção</p>
       </div>
-      <button class="flex items-center gap-2 px-4 py-2 bg-ong-primary text-white rounded-lg shadow hover:bg-ong-accent transition">
+      <button
+        @click="handleOpenAddModal"
+        class="flex items-center gap-2 px-4 py-2 bg-ong-primary text-white rounded-lg shadow hover:bg-ong-accent transition"
+      >
         <Plus class="w-4 h-4" /> Adicionar Animal
       </button>
     </div>
@@ -143,10 +157,9 @@ watch(currentPage, (page) => {
             <th class="p-3">Tipo/Raça</th>
             <th class="p-3">Idade</th>
             <th class="p-3">Sexo</th>
-            <th class="p-3">Peso</th>
             <th class="p-3">Status</th>
             <th class="p-3">Saúde</th>
-            <th class="p-3">Data</th>
+            <th class="p-3">Data de Inclusão</th>
             <th class="p-3 text-right">Ações</th>
           </tr>
         </thead>
@@ -161,9 +174,8 @@ watch(currentPage, (page) => {
               <div>{{ animal.type }}</div>
               <div class="text-xs text-muted-foreground">{{ animal.breed }}</div>
             </td>
-            <td class="p-3">{{ animal.age }}</td>
+            <td class="p-3">{{ animal.age ? `${animal.age} anos`: 'Não informada'}}</td>
             <td class="p-3">{{ animal.gender }}</td>
-            <td class="p-3">{{ animal.weight }}</td>
             <td class="p-3">
               <span :class="getStatusColor(animal.status)" class="px-2 py-0.5 text-xs rounded-full font-semibold">
                 {{ animal.status }}
@@ -179,7 +191,7 @@ watch(currentPage, (page) => {
                 {{ animal.castrated ? 'Castrado' : 'Não castrado' }}
               </span>
             </td>
-            <td class="p-3 text-muted-foreground">{{ formatDate(animal.dateAdded) }}</td>
+            <td class="p-3 text-muted-foreground">{{ formatDate(animal.entryDate) }}</td>
             <td class="p-3 text-right">
               <div class="flex justify-end gap-2">
                 <button @click="handleViewAnimal(animal)" class="p-1 hover:text-ong-primary"><Eye class="w-4 h-4" /></button>
@@ -228,9 +240,15 @@ watch(currentPage, (page) => {
 
     <!-- Modal -->
     <PetModal
-      :isOpen="isModalOpen"
+      :isOpen="isViewModalOpen"
       :animal="selectedAnimal"
-      @close="handleCloseModal"
+      @close="handleCloseViewModal"
+    />
+
+    <CreateAnimalModal
+      :isOpen="isAddModalOpen"
+      @close="() => isAddModalOpen = false"
+      @created="handleAnimalCreated"
     />
   </div>
 </template>

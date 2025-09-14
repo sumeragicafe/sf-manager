@@ -1,18 +1,70 @@
 <script setup>
-import {ref} from 'vue';
+import { ref, reactive, watch } from 'vue';
 import { X } from 'lucide-vue-next';
 
 const props = defineProps({
   isOpen: Boolean,
   animal: Object
 });
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'update']);
 
 const tabs = ['Visão Geral', 'Eventos', 'Adotantes', 'Fatos'];
 const activeTab = ref('Visão Geral');
 
+const isEditing = ref(false);
+const editableAnimal = reactive({});
+
+function formatDateDDMMYYYY(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return null;
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+
+watch(isEditing, (editing) => {
+  if (editing) {
+    // Copia os valores atuais do animal
+    Object.assign(editableAnimal, props.animal);
+
+    // Inicializa o checkbox se não existir
+    if (editableAnimal.isBirthDateEstimated === undefined) {
+      editableAnimal.isBirthDateEstimated = false;
+    }
+
+    // Converte birthDate para YYYY-MM-DD para o input date
+    if (editableAnimal.birthDate) {
+      const d = new Date(editableAnimal.birthDate);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      editableAnimal.birthDate = `${yyyy}-${mm}-${dd}`;
+    }
+  }
+});
+
+
+// Opções dos selects
+const speciesOptions = ['Cachorro', 'Gato', 'Ave', 'Outro'];
+const breedOptions = ['SRD', 'Poodle', 'Bulldog', 'Persa', 'Siamês'];
+const genderOptions = ['Fêmea', 'Macho'];
+const sizeOptions = ['Pequeno', 'Médio', 'Grande'];
+const statusOptions = ['Disponível', 'Não Disponível', 'Adotado'];
+
 function closeModal() {
+  isEditing.value = false;
   emit('close');
+}
+
+function toggleEdit() {
+  if (isEditing.value) {
+    // Salvar alterações
+    emit('update', { ...editableAnimal });
+  }
+  isEditing.value = !isEditing.value;
 }
 </script>
 
@@ -27,57 +79,171 @@ function closeModal() {
       <!-- Coluna da esquerda -->
       <div class="w-1/3 bg-ong-background p-6 flex flex-col items-center border-r overflow-y-auto">
         <img
-          src="https://placekitten.com/400/400"
+          src=""
           alt="Animal"
           class="w-full h-64 object-cover rounded-lg shadow mb-4"
         />
-        <h2 class="text-2xl font-heading text-ong-text">{{ animal.name }}</h2>
-        <p class="text-muted-foreground">{{ animal.type }} • {{ animal.breed }}</p>
 
-        <div class="mt-6 grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span class="font-semibold">Idade:</span>
-            <p class="text-ong-text">{{ animal.age }}</p>
+        <!-- Nome -->
+        <div v-if="!isEditing">
+          <h2 class="text-2xl font-heading text-ong-text">{{ animal.name }}</h2>
+          <p class="text-muted-foreground">{{ animal.species }} • {{ animal.breed }}</p>
+        </div>
+        <div v-else class="w-full">
+          <label class="text-sm font-semibold" for="name">Nome do Animal:</label>
+          <input v-model="editableAnimal.name" name="name" class="w-full px-2 py-1 border rounded mb-2" />
+
+          <label class="text-sm font-semibold" for="species">Espécie:</label>
+          <select v-model="editableAnimal.species" class="w-full px-2 py-1 border rounded mb-2">
+            <option v-for="opt in speciesOptions" :key="opt" :value="opt">{{ opt }}</option>
+          </select>
+
+          <label class="text-sm font-semibold" for="breed">Raça:</label>
+          <select v-model="editableAnimal.breed" class="w-full px-2 py-1 border rounded mb-2">
+            <option v-for="opt in breedOptions" :key="opt" :value="opt">{{ opt }}</option>
+          </select>
+        </div>
+
+        <!-- Notas -->
+        <div class="mt-4 text-sm w-full">
+          <span class="font-semibold">Notas:</span>
+          <div v-if="!isEditing">
+            <p class="text-ong-text">{{ animal.notes }}</p>
           </div>
-          <div>
+          <div v-else>
+            <textarea
+              v-model="editableAnimal.notes"
+              rows="3"
+              class="w-full px-2 py-1 border rounded"
+            />
+          </div>
+        </div>
+
+        <!-- Idade -->
+        <div v-if="!isEditing" class="mt-4 text-sm w-full">
+          <span class="font-semibold">Idade:</span>
+
+          <p class="text-ong-text">
+            <span>Idade:</span> {{ animal.age ? `${animal.age} anos`: 'Não informada'}}
+          </p>
+
+        
+         
+        </div>
+
+        <!-- Outros atributos -->
+        <div class="mt-4 flex flex-wrap justify-around text-sm w-full">
+
+          <div class="w-full flex flex-col mb-2">
+             <label v-if="isEditing" class="flex items-center gap-2 mb-1 text-sm">
+              <input type="checkbox" v-model="editableAnimal.isBirthDateEstimated" />
+              Data de nascimento estimada?
+            </label>
+          </div>
+
+          <div v-if="editableAnimal.isBirthDateEstimated" class="w-1/2 flex flex-col mb-4">
+            <span class="font-semibold">Data de Nascimento:</span>
+            <p v-if="!isEditing" class="text-ong-text">{{ animal.birthDate ? formatDateDDMMYYYY(animal.birthDate) : 'Desconhecida' }}</p>
+            <input v-else v-model="editableAnimal.birthDate" type="date" class="px-2 py-1 border rounded" />
+          </div>
+          <div v-else class="w-1/2 flex flex-col mb-4">
+            <span class="font-semibold">Data de Nascimento:</span>
+            <p class="text-ong-text">Desconhecida</p>
+          </div>
+
+
+          <div class="w-1/2 flex flex-col mb-4">
             <span class="font-semibold">Sexo:</span>
-            <p class="text-ong-text">{{ animal.gender }}</p>
+            <p v-if="!isEditing" class="text-ong-text">{{ animal.gender }}</p>
+            <select v-else v-model="editableAnimal.gender" class="px-2 py-1 border rounded">
+              <option v-for="opt in genderOptions" :key="opt" :value="opt">{{ opt }}</option>
+            </select>
           </div>
-          <div>
-            <span class="font-semibold">Peso:</span>
-            <p class="text-ong-text">{{ animal.weight }}</p>
+
+          <div class="w-1/2 flex flex-col mb-4">
+            <span class="font-semibold">Porte:</span>
+            <p v-if="!isEditing" class="text-ong-text">{{ animal.size }}</p>
+            <select v-else v-model="editableAnimal.size" class="px-2 py-1 border rounded">
+              <option v-for="opt in sizeOptions" :key="opt" :value="opt">{{ opt }}</option>
+            </select>
           </div>
-          <div>
+
+          <div class="w-1/2 flex flex-col mb-4">
             <span class="font-semibold">Status:</span>
             <p
+              v-if="!isEditing"
               class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full font-semibold bg-green-100 text-green-800"
             >
               {{ animal.status }}
             </p>
+            <select v-else v-model="editableAnimal.status" class="px-2 py-1 border rounded">
+              <option v-for="opt in statusOptions" :key="opt" :value="opt">{{ opt }}</option>
+            </select>
           </div>
         </div>
 
-        <div class="mt-4 flex gap-2">
-          <span
-            class="px-2 py-0.5 text-xs rounded-full font-semibold"
-            :class="animal.vaccinated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
-          >
-            {{ animal.vaccinated ? 'Vacinado' : 'Não vacinado' }}
-          </span>
-          <span
-            class="px-2 py-0.5 text-xs rounded-full font-semibold"
-            :class="animal.castrated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
-          >
-            {{ animal.castrated ? 'Castrado' : 'Não castrado' }}
-          </span>
+        <!-- Vacinação / Castração -->
+        <div class="mt-4 flex gap-2 flex-wrap">
+          <template v-if="!isEditing">
+            <span
+              class="px-2 py-0.5 text-xs rounded-full font-semibold"
+              :class="animal.vaccinated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
+            >
+              {{ animal.vaccinated ? 'Vacinado' : 'Não vacinado' }}
+            </span>
+            <span
+              class="px-2 py-0.5 text-xs rounded-full font-semibold"
+              :class="animal.castrated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
+            >
+              {{ animal.castrated ? 'Castrado' : 'Não castrado' }}
+            </span>
+          </template>
+          <template v-else>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" v-model="editableAnimal.vaccinated" />
+              Vacinado
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" v-model="editableAnimal.castrated" />
+              Castrado
+            </label>
+          </template>
         </div>
 
+        <!-- Botões -->
         <div class="mt-6 w-full flex flex-col gap-2">
-          <button class="px-4 py-2 bg-ong-primary text-white rounded-lg shadow hover:bg-ong-accent transition">
+          <!-- Editar -->
+          <button
+            v-if="!isEditing"
+            @click="toggleEdit"
+            class="px-4 py-2 bg-ong-primary text-white rounded-lg shadow hover:bg-ong-accent transition w-full"
+          >
             Editar Animal
           </button>
-          <button class="px-4 py-2 border rounded-lg hover:bg-muted">Compartilhar</button>
+
+          <!-- Cancelar / Salvar -->
+          <div v-else class="flex gap-2 w-full">
+            <button
+              @click="closeModal"
+              class="px-4 py-2 flex-1 bg-ong-background border text-ong-text rounded-lg hover:bg-ong-secondary/50 transition"
+            >
+              Cancelar
+            </button>
+
+            <button
+              @click="toggleEdit"
+              class="px-4 py-2 flex-1 bg-ong-primary text-white rounded-lg hover:bg-ong-accent transition"
+            >
+              Salvar
+            </button>
+          </div>
+
+          <!-- Compartilhar -->
+          <button class="px-4 py-2 border rounded-lg hover:bg-muted w-full">Compartilhar</button>
         </div>
+
+
+
       </div>
 
       <!-- Coluna da direita -->
@@ -109,35 +275,12 @@ function closeModal() {
 
         <!-- Conteúdo -->
         <div class="flex-1 overflow-y-auto p-6 space-y-6">
-          <!-- Visão Geral -->
           <div v-if="activeTab === 'Visão Geral'" class="space-y-6">
             <div class="border rounded-lg p-4 bg-background">
               <h4 class="font-heading text-lg mb-2">👥 Interessados Recentes</h4>
-              <div class="space-y-2">
-                <div class="flex justify-between border-b pb-2">
-                  <div>
-                    <p class="font-semibold">Ana Costa</p>
-                    <p class="text-sm text-muted-foreground">ana@email.com</p>
-                  </div>
-                  <span class="text-sm text-muted-foreground">18/02/2024</span>
-                </div>
-                <div class="flex justify-between">
-                  <div>
-                    <p class="font-semibold">Pedro Lima</p>
-                    <p class="text-sm text-muted-foreground">pedro@email.com</p>
-                  </div>
-                  <span class="text-sm text-muted-foreground">16/02/2024</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="border rounded-lg p-4 bg-background">
-              <h4 class="font-heading text-lg mb-2">📅 Próximos Eventos</h4>
-              <p class="text-muted-foreground">Nenhum evento programado</p>
+              <p class="text-muted-foreground">Exemplo de conteúdo...</p>
             </div>
           </div>
-
-          <!-- Outros Tabs -->
           <div v-else class="text-muted-foreground">
             Conteúdo de {{ activeTab }} em construção...
           </div>
