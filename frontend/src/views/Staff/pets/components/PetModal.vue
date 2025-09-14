@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue';
 import { X } from 'lucide-vue-next';
+import PetMediaTab from '@/views/Staff/pets/components/PetMediaTab.vue';
 
 const props = defineProps({
   isOpen: Boolean,
@@ -8,7 +9,8 @@ const props = defineProps({
 });
 const emit = defineEmits(['close', 'update']);
 
-const tabs = ['Visão Geral', 'Eventos', 'Adotantes', 'Fatos'];
+const tabs = ['Visão Geral', 'Eventos', 'Adotantes', 'Fatos', 'Mídias'];
+
 const activeTab = ref('Visão Geral');
 
 const isEditing = ref(false);
@@ -276,15 +278,17 @@ function toggleEdit() {
         <!-- Conteúdo -->
         <div class="flex-1 overflow-y-auto p-6 space-y-6">
           <div v-if="activeTab === 'Visão Geral'" class="space-y-6">
-            <div class="border rounded-lg p-4 bg-background">
-              <h4 class="font-heading text-lg mb-2">👥 Interessados Recentes</h4>
-              <p class="text-muted-foreground">Exemplo de conteúdo...</p>
-            </div>
+            ...
+          </div>
+          <div v-else-if="activeTab === 'Mídias'">
+            <PetMediaTab :pet-id="animal.id" />
           </div>
           <div v-else class="text-muted-foreground">
             Conteúdo de {{ activeTab }} em construção...
           </div>
         </div>
+
+        
       </div>
     </div>
   </div>

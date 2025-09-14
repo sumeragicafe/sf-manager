@@ -49,6 +49,7 @@
       @rename="renameItem"
       @delete="deleteMedia"
       @download="downloadMedia"
+      @togglePublic="togglePublic"
     />
 
   </div>
@@ -132,6 +133,28 @@ async function downloadMedia(media) {
   a.click()
   URL.revokeObjectURL(url)
 }
+
+async function togglePublic(item) {
+  console.log(item);
+  try {
+    const res = await fetch(`/api/media/${item.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isPublic: item.isPublic })
+    });
+
+    if (!res.ok) throw new Error('Erro ao atualizar visibilidade');
+
+    const updated = await res.json();
+    item.isPublic = updated.isPublic; // garante que o estado local esteja correto
+  } catch (err) {
+    console.error('Falha ao alterar visibilidade:', err);
+    alert('Não foi possível alterar a visibilidade do arquivo.');
+    // Reverter o checkbox se falhar
+    item.isPublic = !item.isPublic;
+  }
+}
+
 
 async function carregarArquivo(item) {
   try {
