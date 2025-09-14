@@ -15,7 +15,7 @@ module.exports = {
 
     // Raças comuns de cachorro
     const dogBreeds = [
-      'Vira-lata',
+      'Vira-lata (SRD)',
       'Labrador Retriever',
       'Bulldog Francês',
       'Poodle',
