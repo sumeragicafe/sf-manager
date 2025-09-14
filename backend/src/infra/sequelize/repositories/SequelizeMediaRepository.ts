@@ -83,8 +83,10 @@ export class SequelizeMediaRepository implements IMediaRepository {
 
 
   async saveFile(file: { buffer: Buffer; fileName: string; mimeType: string }): Promise<MediaProps> {
+    const fixedName = Buffer.from(file.fileName, 'latin1').toString('utf8');
+
     const media = await Media.create({
-      fileName: file.fileName,
+      fileName: fixedName,
       mimeType: file.mimeType,
       data: file.buffer,
       uploadDate: new Date()
