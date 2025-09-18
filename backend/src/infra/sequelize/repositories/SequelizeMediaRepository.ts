@@ -51,8 +51,12 @@ export class SequelizeMediaRepository implements IMediaRepository {
     // Tipo
     if (type && type !== 'all') {
       if (type === 'document') {
-        where.mimeType = { [Op.notLike]: 'image/%' }
-        where.mimeType = { [Op.notLike]: 'video/%' }
+          where.mimeType = {
+            [Op.and]: [
+              { [Op.notLike]: 'image/%' },
+              { [Op.notLike]: 'video/%' }
+            ]
+          }
       } else {
         where.mimeType = { [Op.like]: `${type}/%` }
       }
