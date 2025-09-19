@@ -48,13 +48,6 @@ export class MediaController {
     const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize as string, 10) : 10;
 
-    // Constrói o objeto de filtros direto
-    // const filters: any = {};
-    // if (req.query.search) filters.search = req.query.search;
-    // if (req.query.type) filters.type = req.query.type;
-    // if (req.query.dateFrom) filters.dateFrom = new Date(req.query.dateFrom as string);
-    // if (req.query.dateTo) filters.dateTo = new Date(req.query.dateTo as string);
-
     // Parse filters
     let filters: Record<string, any> = {};
     if (req.query.filters && typeof req.query.filters === 'string') {

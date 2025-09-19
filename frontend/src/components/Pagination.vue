@@ -71,12 +71,13 @@ const containerRef = ref(null);
 const filtersRef = ref(null);
 const useDropdown = ref(false);
 const showFiltersDropdown = ref(false);
-const shouldUseDropdown = ref(false);
 
 const checkSpace = () => {
   if (!containerRef.value || !filtersRef.value) return;
   const containerWidth = containerRef.value.offsetWidth;
   const filtersWidth = filtersRef.value.offsetWidth;
+  //var shouldUseDropdown;
+
   useDropdown.value = filtersWidth > containerWidth - 500; // 150px reservado para paginação e pageSize
 
    // Só atualiza se for diferente do estado atual
