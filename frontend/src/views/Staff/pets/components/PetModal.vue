@@ -2,6 +2,7 @@
 import { ref, reactive, watch } from 'vue';
 import { X } from 'lucide-vue-next';
 import PetMediaTab from '@/views/Staff/pets/components/PetMediaTab.vue';
+import PetMediaCarousel from '@/views/Staff/pets/components/PetMediaCarousel.vue';
 
 const props = defineProps({
   isOpen: Boolean,
@@ -80,11 +81,7 @@ function toggleEdit() {
     >
       <!-- Coluna da esquerda -->
       <div class="w-1/3 bg-ong-background p-6 flex flex-col items-center border-r overflow-y-auto">
-        <img
-          src=""
-          alt="Animal"
-          class="w-full h-64 object-cover rounded-lg shadow mb-4"
-        />
+        <PetMediaCarousel :pet-id="animal.id" class="mb-4" />
 
         <!-- Nome -->
         <div v-if="!isEditing">

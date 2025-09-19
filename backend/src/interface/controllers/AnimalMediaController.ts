@@ -38,17 +38,39 @@ export class AnimalMediaController {
       const { petId } = req.params;
       const page = parseInt(req.query.page as string) || 1;
       const pageSize = parseInt(req.query.pageSize as string) || 10;
+      const sortBy = (req.query.sortBy as string) || 'uploadDate';
+      const sortOrder = (req.query.sortOrder as 'asc' | 'desc') || 'desc';
 
-      const result = await listAnimalMedia(animalMediaRepo)({
+      // Parse filters
+      let filters: Record<string, any> = {};
+      if (req.query.filters && typeof req.query.filters === 'string') {
+        try {
+          filters = JSON.parse(req.query.filters);
+        } catch {
+          filters = {};
+        }
+      }
+
+      const isPublic = filters.isPublic === true;
+
+      const result = await listAnimalMedia(animalMediaRepo)(
         petId,
-        page,
-        pageSize,
-      });
+        req.session,
+        {
+          page,
+          pageSize,
+          filters,
+          sortBy,
+          sortOrder,
+          isPublic
+        }
+      );
 
       res.json(result);
     } catch (err: any) {
       res.status(400).json({ error: err.message });
     }
   }
+
 
 }

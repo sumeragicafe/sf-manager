@@ -8,8 +8,56 @@
       </div>
     </div>
 
-    <MediaToolbar
-      :per-page="perPage"
+      <!-- Botão de Upload -->
+      <div class="flex items-center gap-2">
+        <input 
+          ref="fileInput" 
+          type="file" 
+          class="hidden" 
+          @change="handleFileChange"
+          multiple
+        />
+          <BaseButton
+            :icon="Upload"
+            :onClick="triggerFileInput"
+            text="Upload"
+            variant="primary"
+          />
+      </div>
+
+    <Pagination
+      :total="total"
+      :page="page"
+      :pageSize="pageSize"
+      :view="{
+        label: 'Visualização',
+        value: view,
+        options: [
+          { label: 'Grade', value: 'grid' },
+          { label: 'Lista', value: 'list' }
+        ]
+      }"
+      :search="search"
+      :filter="{
+        label: 'Tipo',
+        value: filter,
+        options: [
+          { label: 'Todos', value: 'all' },
+          { label: 'Imagens', value: 'image' },
+          { label: 'Vídeos', value: 'video' },
+          { label: 'Documentos', value: 'document' }
+        ]
+      }"
+      @change-view="val => { view = val }"
+      @change-filter="val => { filter = val; page = 1 }"
+      @update:page="val => { page = val }"
+      @update:pageSize="val => { perPage = val; page = 1 }"
+      @update:search="val => {search = val}"
+    />
+
+
+    <!-- <MediaToolbar
+      :per-page="pageSize"
       :view="view"
       :filter="filter"
       @change-search="val => { search = val; page = 1; fetchMedia() }"
@@ -17,7 +65,7 @@
       @change-view="val => view = val"
       @change-filter="val => filter = val"
       @upload="uploadFile"
-    />
+    /> -->
 
     <MediaGrid
       v-if="view === 'grid'"
@@ -29,13 +77,6 @@
       v-else
       :items="items"
       @open-modal="openModal"
-    />
-
-    <Pagination
-      :page="page"
-      :total-pages="totalPages"
-      @prev="prevPage"
-      @next="nextPage"
     />
 
     <MediaModal
@@ -57,55 +98,59 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import MediaToolbar from '@/views/Staff/media/components/MediaToolbar.vue'
+import {Upload} from "lucide-vue-next"
 import MediaGrid from '@/views/Staff/media/components/MediaGrid.vue'
 import MediaList from '@/views/Staff/media/components/MediaList.vue'
 import MediaModal from '@/views/Staff/media/components/MediaModal.vue'
+import BaseButton from '@/components/BaseButton.vue'
 import Pagination from '@/components/Pagination.vue'
 import Swal from 'sweetalert2'
 import { showConfirm } from '@/utils/uiAlerts/confirm'
 import { showToast } from '@/utils/uiAlerts/toast'
 
+// Pagination
 const items = ref([]);
+const total = ref(0);
 const page = ref(1);
-const perPage = ref(24);
-const totalPages = ref(0);
+const pageSize = ref(20);
+
+// Options & Filters
 const view = ref('grid');
 const filter = ref('all');
 const search = ref(null);
 
+// Modal
 const modalOpen = ref(false)
 const currentMedia = ref(null)
 const modalIndex = ref(null)
 
+const fileInput = ref(null);
+
 async function fetchMedia() {
   const params = new URLSearchParams({
     page: page.value,
-    pageSize: perPage.value,
+    pageSize: pageSize.value,
     type: filter.value,
     search: search.value || ''
   })
   const res = await fetch(`/api/media?${params.toString()}`)
   const json = await res.json()
   items.value = json.items
-  totalPages.value = Math.ceil(json.total / json.pageSize)
   page.value = json.page
+  total.value = json.total
 
   console.log(`Page value: ${page.value}, items value: ${items.value}, page value: ${page.value}`);
 }
 
 onMounted(fetchMedia)
-watch([perPage, filter], () => { page.value = 1; fetchMedia() })
-
-// Pagination
-function prevPage() { if (page.value > 1) page.value--; fetchMedia() }
-function nextPage() { if (page.value < totalPages.value) page.value++; fetchMedia() }
-function changePerPage(val) { perPage.value = val; page.value = 1 }
+watch([page, pageSize, filter, search], () => {
+  fetchMedia()
+})
 
 // Modal
-function openModal(media) {
-  modalIndex.value = items.value.findIndex(i => i.id === media.id)
-  currentMedia.value = media
+function openModal(item) {
+  modalIndex.value = items.value.findIndex(i => i.id === item.id)
+  currentMedia.value = item
   modalOpen.value = true
   carregarArquivo(items.value[modalIndex.value])
 }
@@ -251,10 +296,28 @@ async function deleteMedia(media) {
 }
 
 // Upload
+async function handleFileChange(event) {
+  const files = event.target.files;
+  if (!files.length) return;
+
+  for (const file of files) {
+    await uploadFile(file); // chama sua função existente
+  }
+
+  event.target.value = ''; // limpa para permitir upload do mesmo arquivo novamente
+}
+
 async function uploadFile(file) {
   const formData = new FormData()
   formData.append('file', file)
   const res = await fetch('/api/media', { method: 'POST', body: formData })
   if (res.ok) { await fetchMedia(); showToast({ icon: 'success', title: 'Arquivo enviado!' }) }
 }
+
+function triggerFileInput() {
+  if (fileInput.value) {
+    fileInput.value.click();
+  }
+}
+
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="grid gap-6 mt-4 auto-rows-fr grid-cols-[repeat(auto-fill,minmax(150px,1fr))]">
+  <div class="grid gap-6 mt-4 auto-rows-fr grid-cols-5 grid-flow-dense">
     <div v-if="items.length === 0" class="col-span-full flex justify-center">
       <div class="bg-card rounded-lg border p-4 w-full text-center">
         <p>Nenhum arquivo de mídia encontrado.</p>
@@ -217,6 +217,50 @@ async function renameMedia(id, novoNome) {
 
   } else console.error('Erro ao renomear:', await res.json());
 };
+
+async function togglePublicStatus(item) {
+  try {
+    // Inverte o valor atual
+    const newStatus = !item.isPublic;
+
+    const res = await fetch(`/api/media/${item.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isPublic: newStatus })
+    });
+
+    if (res.ok) {
+      // Atualiza localmente
+      const idx = localItems.value.findIndex(i => i.id === item.id);
+      if (idx !== -1) {
+        localItems.value[idx].isPublic = newStatus;
+      }
+
+      // Opcional: feedback visual
+      showToast({
+        icon: 'success',
+        title: `Arquivo ${newStatus ? 'publicado' : 'privado'} com sucesso!`,
+        timer: 2000,
+      });
+    } else {
+      const errData = await res.json();
+      showToast({
+        icon: 'error',
+        title: 'Erro ao alterar visibilidade',
+        description: errData?.error || 'Tente novamente',
+        timer: 2500,
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    showToast({
+      icon: 'error',
+      title: 'Erro inesperado',
+      description: err.message || 'Falha ao atualizar status',
+      timer: 2500,
+    });
+  }
+}
 
 
 </script>
