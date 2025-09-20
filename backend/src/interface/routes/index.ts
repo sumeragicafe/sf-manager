@@ -9,6 +9,7 @@ import eventRoutes from '@interface/routes/event';
 import animalMediaRoutes from '@interface/routes/animal-media';
 import speciesRoutes from '@interface/routes/species';
 import breedRoutes from '@interface/routes/breed';
+import animalVaccineRoutes from '@interface/routes/animal-vaccine';
 
 
 const router = Router();
@@ -20,6 +21,7 @@ router.use('/role', roleRoutes);
 router.use('/adoption-request', adoptionRequestRoutes);
 router.use('/animal', animalRoutes);
 router.use('/animal', animalMediaRoutes);
+router.use('/animal', animalVaccineRoutes)
 
 router.use('/species', speciesRoutes);
 router.use('/breed', breedRoutes);

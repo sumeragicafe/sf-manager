@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue';
 import { X } from 'lucide-vue-next';
+import PetVaccineTab from '@/views/Staff/pets/components/PetVaccineTab.vue';
 import PetMediaTab from '@/views/Staff/pets/components/PetMediaTab.vue';
 import PetMediaCarousel from '@/views/Staff/pets/components/PetMediaCarousel.vue';
 
@@ -10,7 +11,7 @@ const props = defineProps({
 });
 const emit = defineEmits(['close', 'update']);
 
-const tabs = ['Visão Geral', 'Eventos', 'Adotantes', 'Fatos', 'Mídias'];
+const tabs = ['Visão Geral', 'Adotantes', 'Vacinas', 'Fatos', 'Mídias'];
 
 const activeTab = ref('Visão Geral');
 
@@ -279,6 +280,9 @@ function toggleEdit() {
           </div>
           <div v-else-if="activeTab === 'Mídias'">
             <PetMediaTab :pet-id="animal.id" />
+          </div>
+          <div v-else-if="activeTab === 'Vacinas'">
+            <PetVaccineTab :pet-id="animal.id" />
           </div>
           <div v-else class="text-muted-foreground">
             Conteúdo de {{ activeTab }} em construção...

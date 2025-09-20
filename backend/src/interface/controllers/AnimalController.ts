@@ -88,7 +88,7 @@ export class AnimalController {
       const deleted = await animalRepo.delete(id);
       
       if (!deleted) {
-        return res.status(404).json({ error: 'Animal não encontrado.' });
+        return res.status(404).json({ error: 'Registro de Vacina não encontrada' });
       }
 
       res.json({ message: 'Animal removido com sucesso!' });

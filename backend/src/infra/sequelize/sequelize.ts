@@ -92,8 +92,8 @@ export function initModels(sequelize: Sequelize) {
     Animal.hasMany(AnimalVaccine, { foreignKey: 'pet_id' });
     AnimalVaccine.belongsTo(Animal, { foreignKey: 'pet_id' });
 
-    Vaccine.hasMany(AnimalVaccine, { foreignKey: 'vaccine_id' });
-    AnimalVaccine.belongsTo(Vaccine, { foreignKey: 'vaccine_id' });
+    Vaccine.hasMany(AnimalVaccine, { foreignKey: 'vaccine_id', as: 'animalVaccines' });
+    AnimalVaccine.belongsTo(Vaccine, { foreignKey: 'vaccine_id', as: 'vaccine' });
 
     Animal.hasMany(AnimalMedia, { foreignKey: 'pet_id' });
     AnimalMedia.belongsTo(Animal, { foreignKey: 'pet_id' });
