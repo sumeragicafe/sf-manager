@@ -10,6 +10,7 @@ import animalMediaRoutes from '@interface/routes/animal-media';
 import speciesRoutes from '@interface/routes/species';
 import breedRoutes from '@interface/routes/breed';
 import animalVaccineRoutes from '@interface/routes/animal-vaccine';
+import vaccineRoutes from '@interface/routes/vaccine';
 
 
 const router = Router();
@@ -18,7 +19,8 @@ router.use('/user', userRoutes);
 router.use('/permission', permissionRoutes);
 router.use('/role', roleRoutes);
 
-router.use('/adoption-request', adoptionRequestRoutes);
+router.use('/media', mediaRoutes);
+
 router.use('/animal', animalRoutes);
 router.use('/animal', animalMediaRoutes);
 router.use('/animal', animalVaccineRoutes)
@@ -26,9 +28,11 @@ router.use('/animal', animalVaccineRoutes)
 router.use('/species', speciesRoutes);
 router.use('/breed', breedRoutes);
 
-router.use('/media', mediaRoutes);
 
+router.use('/adoption-request', adoptionRequestRoutes);
 router.use('/event', eventRoutes);
+
+router.use('/vaccine', vaccineRoutes);
 
 
 export default router;

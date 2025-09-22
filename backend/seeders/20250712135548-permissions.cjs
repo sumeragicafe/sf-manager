@@ -21,6 +21,11 @@ module.exports = {
       { name: 'role.delete', description: 'Excluir cargos' },
       { name: 'role.update_permissions', description: 'Alterar permissões de cargos' },
 
+      { name: 'vaccine.get', description: 'Ver vacinas' },
+      { name: 'vaccine.create', description: 'Criar vacinas' },
+      { name: 'vaccine.delete', description: 'Excluir vacinas' },
+      { name: 'vaccine.update', description: 'Atualizar vacinas' },
+
       { name: 'pet.create', description: 'Cadastrar novo pet' },
       { name: 'pet.edit', description: 'Editar dados de pet' },
       { name: 'pet.delete', description: 'Excluir pet' },

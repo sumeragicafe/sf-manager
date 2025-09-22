@@ -189,7 +189,7 @@ watch([page, pageSize, search], () => {
         </h2>
         <form @submit.prevent="saveVaccine" class="space-y-3">
           <div>
-            <label class="block text-sm font-medium">ID da Vacina</label>
+            <label class="block text-sm font-medium">Vacina</label>
             <input
               v-model="form.vaccineId"
               type="number"
