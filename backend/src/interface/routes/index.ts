@@ -6,6 +6,7 @@ import adoptionRequestRoutes from '@interface/routes/adoption-request';
 import animalRoutes from '@interface/routes/animal';
 import mediaRoutes from '@interface/routes/media';
 import eventRoutes from '@interface/routes/event'
+import contactRoutes from '@interface/routes/contact'
 
 
 const router = Router();
@@ -19,6 +20,8 @@ router.use('/animal', animalRoutes);
 router.use('/media', mediaRoutes);
 
 router.use('/event', eventRoutes);
+
+router.use('/contact', contactRoutes);
 
 
 export default router;

@@ -82,7 +82,7 @@ const fullNavigation = [
   { name: 'Animais em Adoção', href: '/staff/pet', icon: Heart },
   { name: 'Pedidos de Adoção', href: '/staff/adoption-requests', icon: UserCheck },
   { name: 'Eventos', href: '/staff/event', icon: Calendar },
-    // { name: 'Contatos', href: '/staff/contacts', icon: MessageSquare },
+  { name: 'Contatos', href: '/staff/contacts', icon: MessageSquare },
   // { name: 'Formulários', href: '/staff/forms', icon: FileText },
   { name: 'Mídia', href: '/staff/media', icon: FolderDown  },
   { name: 'Usuários', href: '/staff/user', icon: Users },

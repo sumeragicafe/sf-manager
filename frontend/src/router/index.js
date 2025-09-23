@@ -82,6 +82,11 @@ const router = createRouter({
                     component: () => import('../views/Staff/adoption-requests/AdoptionRequestsPage.vue')
                 },
                 {
+                    path: 'contacts',
+                    name: 'ContactsPage',
+                    component: () => import('../views/Staff/contato/ContatoPage.vue')
+                },
+                {
                     path: 'media',
                     name: 'MediaPage',
                     component: () => import('../views/Staff/media/MediaPage.vue')

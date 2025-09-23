@@ -93,9 +93,26 @@ const form = reactive({
   allowContact: false
 })
 
-function handleSubmit() {
-  // Lógica de envio — pode usar fetch/Axios
-  console.log('Formulário enviado:', { ...form })
-  alert('Mensagem enviada com sucesso!')
+async function handleSubmit() {
+  try {
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...form })
+    })
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      throw new Error(data.error || 'Falha ao enviar mensagem')
+    }
+    alert('Mensagem enviada com sucesso!')
+    form.subject = ''
+    form.email = ''
+    form.name = ''
+    form.message = ''
+    form.acceptPolicy = false
+    form.allowContact = false
+  } catch (e) {
+    alert(e.message)
+  }
 }
 </script>
