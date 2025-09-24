@@ -7,5 +7,5 @@ export interface IBreedRepository {
   create(data: Omit<BreedProps, 'id'>): Promise<BreedProps>;
   update(id: number, data: Partial<Omit<BreedProps, 'id'>>): Promise<BreedProps | null>;
   delete(id: number): Promise<boolean>;
-  findBySpecies(speciesId: number, pagination?: PaginationOptions): Promise<PaginatedResult<BreedProps>>;
+  findBySpecies(speciesId?: number, search?: string, pagination?: PaginationOptions): Promise<PaginatedResult<BreedProps>>;
 }

@@ -1,5 +1,6 @@
+
 export interface AnimalVaccineProps {
-  id: string; // uuid
+  id?: string;
   petId: string;
   vaccineId: number;
   applicationDate: Date;
@@ -13,13 +14,11 @@ export class AnimalVaccine {
     }
   }
 
-  static createNew(petId: string, vaccineId: number, applicationDate: Date, applicator?: string): AnimalVaccine {
+  static createNew(data: Omit<AnimalVaccineProps, 'id'>): AnimalVaccine {
+     const now = new Date();
     return new AnimalVaccine({
-      id: crypto.randomUUID(),
-      petId,
-      vaccineId,
-      applicationDate,
-      applicator,
+      ...data,
+      applicationDate: data.applicationDate ?? now
     });
   }
 

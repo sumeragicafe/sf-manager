@@ -27,7 +27,7 @@
             class="w-full h-full flex items-center justify-center overflow-auto"
           >
             <img
-              :src="item.src"
+              :src="item.src || `/api/media/view/${item.id}`"
               alt="Imagem no modal"
               class="max-w-full max-h-full object-contain transition-transform duration-200"
               :style="{ transform: `scale(${zoom}) translate(${translateX}px, ${translateY}px)` }"
@@ -72,13 +72,30 @@
         </div>
 
         <!-- Ações -->
-        <div class="mt-4 shrink-0 flex justify-end gap-3 items-center border-t pt-3 bg-white">
-          <span class="text-sm text-muted-foreground">
-            <b>Tipo:</b> {{ item?.mimeType || 'Desconhecido' }}
-          </span>
-          <button v-if="hasPermission(['media.view_private_media'])" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300" @click="$emit('download', item)">Download</button>
-          <button v-if="hasPermission(['media.update'])" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600" @click="$emit('rename', item)">Renomear</button>
-          <button v-if="hasPermission(['media.delete'])" class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600" @click="$emit('delete', item)">Excluir</button>
+        <div class="mt-4 shrink-0 border-t pt-3 bg-white">
+          <!-- Checkbox para visibilidade -->
+          <div class="flex justify-between">
+            <label v-if="hasPermission(['media.update'])" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 cursor-pointer">
+              <input 
+                type="checkbox" 
+                v-model="item.isPublic" 
+                @change="$emit('togglePublic', item)" 
+                class="w-5 h-5 accent-green-500"
+              />
+              Público
+            </label>
+
+            <div class="flex justify-end gap-3 items-center">
+              <span class="text-sm text-muted-foreground">
+                <b>Tipo:</b> {{ item?.mimeType || 'Desconhecido' }}
+              </span>
+               
+              <button v-if="hasPermission(['media.view_private_media'])" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300" @click="$emit('download', item)">Download</button>
+              <button v-if="hasPermission(['media.update'])" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600" @click="$emit('rename', item)">Renomear</button>
+              <button v-if="hasPermission(['media.delete'])" class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600" @click="$emit('delete', item)">Excluir</button>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

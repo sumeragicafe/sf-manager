@@ -3,17 +3,21 @@ import { createAnimal } from '@usecases/Animal/createAnimal';
 import { listAnimals } from '@usecases/Animal/listAnimals';
 import { updateAnimal } from '@usecases/Animal/updateAnimal';
 import { SequelizeAnimalRepository } from '@infra/sequelize/repositories/SequelizeAnimalRepository';
+import { SequelizeSpeciesRepository } from '@infra/sequelize/repositories/SequelizeSpeciesRepository';
+import { SequelizeBreedRepository } from '@infra/sequelize/repositories/SequelizeBreedRepository';
 
 const animalRepo = new SequelizeAnimalRepository();
+const speciesRepo = new SequelizeSpeciesRepository();
+const breedRepo = new SequelizeBreedRepository();
 
 export class AnimalController {
   static async create(req: Request, res: Response) {
     try {
       const animalData = req.body;
 
-      const animal = await createAnimal(animalRepo)(animalData);
+      const animalProps = await createAnimal(animalRepo)(animalData);
 
-      res.status(201).json({ animal });
+      res.status(201).json({ animalProps });
     } catch (err: any) {
       res.status(400).json({ error: err.message });
     } finally {
@@ -26,7 +30,7 @@ export class AnimalController {
       const page = req.body.page ? parseInt(req.body.page as string, 10) : 1;
       const pageSize = req.body.pageSize ? parseInt(req.body.pageSize as string, 10) : 10;
 
-      const animals = await listAnimals(animalRepo)({ page, pageSize });
+      const animals = await listAnimals(animalRepo, speciesRepo, breedRepo)({ page, pageSize }, true);
       
       res.status(200).json(animals);
     } catch (err: any) {
@@ -84,7 +88,7 @@ export class AnimalController {
       const deleted = await animalRepo.delete(id);
       
       if (!deleted) {
-        return res.status(404).json({ error: 'Animal não encontrado.' });
+        return res.status(404).json({ error: 'Registro de Vacina não encontrada' });
       }
 
       res.json({ message: 'Animal removido com sucesso!' });

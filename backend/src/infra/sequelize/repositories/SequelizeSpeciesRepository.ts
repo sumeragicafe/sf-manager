@@ -10,15 +10,20 @@ export class SequelizeSpeciesRepository implements ISpeciesRepository {
     return species ? (species.toJSON() as SpeciesProps) : null;
   }
 
-  async searchByName(name: string, pagination?: PaginationOptions): Promise<PaginatedResult<SpeciesProps>> {
+  async searchByName(name?: string, pagination?: PaginationOptions): Promise<PaginatedResult<SpeciesProps>> {
     const { page = 1, pageSize = 10 } = pagination || {};
+    
+    const where = name ? { name: { [Op.like]: `%${name}%` } } : undefined;
+
     const { rows, count } = await Species.findAndCountAll({
-      where: { name: { [Op.iLike]: `%${name}%` } },
+      where,
       offset: (page - 1) * pageSize,
       limit: pageSize,
     });
+
     return { items: rows.map(s => s.toJSON() as SpeciesProps), total: count, page, pageSize };
   }
+
 
   async create(data: Omit<SpeciesProps, 'id'>): Promise<SpeciesProps> {
     const species = await Species.create(data);
