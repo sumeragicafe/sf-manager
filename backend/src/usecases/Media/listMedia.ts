@@ -3,27 +3,36 @@ import { PaginationOptions } from '@types/Pagination';
 import { authServiceSingleton } from '@dependencies/singletons';
 import { userRepositorySingleton } from '@dependencies/singletons';
 
-type MediaPaginationOptions = PaginationOptions & {
-  search?: string;
-  type?: 'image' | 'video' | 'document' | 'all';
-  dateFrom?: Date;
-  dateTo?: Date;
-};
-
 export function listMedia(mediaRepository: IMediaRepository) {
-  return async (session: any, pagination?: MediaPaginationOptions) => {
+  return async (session: any, options?: PaginationOptions) => {
     let canViewPrivate = false;
 
+    // valida token e permissões
     if (session?.token) {
       try {
         const payload = authServiceSingleton.verifyToken(session.token);
         const permissions = await userRepositorySingleton.getUserPermissions(payload.id);
         canViewPrivate = permissions?.includes('media.view_private_media') ?? false;
       } catch (e) {
-        throw Error("Ocorreu um erro ao validar o token: " + e);
+        throw new Error("Ocorreu um erro ao validar o token: " + e);
       }
     }
 
-    return await mediaRepository.findAll(pagination, canViewPrivate);
+    // garante que filtros existam
+    const filters = options?.filters ? { ...options.filters } : {};
+
+    // aplica filtro de visibilidade
+    if (!canViewPrivate) {
+      filters.isPublic = true;
+    }
+
+    // repassa tudo para o repositório
+    return await mediaRepository.findAll({
+      page: options?.page ?? 1,
+      pageSize: options?.pageSize ?? 10,
+      sortBy: options?.sortBy ?? 'uploadDate',
+      sortOrder: options?.sortOrder ?? 'desc',
+      filters
+    }, canViewPrivate);
   };
 }

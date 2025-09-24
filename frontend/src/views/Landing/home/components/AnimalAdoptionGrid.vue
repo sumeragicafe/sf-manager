@@ -116,7 +116,8 @@ function goToAdoptionForm(animalId) {
               :alt="animal.name"
               class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
             />
-            <button
+            <!-- Botão Favoritar -->
+            <!-- <button
               @click.stop="toggleFavorite(animal.id)"
               :class="[
                 'absolute top-4 right-4 p-2 rounded-full transition-all duration-300 z-10',
@@ -126,7 +127,7 @@ function goToAdoptionForm(animalId) {
               ]"
             >
               <Heart :size="20" :fill="favorites.includes(animal.id) ? 'currentColor' : 'none'" />
-            </button>
+            </button> -->
           </div>
 
           <div class="p-6">

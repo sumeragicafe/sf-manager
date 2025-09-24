@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-4 mt-4 auto-rows-fr"
-  >
+  <div class="grid gap-6 mt-4 auto-rows-fr grid-cols-5 grid-flow-dense">
     <div v-if="items.length === 0" class="col-span-full flex justify-center">
       <div class="bg-card rounded-lg border p-4 w-full text-center">
         <p>Nenhum arquivo de mídia encontrado.</p>
@@ -14,6 +12,14 @@
         :key="item.id"
         class="relative rounded-lg border border-border bg-card text-card-foreground p-2 flex flex-col items-center shadow-sm hover:shadow-md transition"
       >
+       <!-- Badge de público -->
+      <div v-if="item.isPublic" class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full z-10">
+        Público
+      </div>
+      <div v-else class="absolute top-2 left-2 bg-gray-400 text-white text-xs px-2 py-0.5 rounded-full z-10">
+        Privado
+      </div>
+      
         <!-- Botões no topo -->
         <div class="absolute top-2 right-2 flex gap-1">
           <button @click="$emit('open-modal', item)" class="p-1 rounded-sm bg-background hover:bg-muted transition">
@@ -26,6 +32,18 @@
             </button>
   
             <div v-if="dropdownOpen === item.id" class="absolute right-0 mt-1 w-32 bg-card border border-border rounded shadow-md z-10">
+              
+              <!-- Checkbox público/privado -->
+              <label class="flex items-center gap-2 px-3 py-1 text-sm hover:bg-muted cursor-pointer">
+                <input
+                  type="checkbox"
+                  :checked="item.isPublic"
+                  @change="() => togglePublicStatus(item)"
+                  class="form-checkbox"
+                />
+                Público
+              </label>
+
               <button
                 class="block w-full px-3 py-1 text-sm hover:bg-muted"
                 @click="() => { renameItem(item); toggleDropdown(null) }"
@@ -68,7 +86,7 @@
         </div>
   
         <!-- Nome do arquivo -->
-        <p class="text-sm mt-2 truncate text-center w-full">{{ item.fileName }}</p>
+        <p class="text-sm mt-2 truncate text-center w-full" :title="item.fileName">{{ item.fileName }}</p>
       </div>
     </template>
   </div>
@@ -88,7 +106,6 @@ const localItems = ref([...props.items]);
 watch(() => props.items, (newItems) => {
   localItems.value = [...newItems]
 });
-
 
 const emit = defineEmits(['open-modal','rename','download','delete']);
 
@@ -200,6 +217,50 @@ async function renameMedia(id, novoNome) {
 
   } else console.error('Erro ao renomear:', await res.json());
 };
+
+async function togglePublicStatus(item) {
+  try {
+    // Inverte o valor atual
+    const newStatus = !item.isPublic;
+
+    const res = await fetch(`/api/media/${item.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isPublic: newStatus })
+    });
+
+    if (res.ok) {
+      // Atualiza localmente
+      const idx = localItems.value.findIndex(i => i.id === item.id);
+      if (idx !== -1) {
+        localItems.value[idx].isPublic = newStatus;
+      }
+
+      // Opcional: feedback visual
+      showToast({
+        icon: 'success',
+        title: `Arquivo ${newStatus ? 'publicado' : 'privado'} com sucesso!`,
+        timer: 2000,
+      });
+    } else {
+      const errData = await res.json();
+      showToast({
+        icon: 'error',
+        title: 'Erro ao alterar visibilidade',
+        description: errData?.error || 'Tente novamente',
+        timer: 2500,
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    showToast({
+      icon: 'error',
+      title: 'Erro inesperado',
+      description: err.message || 'Falha ao atualizar status',
+      timer: 2500,
+    });
+  }
+}
 
 
 </script>

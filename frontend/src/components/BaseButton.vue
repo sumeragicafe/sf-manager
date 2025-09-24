@@ -6,6 +6,7 @@
       baseStyle,
       variantClasses
     ]"
+    :type="type"
   >
     <component :is="icon" class="w-4 h-4" v-if="icon" />
     <span v-if="text">{{ text }}</span>
@@ -19,6 +20,10 @@ const props = defineProps({
   icon: [Object, Function],
   text: String,
   onClick: Function,
+  type: {
+    type: String,
+    default: 'button',
+  },
   variant: {
     type: String,
     default: 'danger',

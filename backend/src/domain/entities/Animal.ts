@@ -8,7 +8,7 @@ import { AnimalMediaProps } from "@domain/entities/AnimalMedia";
 export interface AnimalProps {
   id: string; // uuid
   name: string;
-  speciesId: number;
+  speciesId?: number;
   breedId?: number;
   gender: string; // "M" or "F"
   size: string;   // "Small", "Medium", "Large"

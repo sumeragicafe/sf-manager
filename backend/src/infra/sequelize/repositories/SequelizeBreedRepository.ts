@@ -10,15 +10,20 @@ export class SequelizeBreedRepository implements IBreedRepository {
     return breed ? (breed.toJSON() as BreedProps) : null;
   }
 
-  async searchByName(name: string, pagination?: PaginationOptions): Promise<PaginatedResult<BreedProps>> {
+  async searchByName(name?: string, pagination?: PaginationOptions): Promise<PaginatedResult<BreedProps>> {
     const { page = 1, pageSize = 10 } = pagination || {};
+    
+    const where = name ? { name: { [Op.like]: `%${name}%` } } : undefined;
+
     const { rows, count } = await Breed.findAndCountAll({
-      where: { name: { [Op.iLike]: `%${name}%` } },
+      where,
       offset: (page - 1) * pageSize,
       limit: pageSize,
     });
+
     return { items: rows.map(b => b.toJSON() as BreedProps), total: count, page, pageSize };
   }
+
 
   async create(data: Omit<BreedProps, 'id'>): Promise<BreedProps> {
     const breed = await Breed.create(data);
@@ -37,13 +42,26 @@ export class SequelizeBreedRepository implements IBreedRepository {
     return deleted > 0;
   }
 
-  async findBySpecies(speciesId: number, pagination?: PaginationOptions): Promise<PaginatedResult<BreedProps>> {
+  async findBySpecies(speciesId?: number, search?: string, pagination?: PaginationOptions): Promise<PaginatedResult<BreedProps>> {
     const { page = 1, pageSize = 10 } = pagination || {};
+
+    const where: any = {};
+
+    if (speciesId) {
+      where.speciesId = speciesId;
+    }
+
+    if (search) {
+      where.name = { [Op.like]: `%${search}%` };
+    }
+
     const { rows, count } = await Breed.findAndCountAll({
-      where: { speciesId },
+      where,
       offset: (page - 1) * pageSize,
       limit: pageSize,
     });
+
     return { items: rows.map(b => b.toJSON() as BreedProps), total: count, page, pageSize };
   }
+
 }
