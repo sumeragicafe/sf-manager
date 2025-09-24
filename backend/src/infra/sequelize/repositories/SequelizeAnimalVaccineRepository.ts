@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, fn, col, where, literal } from 'sequelize';
 import { AnimalVaccine } from '@infra/sequelize/models/AnimalVaccine.model';
 import { Vaccine } from '@infra/sequelize/models/Vaccine.model';
 import { AnimalVaccineProps } from '@domain/entities/AnimalVaccine';
@@ -25,12 +25,13 @@ export class SequelizeAnimalVaccineRepository implements IAnimalVaccineRepositor
 
     const where: any = {};
 
-    // Filtro por texto (ex: procurar aplicador pelo nome)
     const searchConditions: any[] = [];
     if (filters.search) {
       const search = `%${filters.search}%`;
+
       searchConditions.push(
-        { applicator: { [Op.like]: search } },
+        { applicator: { [Op.like]: search } },    // campo da tabela principal
+        { '$vaccine.name$': { [Op.like]: search } } // campo da associação
       );
     }
 
@@ -58,20 +59,22 @@ export class SequelizeAnimalVaccineRepository implements IAnimalVaccineRepositor
       }
     }
 
+    const finalWhere = searchConditions.length
+      ? { [Op.and]: [where, { [Op.or]: searchConditions }] }
+      : where;
+
+
     const { rows, count } = await AnimalVaccine.findAndCountAll({
       offset: (page - 1) * pageSize,
       limit: pageSize,
       order: [[sortBy, sortOrder.toUpperCase()]],
-      where: searchConditions.length ? { [Op.and]: [where, { [Op.or]: searchConditions }] } : where,
+      where: finalWhere,
       include: [
         {
           model: Vaccine,
           as: 'vaccine',
           attributes: ['id', 'name', 'description'],
           required: false,
-          where: filters.search
-          ? { name: { [Op.like]: `%${filters.search}%` } }
-          : undefined,
         },
       ],
     });

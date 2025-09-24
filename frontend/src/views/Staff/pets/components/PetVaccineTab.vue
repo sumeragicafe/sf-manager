@@ -4,6 +4,9 @@ import { Plus, Edit, Trash2, Syringe } from 'lucide-vue-next';
 import BaseButton from '@/components/BaseButton.vue';
 import Pagination from '@/components/Pagination.vue';
 import { showToast } from '@/utils/uiAlerts/toast';
+import { showConfirm } from '@/utils/uiAlerts/confirm';
+import CreatePetVaccineModal from '@/views/Staff/pets/components/CreatePetVaccineModal.vue';
+
 
 const props = defineProps({ petId: String });
 
@@ -15,10 +18,10 @@ const page = ref(1);
 const pageSize = ref(20);
 const search = ref(null);
 
-// Modal (criar/editar)
+// Modal
 const modalOpen = ref(false);
-const form = ref({ vaccineId: '', applicationDate: '', applicator: '' });
-const editingId = ref(null);
+const isEditing = ref(false);
+const formData = ref({ vaccineId: '', applicationDate: '', applicator: '' });
 
 // Buscar vacinas aplicadas
 async function fetchVaccines() {
@@ -48,49 +51,28 @@ async function fetchVaccines() {
   } finally {
     loading.value = false;
   }
+
 }
 
-// Salvar (create/update)
-async function saveVaccine() {
-  try {
-    const method = editingId.value ? 'PUT' : 'POST';
-    const url = editingId.value
-      ? `/api/animal/${props.petId}/vaccines/${editingId.value}`
-      : `/api/animal/${props.petId}/vaccines`;
-
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form.value),
-    });
-
-    if (!res.ok) throw new Error('Erro ao salvar vacina');
-
-    showToast({ icon: 'success', title: 'Vacina salva com sucesso!' });
-    modalOpen.value = false;
-    form.value = { vaccineId: '', applicationDate: '', applicator: '' };
-    editingId.value = null;
-    await fetchVaccines();
-  } catch (err) {
-    console.error(err);
-    showToast({ icon: 'error', title: 'Erro ao salvar vacina' });
-  }
-}
-
-// Editar
-function editVaccine(vaccine) {
-  form.value = {
-    vaccineId: vaccine.vaccineId,
-    applicationDate: vaccine.applicationDate?.split('T')[0],
-    applicator: vaccine.applicator || '',
-  };
-  editingId.value = vaccine.id;
+function newVaccine() {
+  isEditing.value = false;
+  formData.value = { vaccineId: '', applicationDate: '', applicator: '' };
   modalOpen.value = true;
 }
 
+function editVaccine(vaccine) {
+  isEditing.value = true;
+  formData.value = { ...vaccine }; // preenche com dados existentes
+  modalOpen.value = true;
+}
+
+
 // Deletar
 async function deleteVaccine(id) {
-  if (!confirm('Tem certeza que deseja excluir esta vacina?')) return;
+  const confirmed = await showConfirm({title: 'Tem certeza?', text: 'Essa ação irá excluir o registro de vacinação.'});
+
+  if (!confirmed) return;
+  
   try {
     const res = await fetch(`/api/animal/vaccines/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Erro ao deletar vacina');
@@ -103,17 +85,22 @@ async function deleteVaccine(id) {
   }
 }
 
+// Callback do modal
+async function handleSaved() {
+  showToast({ icon: 'success', title: 'Vacina salva com sucesso!' });
+  modalOpen.value = false;
+  await fetchVaccines();
+}
+
 onMounted(fetchVaccines);
 
-watch([page, pageSize, search], () => {
-  fetchVaccines();
-});
+watch([page, pageSize, search], fetchVaccines);
 </script>
 
 <template>
   <div>
     <div class="flex justify-between items-center mb-4">
-      <BaseButton :icon="Plus" variant="primary" @click="modalOpen = true">
+      <BaseButton :icon="Plus" variant="primary" @click="newVaccine">
         Nova Vacina
       </BaseButton>
     </div>
@@ -155,17 +142,9 @@ watch([page, pageSize, search], () => {
             <td class="px-4 py-3">{{ new Date(v.applicationDate).toLocaleDateString() }}</td>
             <td class="px-4 py-3">{{ v.applicator || "-" }}</td>
             <td class="px-4 py-3 text-center">
-              <div class="flex justify-center gap-2">
-                <BaseButton
-                  :icon="Edit"
-                  variant="default"
-                  @click="editVaccine(v)"
-                />
-                <BaseButton
-                  :icon="Trash2"
-                  variant="danger"
-                  @click="deleteVaccine(v.id)"
-                />
+               <div class="flex justify-center gap-2">
+                <BaseButton :icon="Edit" variant="default" @click="editVaccine(v)" />
+                <BaseButton :icon="Trash2" variant="danger" @click="deleteVaccine(v.id)" />
               </div>
             </td>
           </tr>
@@ -178,60 +157,15 @@ watch([page, pageSize, search], () => {
       </table>
     </div>
 
-    <!-- Modal Criar/Editar -->
-    <div
-      v-if="modalOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-    >
-      <div class="bg-white p-4 rounded shadow-md w-96">
-        <h2 class="text-lg mb-2 font-semibold">
-          {{ editingId ? 'Editar Vacina' : 'Nova Vacina' }}
-        </h2>
-        <form @submit.prevent="saveVaccine" class="space-y-3">
-          <div>
-            <label class="block text-sm font-medium">Vacina</label>
-            <input
-              v-model="form.vaccineId"
-              type="number"
-              class="w-full border px-2 py-1 rounded"
-              required
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Data de Aplicação</label>
-            <input
-              v-model="form.applicationDate"
-              type="date"
-              class="w-full border px-2 py-1 rounded"
-              required
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Aplicador</label>
-            <input
-              v-model="form.applicator"
-              type="text"
-              class="w-full border px-2 py-1 rounded"
-            />
-          </div>
+    <!-- Modal -->
+    <CreatePetVaccineModal
+      :isOpen="modalOpen"
+      :petId="petId"
+      :isEditing="isEditing"
+      :formData="formData"
+      @close="modalOpen = false"
+      @saved="handleSaved"
+    />
 
-          <div class="flex justify-end gap-2 mt-4">
-            <button
-              type="button"
-              class="px-3 py-1 bg-gray-300 rounded"
-              @click="modalOpen = false"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              class="px-3 py-1 bg-blue-600 text-white rounded"
-            >
-              Salvar
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   </div>
 </template>

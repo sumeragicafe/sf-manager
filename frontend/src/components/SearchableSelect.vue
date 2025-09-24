@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 
 const props = defineProps({
   modelValue: [String, Number],
@@ -11,43 +11,45 @@ const emit = defineEmits(['update:modelValue']);
 const search = ref('');
 const isOpen = ref(false);
 
-// Garante que options seja sempre um array
 const normalizedOptions = computed(() => {
   if (!Array.isArray(props.options)) return [];
-  // Garante que cada item tenha { id, name }
   return props.options.map(o => ({
     id: o.id,
     name: o.name ?? String(o)
   }));
 });
 
-// Filtra baseado no termo de busca
 const filteredOptions = computed(() => {
   const term = search.value.toLowerCase();
   if (!term) return normalizedOptions.value;
   return normalizedOptions.value.filter(opt => opt.name.toLowerCase().includes(term));
 });
 
-// Seleciona opção
 function selectOption(option) {
   emit('update:modelValue', option.id);
   search.value = option.name;
   isOpen.value = false;
 }
 
-// Atualiza search quando modelValue muda
-watch(() => props.modelValue, (val) => {
-  const selected = normalizedOptions.value.find(o => o.id === val);
+function initializeSearch() {
+  const selected = normalizedOptions.value.find(o => o.id === props.modelValue);
   if (selected) search.value = selected.name;
   else search.value = '';
+}
+
+watch([() => props.options, () => props.modelValue], () => {
+  initializeSearch();
 });
 
-// Blur com delay para permitir clique
 function handleBlur() {
   setTimeout(() => {
     isOpen.value = false;
   }, 150);
 }
+
+onMounted(() => {
+  initializeSearch();
+});
 </script>
 
 <template>
