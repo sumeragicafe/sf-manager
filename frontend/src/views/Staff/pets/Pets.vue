@@ -2,7 +2,8 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { Search, Plus, Edit, Trash2, Eye } from 'lucide-vue-next';
 import PetModal from '@/views/Staff/pets/components/PetModal.vue';
-import CreateAnimalModal from '@/views/Staff/pets/components/CreateAnimalModal.vue'; // import do modal de criação
+import CreateAnimalModal from '@/views/Staff/pets/components/CreateAnimalModal.vue';
+
 
 const searchTerm = ref('');
 const currentPage = ref(1);
@@ -25,14 +26,14 @@ async function fetchAnimals(page = 1, pageSize = itemsPerPage) {
     allAnimals.value = data.items.map(animal => ({
       id: animal.id,
       name: animal.name,
-      species: animal.species.name,
-      breed: animal.breed.name,
-      age: animal.birthDate ? calcularIdade(animal.birthDate) : null,
+      species: animal.species,
+      breed: animal.breed,
+      age: animal.birthDate? calcularIdadeFormatada(animal.birthDate) : null,
       status: animal.status,
       vaccinated: animal.isVaccinated ?? false,
       castrated: animal.isCastrated ?? false,
       size: animal.size,
-      gender: animal.gender === 'F' ? 'Fêmea' : 'Macho',
+      gender: animal.gender,
       entryDate: animal.entryDate,
       notes: animal.notes,
       birthDate: animal.birthDate,
@@ -45,14 +46,33 @@ async function fetchAnimals(page = 1, pageSize = itemsPerPage) {
   }
 }
 
-function calcularIdade(dataNasc) {
+
+function calcularIdadeFormatada(dataNasc) {
   const hoje = new Date();
   const nasc = new Date(dataNasc);
+
   let anos = hoje.getFullYear() - nasc.getFullYear();
-  if (hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate())) {
-    anos--;
+  let meses = hoje.getMonth() - nasc.getMonth();
+  let dias = hoje.getDate() - nasc.getDate();
+
+  if (dias < 0) {
+    meses--;
+    const ultimoMes = new Date(hoje.getFullYear(), hoje.getMonth(), 0);
+    dias += ultimoMes.getDate();
   }
-  return anos;
+
+  if (meses < 0) {
+    anos--;
+    meses += 12;
+  }
+
+  if (anos >= 1) {
+    return `${anos} ano${anos > 1 ? 's' : ''}`;
+  } else if (meses >= 1) {
+    return `${meses} mês${meses > 1 ? 'es' : ''}`;
+  } else {
+    return `${dias} dia${dias > 1 ? 's' : ''}`;
+  }
 }
 
 // Computeds
@@ -171,11 +191,11 @@ watch(currentPage, (page) => {
           >
             <td class="p-3 font-medium text-foreground">{{ animal.name }}</td>
             <td class="p-3">
-              <div>{{ animal.type }}</div>
-              <div class="text-xs text-muted-foreground">{{ animal.breed }}</div>
+              <div>{{ animal.species.name }}</div>
+              <div class="text-xs text-muted-foreground">{{ animal.breed.name }}</div>
             </td>
-            <td class="p-3">{{ animal.age ? `${animal.age} anos`: 'Não informada'}}</td>
-            <td class="p-3">{{ animal.gender }}</td>
+            <td class="p-3">{{ animal.age ?? 'Não informada'}}</td>
+            <td class="p-3">{{ animal.gender == "M" ? "Macho" : "Fêmea" }}</td>
             <td class="p-3">
               <span :class="getStatusColor(animal.status)" class="px-2 py-0.5 text-xs rounded-full font-semibold">
                 {{ animal.status }}
@@ -195,7 +215,6 @@ watch(currentPage, (page) => {
             <td class="p-3 text-right">
               <div class="flex justify-end gap-2">
                 <button @click="handleViewAnimal(animal)" class="p-1 hover:text-ong-primary"><Eye class="w-4 h-4" /></button>
-                <button class="p-1 hover:text-yellow-600"><Edit class="w-4 h-4" /></button>
                 <button class="p-1 hover:text-red-600"><Trash2 class="w-4 h-4" /></button>
               </div>
             </td>
@@ -243,6 +262,7 @@ watch(currentPage, (page) => {
       :isOpen="isViewModalOpen"
       :animal="selectedAnimal"
       @close="handleCloseViewModal"
+      @refresh="fetchAnimals"
     />
 
     <CreateAnimalModal

@@ -70,8 +70,8 @@ export class AnimalController {
         return res.status(404).json({ error: 'Animal não encontrado.' });
       }
 
-      res.status(201).json({
-        updatedAnimal,
+      res.status(200).json({
+        animal: updatedAnimal,
         message: 'Animal atualizado com sucesso!'
       });
     } catch (err: any) {

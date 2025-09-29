@@ -1,22 +1,35 @@
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, onMounted } from 'vue';
 import { X } from 'lucide-vue-next';
 import PetVaccineTab from '@/views/Staff/pets/components/PetVaccineTab.vue';
 import PetMediaTab from '@/views/Staff/pets/components/PetMediaTab.vue';
 import PetMediaCarousel from '@/views/Staff/pets/components/PetMediaCarousel.vue';
+import SearchableSelect from '@/components/SearchableSelect.vue';
+import { showToast } from '@/utils/uiAlerts/toast';
+import { showConfirm } from '@/utils/uiAlerts/confirm';
 
 const props = defineProps({
   isOpen: Boolean,
   animal: Object
 });
 const emit = defineEmits(['close', 'update']);
-
 const tabs = ['Visão Geral', 'Adotantes', 'Vacinas', 'Fatos', 'Mídias'];
-
 const activeTab = ref('Visão Geral');
-
 const isEditing = ref(false);
 const editableAnimal = reactive({});
+const hasChanged = ref(false);
+
+
+// Opções dos selects
+const speciesOptions = ref([]);
+const breedOptions = ref([]);
+const genderOptions = [
+  { label: 'Macho', value: 'M' },
+  { label: 'Fêmea', value: 'F' }
+];
+const sizeOptions = ['Pequeno', 'Médio', 'Grande'];
+const statusOptions = ['Disponível', 'Não Disponível', 'Adotado'];
+
 
 function formatDateDDMMYYYY(dateStr) {
   if (!dateStr) return null;
@@ -29,46 +42,125 @@ function formatDateDDMMYYYY(dateStr) {
 }
 
 
-watch(isEditing, (editing) => {
-  if (editing) {
-    // Copia os valores atuais do animal
-    Object.assign(editableAnimal, props.animal);
+onMounted(async () => {
+  console.log("editableAnimal ", editableAnimal);
+  console.log("props.animal ", props.animal);
 
-    // Inicializa o checkbox se não existir
-    if (editableAnimal.isBirthDateEstimated === undefined) {
-      editableAnimal.isBirthDateEstimated = false;
-    }
+  console.log(speciesOptions.value);
+});
 
-    // Converte birthDate para YYYY-MM-DD para o input date
-    if (editableAnimal.birthDate) {
-      const d = new Date(editableAnimal.birthDate);
+watch(
+  () => props.animal,
+  async(animal) => {
+    if (!animal) return;
+    Object.assign(editableAnimal, animal);
+
+
+    await fetchSpecies();
+    await fetchBreeds(editableAnimal.species.id);
+
+    // Normaliza IDs
+    editableAnimal.speciesId = animal.species?.id ?? null;
+    editableAnimal.breedId   = animal.breed?.id ?? null;
+
+    // Normaliza data
+    if (animal.birthDate) {
+      const d = new Date(animal.birthDate);
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, '0');
       const dd = String(d.getDate()).padStart(2, '0');
       editableAnimal.birthDate = `${yyyy}-${mm}-${dd}`;
     }
+
+    // Flag de data estimada
+    if (editableAnimal.isBirthDateEstimated === undefined) {
+      editableAnimal.isBirthDateEstimated = false;
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => editableAnimal.speciesId,
+  (newSpeciesId) => {
+    if (newSpeciesId) fetchBreeds(newSpeciesId);
   }
-});
-
-
-// Opções dos selects
-const speciesOptions = ['Cachorro', 'Gato', 'Ave', 'Outro'];
-const breedOptions = ['SRD', 'Poodle', 'Bulldog', 'Persa', 'Siamês'];
-const genderOptions = ['Fêmea', 'Macho'];
-const sizeOptions = ['Pequeno', 'Médio', 'Grande'];
-const statusOptions = ['Disponível', 'Não Disponível', 'Adotado'];
+);
 
 function closeModal() {
   isEditing.value = false;
+  if(hasChanged.value){
+    emit('refresh');
+    hasChanged.value = false;
+  }
   emit('close');
 }
 
 function toggleEdit() {
-  if (isEditing.value) {
-    // Salvar alterações
-    emit('update', { ...editableAnimal });
+  isEditing.value = true;
+}
+
+
+async function saveAnimal() {
+  try {
+    const { id } = props.animal;
+
+    const response = await fetch(`/api/animal/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(editableAnimal)
+    });
+
+    if (!response.ok) {
+      throw new Error('Falha ao atualizar o animal');
+    }
+
+    const data = await response.json();
+
+    // Atualiza o pai com o animal retornado pelo backend
+    showToast({ icon: 'success', title: 'Animal atualizado com sucesso!' });
+    emit('update', data.updatedAnimal);
+
+    Object.assign(editableAnimal, data.animal);
+
+    isEditing.value = false;
+
+    hasChanged.value = true;
+  } catch (err) {
+    console.error('Erro ao atualizar animal:', err);
+    alert('Erro ao salvar alterações do animal.');
   }
-  isEditing.value = !isEditing.value;
+}
+
+async function fetchSpecies() {
+  try {
+    const res = await fetch('/api/species');
+    if (!res.ok) throw new Error('Erro ao buscar espécies');
+    const data = await res.json();
+    console.log('API /species retornou:', data);
+
+    speciesOptions.value = data.items; 
+    console.log(speciesOptions.value);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// Buscar raças conforme a espécie
+async function fetchBreeds(speciesId) {
+  if (!speciesId) return;
+  try {
+    const res = await fetch(`/api/breed/species/${speciesId}`);
+    if (!res.ok) throw new Error('Erro ao buscar raças');
+    const data = await res.json();
+
+    breedOptions.value = data.items; 
+    console.log(breedOptions.value);
+  } catch (err) {
+    console.error(err);
+  }
 }
 </script>
 
@@ -81,34 +173,38 @@ function toggleEdit() {
       class="bg-card rounded-2xl shadow-xl max-w-5xl w-full h-[90vh] flex overflow-hidden animate-scale-in"
     >
       <!-- Coluna da esquerda -->
-      <div class="w-1/3 bg-ong-background p-6 flex flex-col items-center border-r overflow-y-auto">
+      <div class="w-1/3 bg-ong-background p-6 flex flex-col border-r overflow-y-auto">
         <PetMediaCarousel :pet-id="animal.id" class="mb-4" />
 
         <!-- Nome -->
-        <div v-if="!isEditing">
-          <h2 class="text-2xl font-heading text-ong-text">{{ animal.name }}</h2>
-          <p class="text-muted-foreground">{{ animal.species }} • {{ animal.breed }}</p>
+        <div v-if="!isEditing" class="">
+          <h2 class="text-2xl font-heading text-ong-text">{{ editableAnimal.name }}</h2>
+          <p class="text-muted-foreground">{{ editableAnimal.species.name }} • {{ editableAnimal.breed.name }}</p>
         </div>
         <div v-else class="w-full">
           <label class="text-sm font-semibold" for="name">Nome do Animal:</label>
           <input v-model="editableAnimal.name" name="name" class="w-full px-2 py-1 border rounded mb-2" />
 
           <label class="text-sm font-semibold" for="species">Espécie:</label>
-          <select v-model="editableAnimal.species" class="w-full px-2 py-1 border rounded mb-2">
-            <option v-for="opt in speciesOptions" :key="opt" :value="opt">{{ opt }}</option>
-          </select>
+          <SearchableSelect
+            v-model="editableAnimal.speciesId"
+            :options="speciesOptions"
+            placeholder="Selecione a espécie"
+          />
 
-          <label class="text-sm font-semibold" for="breed">Raça:</label>
-          <select v-model="editableAnimal.breed" class="w-full px-2 py-1 border rounded mb-2">
-            <option v-for="opt in breedOptions" :key="opt" :value="opt">{{ opt }}</option>
-          </select>
+          <label class="text-sm font-semibold">Raça:</label>
+          <SearchableSelect
+            v-model="editableAnimal.breedId"
+            :options="breedOptions"
+            placeholder="Selecione a raça"
+          />
+
         </div>
-
         <!-- Notas -->
         <div class="mt-4 text-sm w-full">
           <span class="font-semibold">Notas:</span>
           <div v-if="!isEditing">
-            <p class="text-ong-text">{{ animal.notes }}</p>
+            <p class="text-ong-text">{{ editableAnimal.notes }}</p>
           </div>
           <div v-else>
             <textarea
@@ -124,7 +220,7 @@ function toggleEdit() {
           <span class="font-semibold">Idade:</span>
 
           <p class="text-ong-text">
-            <span>Idade:</span> {{ animal.age ? `${animal.age} anos`: 'Não informada'}}
+            <span>Idade:</span> {{ editableAnimal.age ? `${editableAnimal.age} anos`: 'Não informada'}}
           </p>
 
         
@@ -143,7 +239,7 @@ function toggleEdit() {
 
           <div v-if="editableAnimal.isBirthDateEstimated" class="w-1/2 flex flex-col mb-4">
             <span class="font-semibold">Data de Nascimento:</span>
-            <p v-if="!isEditing" class="text-ong-text">{{ animal.birthDate ? formatDateDDMMYYYY(animal.birthDate) : 'Desconhecida' }}</p>
+            <p v-if="!isEditing" class="text-ong-text">{{ editableAnimal.birthDate ? formatDateDDMMYYYY(editableAnimal.birthDate) : 'Desconhecida' }}</p>
             <input v-else v-model="editableAnimal.birthDate" type="date" class="px-2 py-1 border rounded" />
           </div>
           <div v-else class="w-1/2 flex flex-col mb-4">
@@ -154,15 +250,18 @@ function toggleEdit() {
 
           <div class="w-1/2 flex flex-col mb-4">
             <span class="font-semibold">Sexo:</span>
-            <p v-if="!isEditing" class="text-ong-text">{{ animal.gender }}</p>
-            <select v-else v-model="editableAnimal.gender" class="px-2 py-1 border rounded">
-              <option v-for="opt in genderOptions" :key="opt" :value="opt">{{ opt }}</option>
+            <p v-if="!isEditing" class="text-ong-text">{{ editableAnimal.gender }}</p>
+
+             <select v-else v-model="editableAnimal.gender" class="px-2 py-1 border rounded">
+              <option v-for="opt in genderOptions" :key="opt.value" :value="opt.value">
+                {{ opt.label }}
+              </option>
             </select>
           </div>
 
           <div class="w-1/2 flex flex-col mb-4">
             <span class="font-semibold">Porte:</span>
-            <p v-if="!isEditing" class="text-ong-text">{{ animal.size }}</p>
+            <p v-if="!isEditing" class="text-ong-text">{{ editableAnimal.size }}</p>
             <select v-else v-model="editableAnimal.size" class="px-2 py-1 border rounded">
               <option v-for="opt in sizeOptions" :key="opt" :value="opt">{{ opt }}</option>
             </select>
@@ -231,7 +330,7 @@ function toggleEdit() {
             </button>
 
             <button
-              @click="toggleEdit"
+              @click="saveAnimal"
               class="px-4 py-2 flex-1 bg-ong-primary text-white rounded-lg hover:bg-ong-accent transition"
             >
               Salvar

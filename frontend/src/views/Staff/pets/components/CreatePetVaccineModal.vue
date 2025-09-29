@@ -5,7 +5,7 @@ import SearchableSelect from '@/components/SearchableSelect.vue';
 const props = defineProps({
   isOpen: Boolean,
   petId: { type: String, required: true },
-  isEditing: { type: Boolean, default: false }, // 🔹 flag para edição
+  isEditing: { type: Boolean, default: false },
   formData: { type: Object, required: true }
 });
 const emit = defineEmits(['close', 'saved']);
