@@ -292,9 +292,9 @@ async function fetchBreeds(speciesId) {
             </span>
             <span
               class="px-2 py-0.5 text-xs rounded-full font-semibold"
-              :class="animal.castrated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
+              :class="animal.isCastrated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
             >
-              {{ animal.castrated ? 'Castrado' : 'Não castrado' }}
+              {{ animal.isCastrated ? 'Castrado' : 'Não castrado' }}
             </span>
           </template>
           <template v-else>

@@ -31,7 +31,7 @@ async function fetchAnimals(page = 1, pageSize = itemsPerPage) {
       age: animal.birthDate? calcularIdadeFormatada(animal.birthDate) : null,
       status: animal.status,
       vaccinated: animal.isVaccinated ?? false,
-      castrated: animal.isCastrated ?? false,
+      isCastrated: animal.isCastrated ?? false,
       size: animal.size,
       gender: animal.gender,
       entryDate: animal.entryDate,
@@ -207,8 +207,8 @@ watch(currentPage, (page) => {
                 {{ animal.vaccinated ? 'Vacinado' : 'Não vacinado' }}
               </span>
               <span class="text-xs px-2 py-0.5 rounded-full"
-                :class="animal.castrated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
-                {{ animal.castrated ? 'Castrado' : 'Não castrado' }}
+                :class="animal.isCastrated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+                {{ animal.isCastrated ? 'Castrado' : 'Não castrado' }}
               </span>
             </td>
             <td class="p-3 text-muted-foreground">{{ formatDate(animal.entryDate) }}</td>
