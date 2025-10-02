@@ -104,14 +104,14 @@ export function initModels(sequelize: Sequelize) {
 
 
     AnimalFact.belongsToMany(Media, { 
-        through: 'FactAttachment', 
+        through: 'fact_attachments', 
         foreignKey: 'factId', 
         otherKey: 'mediaId',
         as: 'attachments'
     });
 
     Media.belongsToMany(AnimalFact, { 
-        through: 'FactAttachment', 
+        through: 'fact_attachments', 
         foreignKey: 'mediaId', 
         otherKey: 'factId',
         as: 'facts'
