@@ -3,6 +3,7 @@ import { ref, reactive, watch, onMounted } from 'vue';
 import { X } from 'lucide-vue-next';
 import PetVaccineTab from '@/views/Staff/pets/components/PetVaccineTab.vue';
 import PetMediaTab from '@/views/Staff/pets/components/PetMediaTab.vue';
+import PetFactsTab from '@/views/Staff/pets/components/PetFactsTab.vue';
 import PetMediaCarousel from '@/views/Staff/pets/components/PetMediaCarousel.vue';
 import SearchableSelect from '@/components/SearchableSelect.vue';
 import { showToast } from '@/utils/uiAlerts/toast';
@@ -374,14 +375,17 @@ async function fetchBreeds(speciesId) {
 
         <!-- Conteúdo -->
         <div class="flex-1 overflow-y-auto p-6 space-y-6">
-          <div v-if="activeTab === 'Visão Geral'" class="space-y-6">
+          <div v-if="activeTab === 'Visão Geral'" class="space-y-6">Fatos
             ...
           </div>
           <div v-else-if="activeTab === 'Mídias'">
             <PetMediaTab :pet-id="animal.id" />
           </div>
-          <div v-else-if="activeTab === 'Vacinas'">
+          <div v-else-if="activeTab === 'Vacinas'"> 
             <PetVaccineTab :pet-id="animal.id" />
+          </div>
+          <div v-else-if="activeTab === 'Fatos'"> 
+            <PetFactsTab :pet-id="animal.id" />
           </div>
           <div v-else class="text-muted-foreground">
             Conteúdo de {{ activeTab }} em construção...
