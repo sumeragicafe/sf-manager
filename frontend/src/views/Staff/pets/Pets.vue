@@ -3,27 +3,72 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { Search, Plus, Edit, Trash2, Eye } from 'lucide-vue-next';
 import PetModal from '@/views/Staff/pets/components/PetModal.vue';
 import CreateAnimalModal from '@/views/Staff/pets/components/CreateAnimalModal.vue';
+import Pagination from '@/components/Pagination.vue';
 
-
-const searchTerm = ref('');
-const currentPage = ref(1);
 const selectedAnimal = ref(null);
 const isViewModalOpen = ref(false); // modal de visualização
 const isAddModalOpen = ref(false);  // modal de criação
-const itemsPerPage = 10;
 
-const allAnimals = ref([]);
 const totalItems = ref(0);
 
+const loading = ref(false);
+const animals = ref([]);
+
+const total = ref(0);
+const page = ref(1);
+const pageSize = ref(20);
+const search = ref(null);
+
+const statusFilter = ref('all');
+const genderFilter = ref('all');
+const speciesFilter = ref('all');
+const dateFrom = ref(null);
+const dateTo = ref(null);
+
+
+// watch([page, pageSize, search, statusFilter, genderFilter, speciesFilter, dateFrom, dateTo], fetchAnimals);
+watch(
+  [page, pageSize, search, statusFilter, genderFilter, speciesFilter, dateFrom, dateTo],
+  fetchAnimals,
+    { immediate: true, deep: true }
+);
+
+
 // Fetch animais
-async function fetchAnimals(page = 1, pageSize = itemsPerPage) {
+async function fetchAnimals() {
   try {
-    const url = `/api/animal?page=${page}&pageSize=${pageSize}`;
+    const filters = {};
+    if (search.value) filters.search = search.value;
+
+    if (statusFilter.value !== 'all') filters.status = statusFilter.value;
+    if (genderFilter.value !== 'all') filters.gender = genderFilter.value;
+    if (speciesFilter.value !== 'all') filters.speciesId = speciesFilter.value;
+
+    // Filtros de datas (já suportados por buildWhere)
+    if (dateFrom.value || dateTo.value) {
+      filters.dateFrom = dateFrom.value;
+      filters.dateTo = dateTo.value;
+      filters.dateFields = ['entryDate']; // campo do modelo
+    }
+
+
+
+    const params = new URLSearchParams({
+      page: page.value.toString(),
+      pageSize: pageSize.value.toString(),
+      filters: JSON.stringify(filters),
+    });
+
+    const url = `/api/animal?${params.toString()}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Erro: ${res.status}`);
     const data = await res.json();
 
-    allAnimals.value = data.items.map(animal => ({
+    total.value = data.total;
+    page.value = data.page;
+    pageSize.value = data.pageSize;
+
+    animals.value = data.items.map(animal => ({
       id: animal.id,
       name: animal.name,
       species: animal.species,
@@ -45,7 +90,6 @@ async function fetchAnimals(page = 1, pageSize = itemsPerPage) {
     console.error('Erro ao carregar animais:', err);
   }
 }
-
 
 function calcularIdadeFormatada(dataNasc) {
   const hoje = new Date();
@@ -74,21 +118,6 @@ function calcularIdadeFormatada(dataNasc) {
     return `${dias} dia${dias > 1 ? 's' : ''}`;
   }
 }
-
-// Computeds
-const filteredAnimals = computed(() => {
-  const term = searchTerm.value.toLowerCase();
-  return allAnimals.value.filter(animal =>
-    animal.name.toLowerCase().includes(term) ||
-    animal.breed.toLowerCase().includes(term) ||
-    animal.species.toLowerCase().includes(term)
-  );
-});
-
-const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage));
-const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage);
-const endIndex = computed(() => startIndex.value + itemsPerPage);
-const currentAnimals = computed(() => filteredAnimals.value.slice(startIndex.value, endIndex.value));
 
 function getStatusColor(status) {
   switch (status) {
@@ -122,17 +151,15 @@ function handleOpenAddModal() {
 // Após criar um animal, atualizar lista
 function handleAnimalCreated() {
   isAddModalOpen.value = false;
-  fetchAnimals(currentPage.value, itemsPerPage); // refetch
+  fetchAnimals(); 
 }
 
 // Inicial
 onMounted(() => {
-  fetchAnimals(currentPage.value, itemsPerPage);
+  fetchAnimals();
 });
 
-watch(currentPage, (page) => {
-  fetchAnimals(page, itemsPerPage);
-});
+
 </script>
 
 
@@ -154,22 +181,66 @@ watch(currentPage, (page) => {
       </button>
     </div>
 
-    <!-- Filtro -->
-    <div class="mb-6 flex gap-4">
-      <div class="relative w-full">
-        <Search class="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
-        <input
-          v-model="searchTerm"
-          type="text"
-          placeholder="Buscar por nome, raça ou tipo..."
-          class="w-full pl-10 pr-4 py-2 border rounded-md focus:ring focus:ring-ong-primary focus:border-ong-primary"
-        />
-      </div>
-      <button class="border px-4 py-2 rounded-lg hover:bg-muted">Filtros</button>
-    </div>
+    <Pagination
+      :total="total"
+      :page="page"
+      :pageSize="pageSize"
+      :search="search"
+
+      :filters="[
+        {
+          label: 'Status',
+          value: statusFilter,
+          options: [
+            { label: 'Todos', value: 'all' },
+            { label: 'Disponível', value: 'Disponível' },
+            { label: 'Adotado', value: 'Adotado' },
+            { label: 'Em processo', value: 'Em processo' }
+          ]
+        },
+        {
+          label: 'Sexo',
+          value: genderFilter,
+          options: [
+            { label: 'Todos', value: 'all' },
+            { label: 'Macho', value: 'M' },
+            { label: 'Fêmea', value: 'F' }
+          ]
+        },
+        {
+          label: 'Espécie',
+          value: speciesFilter,
+          options: [
+            { label: 'Todas', value: 'all' },
+            { label: 'Cachorro', value: '1' },
+            { label: 'Gato', value: '2' }
+          ]
+        }
+      ]"
+
+      :dateRange="{
+        from: dateFrom,
+        to: dateTo,
+        onFromChange: val => { dateFrom.value = val; page.value = 1; },
+        onToChange: val => { dateTo.value = val; page.value = 1; }
+      }"
+
+      @update:page="val => { page = val }"
+      @update:pageSize="val => { pageSize = val; page = 1 }"
+      @update:search="val => { search = val }"
+      @update:dynamic-filter="({ label, value }) => {
+        if (label === 'Status') statusFilter = value;
+        else if (label === 'Sexo') genderFilter = value;
+        else if (label === 'Espécie') speciesFilter = value;
+        page = 1;
+        fetchAnimals();
+      }"
+
+    />
+
 
     <!-- Tabela -->
-    <div class="overflow-x-auto bg-card border rounded-lg shadow animate-fade-in">
+    <div class="overflow-x-auto bg-card border rounded-lg shadow animate-fade-in mt-2">
       <table class="min-w-full text-sm">
         <thead class="bg-muted">
           <tr class="text-left text-foreground">
@@ -185,7 +256,7 @@ watch(currentPage, (page) => {
         </thead>
         <tbody>
           <tr
-            v-for="animal in currentAnimals"
+            v-for="animal in animals"
             :key="animal.id"
             class="border-t hover:bg-ong-background/60 transition"
           >
@@ -221,40 +292,6 @@ watch(currentPage, (page) => {
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- Paginação -->
-    <div class="mt-6 flex justify-between items-center text-sm text-muted-foreground">
-      <div>
-        Mostrando {{ startIndex + 1 }} a {{ Math.min(endIndex, filteredAnimals.length) }} de {{ filteredAnimals.length }} animais
-      </div>
-      <div class="flex gap-1">
-        <button
-          @click="currentPage--"
-          :disabled="currentPage === 1"
-          class="px-3 py-1 border rounded-lg disabled:opacity-50"
-        >
-          Anterior
-        </button>
-        <button
-          v-for="page in totalPages"
-          :key="page"
-          @click="currentPage = page"
-          :class="[
-            'px-3 py-1 border rounded-lg',
-            currentPage === page ? 'bg-ong-primary text-white' : 'hover:bg-muted'
-          ]"
-        >
-          {{ page }}
-        </button>
-        <button
-          @click="currentPage++"
-          :disabled="currentPage === totalPages"
-          class="px-3 py-1 border rounded-lg disabled:opacity-50"
-        >
-          Próximo
-        </button>
-      </div>
     </div>
 
     <!-- Modal -->
