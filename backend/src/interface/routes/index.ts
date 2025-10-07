@@ -11,6 +11,7 @@ import speciesRoutes from '@interface/routes/species';
 import breedRoutes from '@interface/routes/breed';
 import animalVaccineRoutes from '@interface/routes/animal-vaccine';
 import vaccineRoutes from '@interface/routes/vaccine';
+import contactRoutes from '@interface/routes/contact'
 import animalFactRoutes from '@interface/routes/animal-fact';
 
 
@@ -40,8 +41,9 @@ router.use('/adoption-request', adoptionRequestRoutes);
 
 router.use('/event', eventRoutes);
 
+router.use('/vaccine', vaccineRoutes);
 
-
+router.use('/contact', contactRoutes);
 
 
 export default router;

@@ -13,6 +13,7 @@ import VaccineModel from '@infra/sequelize/models/Vaccine.model';
 import MediaModel from '@infra/sequelize/models/Media.model';
 import AnimalMediaModel from '@infra/sequelize/models/AnimalMedia.model';
 import { initEventModel, EventModel } from '@infra/sequelize/models/Event.model';
+import { initContactMessageModel, ContactMessageModel } from '@infra/sequelize/models/ContactMessage.model';
 
 export function initModels(sequelize: Sequelize) {
     // Inicializa os modelos
@@ -31,15 +32,21 @@ export function initModels(sequelize: Sequelize) {
    
     initAdoptionRequestModel(sequelize);
     initEventModel(sequelize);
+    initContactMessageModel(sequelize);
 
     // Ensure events table exists in development setups without migrations
     try {
-        // This will create the table if it does not exist
-        // and will be a no-op if it already exists
         EventModel.sync();
     } catch (err) {
         // eslint-disable-next-line no-console
         console.error('Erro ao sincronizar tabela events:', err);
+    }
+
+    try {
+        ContactMessageModel.sync();
+    } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Erro ao sincronizar tabela contact_messages:', err);
     }
 
 
