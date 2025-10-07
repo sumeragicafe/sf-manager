@@ -57,7 +57,7 @@ watch(() => editableAnimal.speciesId, async (newSpeciesId) => {
       pageSize: '200',
     });
 
-    const res = await fetch(`/api/breed/species/${speciesIdNum}?pageSize=200`);
+    const res = await fetch(`/api/breed/species/${editableAnimal.newSpeciesId}?pageSize=200`);
     const data = await res.json();
     breedOptions.value = data.items; // somente o array
   } catch (err) {

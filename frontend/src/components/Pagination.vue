@@ -13,7 +13,8 @@ const props = defineProps({
   search: { type: String, default: undefined },
   view: { type: Object, default: undefined },
   filter: { type: Object, default: undefined },
-  filters: { type: Object, default: () => ({}) },
+  filters: { type: Array, default: () => [] },
+
   modelValue: { type: Object, default: () => ({}) },
 });
 
@@ -23,7 +24,8 @@ const emit = defineEmits([
   "update:modelValue",
   "change-view",
   "change-filter",
-  "update:search"
+  "update:search",
+  "update:dynamic-filter"
 ]);
 
 // Paginação
@@ -55,6 +57,11 @@ function changePageSize(e) {
 function updateFilter(key, value) {
   emit("update:modelValue", { ...props.modelValue, [key]: value });
 }
+
+function changeDynamicFilter(label, value) {
+  emit("update:dynamic-filter", { label, value });
+}
+
 
 // Search
 const localSearch = ref(props.search || "");
@@ -145,28 +152,20 @@ onMounted(() => {
             </select>
           </div>
 
-          <!-- FILTROS EXTRAS -->
-          <div v-if="Object.keys(filters).length" class="flex flex-wrap gap-2 items-center">
-            <div v-for="(options, key) in filters" :key="key" class="flex flex-col text-sm">
-              <label class="text-muted-foreground mb-1">{{ key }}</label>
-              <select v-if="Array.isArray(options)" class="border rounded-md px-2 py-1 bg-background text-foreground"
-                :value="modelValue[key] || ''"
-                @change="updateFilter(key, $event.target.value)"
+
+            <div v-for="filter in filters" :key="filter.label" class="flex items-center text-sm">
+              <label class="text-muted-foreground me-1">{{ filter.label }}:</label>
+              <select
+                :value="filter.value"
+                @change="changeDynamicFilter(filter.label, $event.target.value)"
+                class="border rounded-md px-2 py-1 bg-background text-foreground"
               >
-                <option value="">Todos</option>
-                <option v-for="opt in options" :key="opt" :value="opt">{{ opt }}</option>
+                <option v-for="opt in filter.options" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </option>
               </select>
-              <input v-else-if="options==='text'" type="text" class="border rounded-md px-2 py-1 bg-background text-foreground"
-                :value="modelValue[key]||''"
-                @input="updateFilter(key,$event.target.value)"
-              />
-              <label v-else-if="options==='boolean'" class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="accent-primary" :checked="modelValue[key]||false"
-                  @change="updateFilter(key,$event.target.checked)" />
-                <span>{{ key }}</span>
-              </label>
             </div>
-          </div>
+
         </template>
 
         <!-- Dropdown quando não há espaço -->
@@ -192,24 +191,19 @@ onMounted(() => {
               </select>
             </div>
 
-            <!-- FILTROS EXTRAS -->
-            <div v-for="(options,key) in filters" :key="key" class="flex flex-col gap-1 mb-2">
-              <label>{{ key }}</label>
-              <select v-if="Array.isArray(options)" class="border rounded-md px-2 py-1 w-full"
-                      :value="modelValue[key]||''"
-                      @change="updateFilter(key,$event.target.value)">
-                <option value="">Todos</option>
-                <option v-for="opt in options" :key="opt" :value="opt">{{ opt }}</option>
+            <div v-for="filter in filters" :key="filter.label" class="flex flex-col text-sm">
+              <label class="text-muted-foreground mb-1">{{ filter.label }}</label>
+              <select
+                v-model="filter.value"
+                @change="filter.onChange($event.target.value)"
+                class="border rounded-md px-2 py-1 bg-background text-foreground"
+              >
+                <option v-for="opt in filter.options" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </option>
               </select>
-              <input v-else-if="options==='text'" type="text" class="border rounded-md px-2 py-1 w-full"
-                     :value="modelValue[key]||''"
-                     @input="updateFilter(key,$event.target.value)" />
-              <label v-else-if="options==='boolean'" class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="accent-primary" :checked="modelValue[key]||false"
-                       @change="updateFilter(key,$event.target.checked)" />
-                <span>{{ key }}</span>
-              </label>
             </div>
+
           </div>
         </div>
       </div>

@@ -127,12 +127,17 @@ const modalIndex = ref(null)
 const fileInput = ref(null);
 
 async function fetchMedia() {
+  // Cria objeto de filtros
+  const filters = {};
+  if (search.value) filters.search = search.value;
+  if (filter.value && filter.value !== 'all') filters.type = filter.value;
+
   const params = new URLSearchParams({
-    page: page.value,
-    pageSize: pageSize.value,
-    type: filter.value,
-    search: search.value || ''
-  })
+    page: page.value.toString(),
+    pageSize: pageSize.value.toString(),
+    filters: JSON.stringify(filters)
+  });
+
   const res = await fetch(`/api/media?${params.toString()}`)
   const json = await res.json()
   items.value = json.items

@@ -11,7 +11,7 @@ export interface AnimalProps {
   speciesId?: number;
   breedId?: number;
   gender: string; // "M" or "F"
-  size: string;   // "Small", "Medium", "Large"
+  size: string; 
   status: string;
   isCastrated: boolean;
   notes?: string;

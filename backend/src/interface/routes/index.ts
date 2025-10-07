@@ -11,28 +11,37 @@ import speciesRoutes from '@interface/routes/species';
 import breedRoutes from '@interface/routes/breed';
 import animalVaccineRoutes from '@interface/routes/animal-vaccine';
 import vaccineRoutes from '@interface/routes/vaccine';
+import animalFactRoutes from '@interface/routes/animal-fact';
 
 
 const router = Router();
 
+// User and System Routes
 router.use('/user', userRoutes);
 router.use('/permission', permissionRoutes);
 router.use('/role', roleRoutes);
 
+// Media Routes
 router.use('/media', mediaRoutes);
 
+// Animal Routes
 router.use('/animal', animalRoutes);
 router.use('/animal', animalMediaRoutes);
-router.use('/animal', animalVaccineRoutes)
+router.use('/animal', animalVaccineRoutes);
+router.use('/animal', animalFactRoutes);
 
 router.use('/species', speciesRoutes);
 router.use('/breed', breedRoutes);
+router.use('/vaccine', vaccineRoutes);
 
-
+// Adoption Routes
 router.use('/adoption-request', adoptionRequestRoutes);
+
+
 router.use('/event', eventRoutes);
 
-router.use('/vaccine', vaccineRoutes);
+
+
 
 
 export default router;

@@ -9,12 +9,15 @@
     :type="type"
   >
     <component :is="icon" class="w-4 h-4" v-if="icon" />
-    <span v-if="text">{{ text }}</span>
+    
+    <slot>
+      <span v-if="text">{{ text }}</span>
+    </slot>
   </button>
 </template>
 
 <script setup>
-import { defineProps, computed } from 'vue';
+import { defineProps, computed, useSlots } from 'vue';
 
 const props = defineProps({
   icon: [Object, Function],
@@ -30,8 +33,14 @@ const props = defineProps({
   },
 });
 
+const slots = useSlots();
+
+const hasContent = computed(() => {
+  return !!props.text || !!slots.default;
+});
+
 const baseStyle = computed(() => {
-  return props.text
+  return hasContent.value
     ? 'px-3 py-1.5 rounded-md text-sm gap-1'
     : 'w-8 h-8 p-1 rounded-md'; // Ícone apenas → quadrado
 });
