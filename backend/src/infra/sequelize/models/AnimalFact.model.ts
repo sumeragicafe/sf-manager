@@ -16,18 +16,30 @@ export default (sequelize: Sequelize) => {
         allowNull: false,
         field: 'pet_id'
       },
-      type: DataTypes.STRING(50),
-      text: DataTypes.TEXT,
-      date: DataTypes.DATE
+      text: {
+        type: DataTypes.TEXT,
+        allowNull: false
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+        field: 'created_at'
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+        field: 'updated_at'
+      }
     },
     {
       sequelize,
       modelName: 'AnimalFact',
       tableName: 'animal_facts',
-      timestamps: false,
+      timestamps: true,
       underscored: true
     }
   );
 
   return AnimalFact;
 };
+

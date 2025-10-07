@@ -90,8 +90,9 @@ export function initModels(sequelize: Sequelize) {
 
     Species.hasMany(Animal, { foreignKey: 'species_id' });
     Breed.hasMany(Animal, { foreignKey: 'breed_id' });
-    Animal.belongsTo(Species, { foreignKey: 'species_id' });
-    Animal.belongsTo(Breed, { foreignKey: 'breed_id' });
+
+    Animal.belongsTo(Species, { foreignKey: 'species_id', as: 'species'});
+    Animal.belongsTo(Breed, { foreignKey: 'breed_id', as: 'breed'});
 
     Animal.hasMany(AnimalFact, { foreignKey: 'pet_id' });
     AnimalFact.belongsTo(Animal, { foreignKey: 'pet_id' });
@@ -108,5 +109,19 @@ export function initModels(sequelize: Sequelize) {
     Media.hasMany(AnimalMedia, { foreignKey: 'media_id', as: 'animalMedia'  });
     AnimalMedia.belongsTo(Media, { foreignKey: 'media_id', as: 'media' });
 
+
+    AnimalFact.belongsToMany(Media, { 
+        through: 'fact_attachments', 
+        foreignKey: 'factId', 
+        otherKey: 'mediaId',
+        as: 'attachments'
+    });
+
+    Media.belongsToMany(AnimalFact, { 
+        through: 'fact_attachments', 
+        foreignKey: 'mediaId', 
+        otherKey: 'factId',
+        as: 'facts'
+    });
 
 }

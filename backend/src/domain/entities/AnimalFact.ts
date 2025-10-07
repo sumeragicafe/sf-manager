@@ -1,33 +1,34 @@
 export interface AnimalFactProps {
-  id: string; 
+  id?: string;
   petId: string;
-  type: string;
   text: string;
-  date: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class AnimalFact {
   constructor(public props: AnimalFactProps) {
-    if (!props.type) throw new Error("Tipo de fato é obrigatório");
+    if (!props.text) throw new Error("Texto do fato é obrigatório");
+    if (!props.petId) throw new Error("ID do pet é obrigatório");
   }
 
-  static createNew(petId: string, type: string, text: string, date: Date): AnimalFact {
+  static createNew(petId: string, type: string, text: string): AnimalFact {
+    const now = new Date();
     return new AnimalFact({
-      id: crypto.randomUUID(),
       petId,
-      type,
       text,
-      date,
+      createdAt: now,
+      updatedAt: now,
     });
   }
 
   toPersistence(): Record<string, any> {
     return {
-      id: this.props.id,
+      ...(this.props.id && { id: this.props.id }), // inclui id só se existir
       pet_id: this.props.petId,
-      type: this.props.type,
       text: this.props.text,
-      date: this.props.date,
+      created_at: this.props.createdAt,
+      updated_at: this.props.updatedAt,
     };
   }
 }
