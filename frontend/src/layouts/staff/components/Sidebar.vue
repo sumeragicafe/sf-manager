@@ -11,9 +11,9 @@
     <div class="flex flex-col h-full">
       <!-- Header -->
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-        <div class="flex items-center">
-          <Heart class="text-ong-primary mr-3" size="28" />
-          <h1 class="text-xl font-heading font-bold text-ong-text">Admin Panel</h1>
+        <div class="flex items-center gap-2">
+          <img class="w-10 h-10"src="../../../../public/images/logo.png" alt="">
+          <h1 class="text-xl font-heading font-bold text-ong-text">SF Manager</h1>
         </div>
 
         <!-- Botão fechar (mobile) -->
@@ -78,7 +78,7 @@ const route = useRoute();
 const session = useSessionStore();
 
 const fullNavigation = [
-  { name: 'Dashboard', href: '/staff', icon: Home, exact: true },
+  // { name: 'Dashboard', href: '/staff', icon: Home, exact: true },
   { name: 'Animais em Adoção', href: '/staff/pet', icon: Heart },
   { name: 'Pedidos de Adoção', href: '/staff/adoption-requests', icon: UserCheck },
   { name: 'Eventos', href: '/staff/event', icon: Calendar },

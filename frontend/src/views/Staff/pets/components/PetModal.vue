@@ -221,7 +221,7 @@ async function fetchBreeds(speciesId) {
           <span class="font-semibold">Idade:</span>
 
           <p class="text-ong-text">
-            <span>Idade:</span> {{ editableAnimal.age ? `${editableAnimal.age} anos`: 'Não informada'}}
+            {{ editableAnimal.age ? `${editableAnimal.age}`: 'Não informada'}}
           </p>
 
         
@@ -285,12 +285,12 @@ async function fetchBreeds(speciesId) {
         <!-- Vacinação / Castração -->
         <div class="mt-4 flex gap-2 flex-wrap">
           <template v-if="!isEditing">
-            <span
+            <!-- <span
               class="px-2 py-0.5 text-xs rounded-full font-semibold"
               :class="animal.vaccinated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
             >
               {{ animal.vaccinated ? 'Vacinado' : 'Não vacinado' }}
-            </span>
+            </span> -->
             <span
               class="px-2 py-0.5 text-xs rounded-full font-semibold"
               :class="animal.isCastrated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
@@ -299,10 +299,10 @@ async function fetchBreeds(speciesId) {
             </span>
           </template>
           <template v-else>
-            <label class="flex items-center gap-2">
+            <!-- <label class="flex items-center gap-2">
               <input type="checkbox" v-model="editableAnimal.vaccinated" />
               Vacinado
-            </label>
+            </label> -->
             <label class="flex items-center gap-2">
               <input type="checkbox" v-model="editableAnimal.castrated" />
               Castrado

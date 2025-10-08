@@ -40,10 +40,10 @@
             <th class="px-4 py-3 text-left">Status</th>
             <th class="px-4 py-3 text-left">Último Acesso</th>
             <th class="px-4 py-3 text-left">Criado em</th>
-            <th class="px-4 py-3 text-center">Ações</th>
+            <th class="px-4 py-3 text-left">Ações</th>
           </tr>
         </thead>
-        <tbody class="text-card-foreground">
+        <tbody>
           <tr
             v-for="user in filteredUsers"
             :key="user.id"

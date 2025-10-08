@@ -166,7 +166,7 @@ onMounted(() => {
 
 
 <template>
-  <div class="container py-6">
+  <div>
     <!-- Header -->
     <div class="flex justify-between items-center mb-8">
       <div>
@@ -238,20 +238,19 @@ onMounted(() => {
 
     />
 
-
     <!-- Tabela -->
-    <div class="overflow-x-auto bg-card border rounded-lg shadow animate-fade-in mt-2">
-      <table class="min-w-full text-sm">
-        <thead class="bg-muted">
-          <tr class="text-left text-foreground">
-            <th class="p-3">Nome</th>
-            <th class="p-3">Tipo/Raça</th>
-            <th class="p-3">Idade</th>
-            <th class="p-3">Sexo</th>
-            <th class="p-3">Status</th>
-            <th class="p-3">Saúde</th>
-            <th class="p-3">Data de Inclusão</th>
-            <th class="p-3 text-right">Ações</th>
+    <div class="overflow-x-auto bg-card rounded-lg shadow-sm animate-fade-in mt-6">
+      <table class="w-full table-auto text-sm">
+        <thead class="text-muted-foreground bg-ong-popover uppercase text-xs">
+          <tr>
+            <th class="px-4 py-3 text-left">Nome</th>
+            <th class="px-4 py-3 text-left">Tipo/Raça</th>
+            <th class="px-4 py-3 text-left">Idade</th>
+            <th class="px-4 py-3 text-left">Sexo</th>
+            <th class="px-4 py-3 text-left">Status</th>
+            <th class="px-4 py-3 text-left">Saúde</th>
+            <th class="px-4 py-3 text-left">Data de Inclusão</th>
+            <th class="px-4 py-3 text-left">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -273,10 +272,10 @@ onMounted(() => {
               </span>
             </td>
             <td class="p-3">
-              <span class="text-xs px-2 py-0.5 rounded-full mr-1"
+              <!-- <span class="text-xs px-2 py-0.5 rounded-full mr-1"
                 :class="animal.vaccinated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
                 {{ animal.vaccinated ? 'Vacinado' : 'Não vacinado' }}
-              </span>
+              </span> -->
               <span class="text-xs px-2 py-0.5 rounded-full"
                 :class="animal.isCastrated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
                 {{ animal.isCastrated ? 'Castrado' : 'Não castrado' }}
