@@ -1,6 +1,6 @@
 import { IEventRepository } from "@domain/repositories/IEventRepository";
 import { Event } from "@domain/entities/Event";
-import { EventModel } from "../models/Event.model";
+import { EventModel } from "@infra/sequelize/models/Event.model";
 
 export class SequelizeEventRepository implements IEventRepository {
   async create(name: string, description: string, place: string, start_at: Date, end_at: Date): Promise<Event> {

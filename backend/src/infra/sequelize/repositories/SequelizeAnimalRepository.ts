@@ -83,15 +83,31 @@ export class SequelizeAnimalRepository implements IAnimalRepository {
     return deleted > 0;
   }
 
+  // async findPaginated(options: PaginationOptions): Promise<PaginatedResult<any>> {
+  //   const result = await findPaginated(AnimalModel, {
+  //     page: options.page,
+  //     pageSize: options.pageSize,
+  //     sortBy: options.sortBy,
+  //     sortOrder: options.sortOrder,
+  //     filters: {
+  //       ...options.filters,
+  //       includeAssociations: ['species', 'breed'],
+  //     },
+  //   });
+
+  //   // opcionalmente mapeie para DTOs
+  //   return {
+  //     ...result,
+  //     items: result.items.map(a => this.mapToEntity(a).props),
+  //   };
+  // }
+
   async findPaginated(options: PaginationOptions): Promise<PaginatedResult<any>> {
     const result = await findPaginated(AnimalModel, {
       page: options.page,
       pageSize: options.pageSize,
-      sortBy: options.sortBy,
-      sortOrder: options.sortOrder,
       filters: {
         ...options.filters,
-        includeAssociations: ['species', 'breed'],
       },
     });
 
