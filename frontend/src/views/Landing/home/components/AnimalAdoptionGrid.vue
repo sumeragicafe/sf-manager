@@ -1,82 +1,148 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Heart, MapPin, Calendar, ChevronDown, ChevronUp } from 'lucide-vue-next'
+import PetMediaCarousel from '@/views/Staff/pets/components/PetMediaCarousel.vue';
 
 const router = useRouter()
 const showAll = ref(false)
 const favorites = ref([])
 
-const animals = [
-  {
-    id: "c1992d52-74a9-11f0-b260-0242ac130003", // teste com id gerado ao inserir animais no banco (testando formulário de adoção)
-    name: "Malu",
-    species: "Cachorra",
-    age: "2 anos",
-    location: "São Paulo - SP",
-    image: "https://images.unsplash.com/photo-1552053831-71594a27632d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
-    description: "Malu é uma cachorrinha muito carinhosa e brincalhona. Adora crianças e se dá bem com outros animais.",
-    personality: ["Carinhosa", "Brincalhona", "Sociável"],
-    adopted: false
-  },
-  {
-    id: 2,
-    name: "Simba",
-    species: "Gato",
-    age: "1 ano",
-    location: "Rio de Janeiro - RJ",
-    image: "https://images.unsplash.com/photo-1574158622682-e40e69881006?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
-    description: "Simba é um gatinho independente mas muito afetuoso. Gosta de lugares altos e de receber carinho.",
-    personality: ["Independente", "Afetuoso", "Curioso"],
-    adopted: false
-  },
-  {
-    id: 3,
-    name: "Bella",
-    species: "Cachorra",
-    age: "3 anos",
-    location: "Belo Horizonte - MG",
-    image: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
-    description: "Bella é uma cadela muito leal e protetora. Ideal para famílias que buscam um companheiro fiel.",
-    personality: ["Leal", "Protetora", "Calma"],
-    adopted: false
-  },
-  {
-    id: 4,
-    name: "Mingau",
-    species: "Gato",
-    age: "6 meses",
-    location: "Porto Alegre - RS",
-    image: "https://images.unsplash.com/photo-1513245543132-31f507417b26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
-    description: "Mingau é um filhote muito energético e brincalhão. Perfeito para quem tem tempo para brincar e educar.",
-    personality: ["Energético", "Brincalhão", "Inteligente"],
-    adopted: false
-  },
-  {
-    id: 5,
-    name: "Thor",
-    species: "Cachorro",
-    age: "4 anos",
-    location: "Salvador - BA",
-    image: "https://images.unsplash.com/photo-1583512603805-3cc6b41f3edb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
-    description: "Thor é um cão forte e corajoso, mas extremamente dócil com crianças. Adora atividades ao ar livre.",
-    personality: ["Corajoso", "Dócil", "Ativo"],
-    adopted: false
-  },
-  {
-    id: 6,
-    name: "Luna",
-    species: "Gata",
-    age: "2 anos",
-    location: "Recife - PE",
-    image: "https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
-    description: "Luna é uma gata muito elegante e carinhosa. Adora receber atenção e fazer companhia durante o dia.",
-    personality: ["Elegante", "Carinhosa", "Companheira"],
-    adopted: false
-  }
-]
+// Animal Pagination 
+const loading = ref(false);
+const total = ref(0);
+const page = ref(1);
+const pageSize = ref(10);
 
-const displayedAnimals = computed(() => showAll.value ? animals : animals.slice(0, 3))
+function calculateAnimalAge(dataNasc) {
+  const hoje = new Date();
+  const nasc = new Date(dataNasc);
+
+  let anos = hoje.getFullYear() - nasc.getFullYear();
+  let meses = hoje.getMonth() - nasc.getMonth();
+  let dias = hoje.getDate() - nasc.getDate();
+
+  if (dias < 0) {
+    meses--;
+    const ultimoMes = new Date(hoje.getFullYear(), hoje.getMonth(), 0);
+    dias += ultimoMes.getDate();
+  }
+
+  if (meses < 0) {
+    anos--;
+    meses += 12;
+  }
+
+  if (anos >= 1) {
+    return `${anos} ano${anos > 1 ? 's' : ''}`;
+  } else if (meses >= 1) {
+    return `${meses} mês${meses > 1 ? 'es' : ''}`;
+  } else {
+    return `${dias} dia${dias > 1 ? 's' : ''}`;
+  }
+}
+
+
+// const animals = [
+//   {
+//     id: "c1992d52-74a9-11f0-b260-0242ac130003", // teste com id gerado ao inserir animais no banco (testando formulário de adoção)
+//     name: "Malu",
+//     species: "Cachorra",
+//     age: "2 anos",
+//     location: "São Paulo - SP",
+//     image: "https://images.unsplash.com/photo-1552053831-71594a27632d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+//     description: "Malu é uma cachorrinha muito carinhosa e brincalhona. Adora crianças e se dá bem com outros animais.",
+//     personality: ["Carinhosa", "Brincalhona", "Sociável"],
+//     adopted: false
+//   },
+//   {
+//     id: 2,
+//     name: "Simba",
+//     species: "Gato",
+//     age: "1 ano",
+//     location: "Rio de Janeiro - RJ",
+//     image: "https://images.unsplash.com/photo-1574158622682-e40e69881006?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+//     description: "Simba é um gatinho independente mas muito afetuoso. Gosta de lugares altos e de receber carinho.",
+//     personality: ["Independente", "Afetuoso", "Curioso"],
+//     adopted: false
+//   },
+//   {
+//     id: 3,
+//     name: "Bella",
+//     species: "Cachorra",
+//     age: "3 anos",
+//     location: "Belo Horizonte - MG",
+//     image: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+//     description: "Bella é uma cadela muito leal e protetora. Ideal para famílias que buscam um companheiro fiel.",
+//     personality: ["Leal", "Protetora", "Calma"],
+//     adopted: false
+//   },
+//   {
+//     id: 4,
+//     name: "Mingau",
+//     species: "Gato",
+//     age: "6 meses",
+//     location: "Porto Alegre - RS",
+//     image: "https://images.unsplash.com/photo-1513245543132-31f507417b26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+//     description: "Mingau é um filhote muito energético e brincalhão. Perfeito para quem tem tempo para brincar e educar.",
+//     personality: ["Energético", "Brincalhão", "Inteligente"],
+//     adopted: false
+//   },
+//   {
+//     id: 5,
+//     name: "Thor",
+//     species: "Cachorro",
+//     age: "4 anos",
+//     location: "Salvador - BA",
+//     image: "https://images.unsplash.com/photo-1583512603805-3cc6b41f3edb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+//     description: "Thor é um cão forte e corajoso, mas extremamente dócil com crianças. Adora atividades ao ar livre.",
+//     personality: ["Corajoso", "Dócil", "Ativo"],
+//     adopted: false
+//   },
+//   {
+//     id: 6,
+//     name: "Luna",
+//     species: "Gata",
+//     age: "2 anos",
+//     location: "Recife - PE",
+//     image: "https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+//     description: "Luna é uma gata muito elegante e carinhosa. Adora receber atenção e fazer companhia durante o dia.",
+//     personality: ["Elegante", "Carinhosa", "Companheira"],
+//     adopted: false
+//   }
+// ]
+
+const animals = ref([]);
+
+// Fetch animais
+
+async function fetchAnimals() {
+  const filters = {};
+  filters.includeAssociations = ["species", "breed"];
+  filters.fieldFilters = {
+    status: "Disponível"
+  };
+  filters.sort = [{ field: "entryDate", direction: "desc"}];
+
+  const params = new URLSearchParams({
+    page: page.value.toString(),
+    pageSize: pageSize.value.toString(),
+    filters: JSON.stringify(filters),
+  });
+
+  const url = `/api/animal?${params.toString()}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Erro: ${res.status}`);
+  const data = await res.json();
+
+  animals.value = data.items;
+  total.value = data.total;
+  page.value = data.page;
+  pageSize.value = data.pageSize;
+
+}
+
+const displayedAnimals = computed(() => showAll.value ? animals : animals.value.slice(0, 3))
 
 function toggleFavorite(animalId) {
   if (favorites.value.includes(animalId)) {
@@ -89,6 +155,17 @@ function toggleFavorite(animalId) {
 function goToAdoptionForm(animalId) {
   router.push(`/formulario-de-adocao/${animalId}`)
 }
+
+
+
+
+// Eventos Vue
+
+onMounted(() => {
+  fetchAnimals();
+});
+
+
 </script>
 
 <template>
@@ -108,14 +185,15 @@ function goToAdoptionForm(animalId) {
           :key="animal.id"
           class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover animate-fade-in cursor-pointer group"
           :style="{ animationDelay: `${index * 0.1}s` }"
-          @click="goToAdoptionForm(animal.id)"
         >
           <div class="relative">
-            <img
+            <PetMediaCarousel :pet-id="animal.id" :no-border-bottom="true"/>
+
+            <!-- <img
               :src="animal.image"
               :alt="animal.name"
               class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-            />
+            /> -->
             <!-- Botão Favoritar -->
             <!-- <button
               @click.stop="toggleFavorite(animal.id)"
@@ -134,31 +212,45 @@ function goToAdoptionForm(animalId) {
             <div class="flex justify-between items-start mb-3">
               <div>
                 <h4 class="text-ong-text mb-1">{{ animal.name }}</h4>
-                <p class="text-ong-text/70 text-sm">{{ animal.species }}</p>
+                <p class="text-ong-text/70 text-sm">{{ animal.species.name }} • {{ animal.breed.name }}</p>
               </div>
-              <span class="text-ong-primary font-medium text-sm bg-ong-secondary/30 px-3 py-1 rounded-full">
-                {{ animal.age }}
+
+              <span v-if="animal.birthDate" class="text-ong-primary font-medium text-sm bg-ong-secondary/30 px-3 py-1 rounded-full">
+                {{ calculateAnimalAge(animal.birthDate) }}
               </span>
+              <span v-else class="text-ong-muted font-medium text-sm bg-ong-destructive px-3 py-1 rounded-full">
+                Idade Desconhecida
+              </span>
+              
             </div>
 
             <p class="text-ong-text/80 text-sm mb-4 line-clamp-2">
-              {{ animal.description }}
+              {{ animal.notes }}
             </p>
 
             <div class="flex flex-wrap gap-2 mb-4">
-              <span
+              <!-- Personality PILLS-->
+              <!-- <span
                 v-for="trait in animal.personality"
                 :key="trait"
                 class="text-xs bg-ong-primary/20 text-ong-primary px-2 py-1 rounded-full"
               >
                 {{ trait }}
+              </span> -->
+
+              <span v-if="animal.status == 'Disponível'" class="text-xs bg-green-100/80 text-green-800 px-2 py-1 rounded-full">
+                Disponível
+              </span>
+
+              <span v-if="animal.isCastrated" class="text-xs bg-ong-primary/20 text-ong-primary px-2 py-1 rounded-full">
+                Castrado
               </span>
             </div>
 
-            <div class="flex items-center text-ong-text/60 text-sm mb-4">
+            <!-- <div class="flex items-center text-ong-text/60 text-sm mb-4">
               <MapPin size="16" class="mr-2" />
               {{ animal.location }}
-            </div>
+            </div> -->
 
             <button 
               @click.stop="goToAdoptionForm(animal.id)"

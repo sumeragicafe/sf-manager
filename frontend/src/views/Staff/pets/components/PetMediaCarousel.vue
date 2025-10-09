@@ -1,10 +1,14 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 const props = defineProps({
   petId: {
     type: String,
     required: true
+  },
+  noBorderBottom: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -51,11 +55,18 @@ function next() {
   currentIndex.value = (currentIndex.value + 1) % images.value.length;
 }
 
+const containerClass = computed(() => {
+  return [
+    'relative w-full h-64 bg-gray-100 overflow-hidden flex items-center justify-center',
+    props.noBorderBottom ? 'rounded-t-lg border-b-0' : 'rounded-lg'
+  ]
+})
+
 onMounted(fetchImages);
 </script>
 
 <template>
-  <div class="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+  <div :class="containerClass">
     <div v-if="loading" class="text-gray-500">Carregando...</div>
     <div v-else-if="error" class="text-red-500">{{ error }}</div>
     <div v-else-if="images.length === 0" class="text-gray-500">Nenhuma imagem pública</div>

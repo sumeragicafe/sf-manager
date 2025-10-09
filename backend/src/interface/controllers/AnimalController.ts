@@ -88,6 +88,18 @@ export class AnimalController {
     try {
       const { id } = req.params;
       const updateData = req.body;
+      console.log(updateData);
+
+      if(updateData.birthDate == "" || updateData.birthDate == null){
+        updateData.birthDate = null;
+        updateData.isBirthDateEstimated = false;
+      }
+
+      if(updateData.isBirthDateEstimated == false || updateData.isBirthDateEstimated == null){
+        updateData.isBirthDateEstimated = false;
+      }
+
+      console.log(updateData);
 
       const updatedAnimal = await updateAnimal(animalRepo)(id, updateData);
       

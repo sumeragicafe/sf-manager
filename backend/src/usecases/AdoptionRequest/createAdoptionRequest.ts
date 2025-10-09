@@ -17,7 +17,7 @@ export function createAdoptionRequest(adoptionRequestRepository: IAdoptionReques
             throw new Error('Animal não encontrado.');
         }
 
-        if (!animal.props.isAvailable) {
+        if (!animal.props.status == 'Disponível') {
             throw new Error('Este animal não está mais disponível para adoção.');
         }
 

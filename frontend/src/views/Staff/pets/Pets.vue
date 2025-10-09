@@ -38,6 +38,7 @@ watch(
 async function fetchAnimals() {
   try {
     const filters = {};
+    filters.includeAssociations = ["species", "breed"];
     if (search.value) filters.search = search.value;
 
     if (statusFilter.value !== 'all') filters.status = statusFilter.value;
@@ -50,8 +51,6 @@ async function fetchAnimals() {
       filters.dateTo = dateTo.value;
       filters.dateFields = ['entryDate']; // campo do modelo
     }
-
-
 
     const params = new URLSearchParams({
       page: page.value.toString(),
@@ -73,7 +72,7 @@ async function fetchAnimals() {
       name: animal.name,
       species: animal.species,
       breed: animal.breed,
-      age: animal.birthDate? calcularIdadeFormatada(animal.birthDate) : null,
+      age: animal.birthDate? calculateAnimalAge(animal.birthDate) : null,
       status: animal.status,
       vaccinated: animal.isVaccinated ?? false,
       isCastrated: animal.isCastrated ?? false,
@@ -91,7 +90,7 @@ async function fetchAnimals() {
   }
 }
 
-function calcularIdadeFormatada(dataNasc) {
+function calculateAnimalAge(dataNasc) {
   const hoje = new Date();
   const nasc = new Date(dataNasc);
 
