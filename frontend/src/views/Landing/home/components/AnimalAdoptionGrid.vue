@@ -142,7 +142,7 @@ async function fetchAnimals() {
 
 }
 
-const displayedAnimals = computed(() => showAll.value ? animals : animals.value.slice(0, 3))
+const displayedAnimals = computed(() => showAll.value ? animals.value : animals.value.slice(0, 3))
 
 function toggleFavorite(animalId) {
   if (favorites.value.includes(animalId)) {
@@ -150,6 +150,10 @@ function toggleFavorite(animalId) {
   } else {
     favorites.value.push(animalId)
   }
+}
+
+function toggleShowAll() {
+  showAll.value = !showAll.value
 }
 
 function goToAdoptionForm(animalId) {
@@ -262,12 +266,35 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="text-center">
+      <!-- <div class="text-center">
         <button @click="showAll = !showAll" class="inline-flex items-center gap-2 btn-secondary">
           <span v-if="showAll">Ver Menos <ChevronUp size="20" /></span>
           <span v-else>Ver Todos os Animais <ChevronDown size="20" /></span>
         </button>
-      </div>
+      </div> -->
+
+      <div class="text-center">
+      <template v-if="!showAll">
+        <!-- Estado fechado -->
+        <button @click="toggleShowAll" class="inline-flex items-center gap-2 btn-secondary">
+          Ver Mais <ChevronDown size="20" />
+        </button>
+      </template>
+
+      <template v-else>
+        <!-- Estado aberto parcial -->
+        <div class="flex justify-center gap-4">
+          <button @click="toggleShowAll" class="inline-flex items-center gap-2 btn-secondary">
+            Ver Menos <ChevronUp size="20" />
+          </button>
+
+          <router-link to="/todos-animais" class="inline-flex items-center gap-2 btn-primary">
+            Ver Todos Animais
+          </router-link>
+        </div>
+      </template>
+    </div>
+
 
       <div class="mt-16 text-center">
         <div class="inline-flex items-center gap-6 bg-white px-8 py-4 rounded-2xl shadow-lg">

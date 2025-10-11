@@ -39,18 +39,32 @@ async function fetchAnimals() {
   try {
     const filters = {};
     filters.includeAssociations = ["species", "breed"];
-    if (search.value) filters.search = search.value;
 
-    if (statusFilter.value !== 'all') filters.status = statusFilter.value;
-    if (genderFilter.value !== 'all') filters.gender = genderFilter.value;
-    if (speciesFilter.value !== 'all') filters.speciesId = speciesFilter.value;
-
-    // Filtros de datas (já suportados por buildWhere)
-    if (dateFrom.value || dateTo.value) {
-      filters.dateFrom = dateFrom.value;
-      filters.dateTo = dateTo.value;
-      filters.dateFields = ['entryDate']; // campo do modelo
+    // Busca genérica
+    if (search.value) {
+      filters.search = search.value;
+      filters.searchFields = ["name", "notes"];
     }
+
+    // Filtros diretos (fieldFilters)
+    const fieldFilters = {};
+
+    if (statusFilter.value !== "all") fieldFilters.status = statusFilter.value;
+    if (genderFilter.value !== "all") fieldFilters.gender = genderFilter.value;
+    if (speciesFilter.value !== "all") fieldFilters.speciesId = speciesFilter.value;
+
+    if (Object.keys(fieldFilters).length) filters.fieldFilters = fieldFilters;
+
+    // Filtros de data (dateFilters)
+    const dateFilters = {};
+    if (dateFrom.value || dateTo.value) {
+      dateFilters.birthDate = {
+        from: dateFrom.value || undefined,
+        to: dateTo.value || undefined,
+      };
+    }
+
+    if (Object.keys(dateFilters).length) filters.dateFilters = dateFilters;
 
     const params = new URLSearchParams({
       page: page.value.toString(),
